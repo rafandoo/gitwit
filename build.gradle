@@ -38,9 +38,9 @@ dependencies {
     implementation 'info.picocli:picocli:4.7.7'
     annotationProcessor 'info.picocli:picocli-codegen:4.7.7'
 
-    implementation 'org.jline:jline:3.30.3'
-    implementation 'org.jline:jline-console-ui:3.30.3'
-    implementation 'org.jline:jline-terminal-jni:3.30.3'
+    implementation 'org.jline:jline:3.30.4'
+    implementation 'org.jline:jline-console-ui:3.30.4'
+    implementation 'org.jline:jline-terminal-jni:3.30.4'
 
     implementation 'org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r'
 
