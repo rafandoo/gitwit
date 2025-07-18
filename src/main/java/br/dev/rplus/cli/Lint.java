@@ -1,0 +1,67 @@
+package br.dev.rplus.cli;
+
+import br.dev.rplus.config.GitWitConfig;
+import br.dev.rplus.entity.CommitMessage;
+import br.dev.rplus.service.CommitMessageService;
+import br.dev.rplus.service.GitService;
+import br.dev.rplus.service.MessageService;
+import picocli.CommandLine;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * <h2>lint</h2>
+ * <p>
+ * Command used to validate one or more Git commits.
+ * </p>
+ *
+ * <p>
+ * If no range is provided, the most recent commit (HEAD) is checked. If a range is provided
+ * using {@code --from} and {@code --to}, all commits in the interval will be validated.
+ * </p>
+ */
+@CommandLine.Command(
+    name = "lint",
+    description = "Validates one or more Git commits."
+)
+public class Lint extends BaseCommand {
+
+    @CommandLine.Option(
+        names = {"-f", "--from"},
+        description = "Start commit (inclusive). Defaults to HEAD if omitted."
+    )
+    private String from;
+
+    @CommandLine.Option(
+        names = {"-t", "--to"},
+        description = "End commit (inclusive). Optional if validating a single commit."
+    )
+    private String to;
+
+    @Override
+    public void run() {
+        GitWitConfig config = loadConfig();
+
+        if (this.from == null) {
+            MessageService.getInstance().info("lint.start_head");
+        } else if (this.to == null) {
+            MessageService.getInstance().info("lint.start_from", this.from);
+        } else {
+            MessageService.getInstance().info("lint.start_multiple", this.from, this.to);
+        }
+
+        // Prepare commit messages map
+        Map<String, CommitMessage> messages = new HashMap<>();
+        GitService.getInstance().getCommits(from, to).forEach(
+            commit -> messages.put(commit.getId().getName(), CommitMessage.of(commit))
+        );
+
+        MessageService.getInstance().debug("lint.total_messages", messages.size());
+
+        // Validate all collected commit messages
+        CommitMessageService.getInstance().validate(messages, config);
+
+        MessageService.getInstance().success("lint.success");
+    }
+}

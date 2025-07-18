@@ -1,0 +1,100 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+apply from: './version.gradle'
+
+group = 'br.dev.rplus'
+version = loadVersion().getVersion()
+
+ext.defaultManifestAttributes = { Project p ->
+    return ['Manifest-Version'      : '1.0',
+            'Main-Class'            : 'br.dev.rplus.App',
+            'Specification-Version' : p.version,
+            'Specification-Vendor'  : 'R+ Dev',
+            'Specification-Title'   : 'GitWit',
+            'Implementation-Version': p.version,
+            'Implementation-Vendor' : 'R+ Dev',
+            'Implementation-Title'  : 'GitWit',
+            'Built-Date'            : new Date().toString(),
+            'Built-JDK'             : System.getProperty('java.version'),
+            'Built-OS'              : System.getProperty('os.name'),
+            'Built-OS-Version'      : System.getProperty('os.version'),
+            'Built-OS-Architecture' : System.getProperty('os.arch')]
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url = 'https://raw.githubusercontent.com/rafandoo/cup/mvn-repo/'
+    }
+}
+
+dependencies {
+    implementation 'br.dev.rplus:cup-core:0.2.3'
+
+    implementation 'info.picocli:picocli:4.7.7'
+    annotationProcessor 'info.picocli:picocli-codegen:4.7.7'
+
+    implementation 'org.jline:jline:3.30.3'
+    implementation 'org.jline:jline-console-ui:3.30.3'
+    implementation 'org.jline:jline-terminal-jni:3.30.3'
+
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r'
+
+    implementation 'org.slf4j:slf4j-nop:2.0.13'
+
+    implementation 'net.steppschuh.markdowngenerator:markdowngenerator:1.3.1.1'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    // Lombok
+    compileOnly("org.projectlombok:lombok:1.18.38")
+    annotationProcessor("org.projectlombok:lombok:1.18.38")
+
+    testCompileOnly("org.projectlombok:lombok:1.18.38")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+layout.buildDirectory.set(new File("$projectDir/build"))
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(Jar).configureEach {
+    manifest {
+        attributes defaultManifestAttributes(project)
+    }
+    exclude '**/.gitkeep'
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    exclude 'META-INF/*.RSA',
+        'META-INF/*.SF',
+        'META-INF/*.DSA',
+        'META-INF/*LICENSE*',
+        'META-INF/*NOTICE*',
+        'META-INF/maven/**',
+        'about.html',
+        'module-info.class'
+}

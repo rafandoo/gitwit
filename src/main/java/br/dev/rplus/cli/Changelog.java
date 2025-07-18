@@ -1,0 +1,48 @@
+package br.dev.rplus.cli;
+
+import br.dev.rplus.config.GitWitConfig;
+import br.dev.rplus.service.ChangelogService;
+import br.dev.rplus.service.MessageService;
+import picocli.CommandLine;
+
+import java.nio.file.Path;
+
+/**
+ * <h2>changelog</h2>
+ * <p>
+ * Generates a changelog between two commits.
+ * </p>
+ * <p>
+ * If no range is provided, the most recent commit (HEAD) is checked. If a range is provided
+ * using {@code --from} and {@code --to}, all commits in the interval will be validated.
+ * </p>
+ */
+@CommandLine.Command(
+    name = "changelog",
+    description = "Generates a changelog between two commits."
+)
+public class Changelog extends BaseCommand {
+
+    @CommandLine.Option(
+        names = {"-f", "--from"},
+        description = "Start commit (inclusive).",
+        required = true
+    )
+    private String from;
+
+    @CommandLine.Option(
+        names = {"-t", "--to"},
+        description = "End commit (inclusive). Optional if validating a single commit."
+    )
+    private String to;
+
+    @Override
+    public void run() {
+        MessageService.getInstance().info("changelog.start");
+        GitWitConfig config = loadConfig();
+        Path changelogPath = ChangelogService.getInstance().generateChangelog(this.from, this.to, config);
+        if (changelogPath != null) {
+            MessageService.getInstance().success("changelog.generated", changelogPath);
+        }
+    }
+}
