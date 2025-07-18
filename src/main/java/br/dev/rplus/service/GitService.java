@@ -1,7 +1,6 @@
 package br.dev.rplus.service;
 
 import br.dev.rplus.App;
-import br.dev.rplus.cli.Commit;
 import br.dev.rplus.entity.CommitMessage;
 import br.dev.rplus.enums.GitConfigScope;
 import br.dev.rplus.enums.GitRepositoryParam;
@@ -55,10 +54,7 @@ public final class GitService {
      * @return an absolute {@link Path} to the repository directory.
      */
     public Path getRepo() {
-//        return Paths.get("").toAbsolutePath();
-
-        // Apenas para testes
-        return Paths.get("/home/rafael/dev/fonts/commit/").toAbsolutePath();
+        return Paths.get("").toAbsolutePath();
     }
 
     /**
@@ -311,10 +307,10 @@ public final class GitService {
 
             if (add) {
                 if (existing == null) {
+                    // TODO: Create a new alias for each scope
                     String command = String.format(
-                        "!java -jar %s %s",
-                        App.getApplicationPath().toString().replace("\\", "/"),
-                        Commit.class.getSimpleName().toLowerCase()
+                        "!java -jar %s",
+                        App.getApplicationPath().toString().replace("\\", "/")
                     );
 
                     config.setString("alias", null, alias, command);
