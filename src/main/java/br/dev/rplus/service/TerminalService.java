@@ -43,9 +43,8 @@ public final class TerminalService {
      * @return a configured {@link Terminal} instance.
      * @throws GitWitException if terminal cannot be built.
      */
-    public Terminal getTerminal() {
+    public synchronized Terminal getTerminal() {
         if (terminal == null) {
-//            AnsiConsole.systemInstall();
             try {
                 terminal = TerminalBuilder.builder()
                     .name("GitWit Terminal")

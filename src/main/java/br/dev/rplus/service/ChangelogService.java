@@ -19,6 +19,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Service responsible for generating and managing changelogs based on Git commit history.
+ * <p>
+ * This singleton service provides methods to create changelogs by processing commit messages,
+ * grouping them by type, and generating a Markdown-formatted changelog file.
+ */
 public final class ChangelogService {
 
     private static ChangelogService instance;

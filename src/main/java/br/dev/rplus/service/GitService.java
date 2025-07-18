@@ -373,6 +373,14 @@ public final class GitService {
         this.handleAlias(GitConfigScope.LOCAL, false);
     }
 
+    /**
+     * Commits changes to the Git repository with an optional automatic file staging.
+     *
+     * @param commitMessage the commit message to be used for the commit.
+     * @param autoAdd       if true, automatically stages all files in the repository before committing.
+     * @return the created {@link RevCommit} representing the new commit.
+     * @throws GitWitException if any Git-related errors occur during the commit process.
+     */
     public RevCommit commit(CommitMessage commitMessage, boolean autoAdd) {
         RevCommit commit;
         try (Git git = Git.open(this.getGit().toFile())) {

@@ -31,6 +31,12 @@ public class CommitWizard {
 
     private final GitWitConfig config;
 
+    /**
+     * Constructs a {@link CommitWizard} with the specified configuration.
+     *
+     * @param config the {@link GitWitConfig} to be used for commit message generation.
+     * @throws GitWitException if the provided configuration is {@code null}.
+     */
     public CommitWizard(GitWitConfig config) {
         if (config == null) {
             throw new GitWitException(ExceptionMessage.CONFIGURATION_CANNOT_BE_NULL);
@@ -44,98 +50,94 @@ public class CommitWizard {
      * @return a validated {@link CommitMessage}.
      */
     public CommitMessage run() {
-        try {
-            Terminal terminal = TerminalService.getInstance().getTerminal();
+        Terminal terminal = TerminalService.getInstance().getTerminal();
 
-            ConsolePrompt console = new ConsolePrompt(terminal);
-            PromptBuilder builder = console.getPromptBuilder();
+        ConsolePrompt console = new ConsolePrompt(terminal);
+        PromptBuilder builder = console.getPromptBuilder();
 
-            /* ─────────── Commit Type ─────────── */
-            Map<String, String> types = this.config.getTypes().getValues();
-            if (types == null || types.isEmpty()) {
-                throw new GitWitException(ExceptionMessage.COMMIT_TYPES_REQUIRED);
-            }
-            this.promptChoice(
-                CommitPromptKeys.COMMIT_TYPE.getKey(),
-                this.composePromptMessage(
-                    I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_TYPE.getValue()),
-                    this.config.getTypes().getDescription(),
-                    false
-                ),
-                types,
-                builder,
-                false
-            );
-
-            /* ─────────── Commit Scope ─────────── */
-            boolean scopeOptional = !this.config.getScope().isRequired();
-            String scopePrompt = this.composePromptMessage(
-                I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_SCOPE.getValue()),
+        /* ─────────── Commit Type ─────────── */
+        Map<String, String> types = this.config.getTypes().getValues();
+        if (types == null || types.isEmpty()) {
+            throw new GitWitException(ExceptionMessage.COMMIT_TYPES_REQUIRED);
+        }
+        this.promptChoice(
+            CommitPromptKeys.COMMIT_TYPE.getKey(),
+            this.composePromptMessage(
+                I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_TYPE.getValue()),
                 this.config.getTypes().getDescription(),
-                !this.config.getScope().isRequired()
-            );
+                false
+            ),
+            types,
+            builder,
+            false
+        );
 
-            switch (this.config.getScope().getType().toLowerCase()) {
-                case "list" -> {
-                    Map<String, String> scopes = this.validateAndCopy(this.config.getScope().getValues(), 12)
-                        .keySet()
-                        .stream()
-                        .collect(Collectors.toMap(Function.identity(), Function.identity()));
+        /* ─────────── Commit Scope ─────────── */
+        boolean scopeOptional = !this.config.getScope().isRequired();
+        String scopePrompt = this.composePromptMessage(
+            I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_SCOPE.getValue()),
+            this.config.getTypes().getDescription(),
+            !this.config.getScope().isRequired()
+        );
 
-                    this.promptChoice(
-                        CommitPromptKeys.COMMIT_SCOPE.getKey(),
-                        scopePrompt,
-                        scopes,
-                        builder,
-                        scopeOptional
-                    );
-                }
-                case "text" -> this.promptText(
+        switch (this.config.getScope().getType().toLowerCase()) {
+            case "list" -> {
+                Map<String, String> scopes = this.validateAndCopy(this.config.getScope().getValues(), 12)
+                    .keySet()
+                    .stream()
+                    .collect(Collectors.toMap(Function.identity(), Function.identity()));
+
+                this.promptChoice(
                     CommitPromptKeys.COMMIT_SCOPE.getKey(),
                     scopePrompt,
-                    builder
+                    scopes,
+                    builder,
+                    scopeOptional
                 );
-                default ->
-                    throw new GitWitException(ExceptionMessage.COMMIT_TYPES_REQUIRED, this.config.getScope().getType());
             }
+            case "text" -> this.promptText(
+                CommitPromptKeys.COMMIT_SCOPE.getKey(),
+                scopePrompt,
+                builder
+            );
+            default ->
+                throw new GitWitException(ExceptionMessage.COMMIT_TYPES_REQUIRED, this.config.getScope().getType());
+        }
 
-            /* ─────────── Commit Short Description ─────────── */
+        /* ─────────── Commit Short Description ─────────── */
+        this.promptText(
+            CommitPromptKeys.COMMIT_SHORT_DESC.getKey(),
+            this.composePromptMessage(
+                I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_SHORT_DESC.getValue()),
+                this.config.getShortDescription().getDescription(),
+                !this.config.getShortDescription().isRequired()
+            ),
+            builder
+        );
+
+        /* ─────────── Commit Long Description ─────────── */
+        if (this.config.getLongDescription().isEnabled()) {
             this.promptText(
-                CommitPromptKeys.COMMIT_SHORT_DESC.getKey(),
+                CommitPromptKeys.COMMIT_LONG_DESC.getKey(),
                 this.composePromptMessage(
-                    I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_SHORT_DESC.getValue()),
-                    this.config.getShortDescription().getDescription(),
-                    !this.config.getShortDescription().isRequired()
+                    I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_LONG_DESC.getValue()),
+                    this.config.getLongDescription().getDescription(),
+                    !this.config.getLongDescription().isRequired()
                 ),
                 builder
             );
-
-            /* ─────────── Commit Long Description ─────────── */
-            if (this.config.getLongDescription().isEnabled()) {
-                this.promptText(
-                    CommitPromptKeys.COMMIT_LONG_DESC.getKey(),
-                    this.composePromptMessage(
-                        I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_LONG_DESC.getValue()),
-                        this.config.getLongDescription().getDescription(),
-                        !this.config.getLongDescription().isRequired()
-                    ),
-                    builder
-                );
-            }
-
-            // Build, validate and return the commit message.
-            CommitMessage message;
-            try {
-                message = this.buildCommit(console.prompt(builder.build()));
-            } catch (IOException e) {
-                throw new GitWitException(ExceptionMessage.COMMIT_WIZARD_CREATION_FAILED, e);
-            }
-            CommitMessageService.getInstance().validate(message, this.config);
-
-            return message;
-        } catch (NullPointerException e) {
-            throw new GitWitException(ExceptionMessage.CONFIG_FILE_INVALID, e);
         }
+
+        // Build, validate and return the commit message.
+        CommitMessage message;
+        try {
+            message = this.buildCommit(console.prompt(builder.build()));
+        } catch (IOException e) {
+            throw new GitWitException(ExceptionMessage.COMMIT_WIZARD_CREATION_FAILED, e);
+        }
+        CommitMessageService.getInstance().validate(message, this.config);
+
+        return message;
     }
 
     /**
