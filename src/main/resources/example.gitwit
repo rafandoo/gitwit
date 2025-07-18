@@ -40,7 +40,7 @@ longDescription:
   minLength: 20
   maxLength: 100
 
-changeLog:
+changelog:
   values:
     - feat: "New features"
     - fix: "Bug fixes"
