@@ -42,8 +42,8 @@ longDescription:
 
 changelog:
   values:
-    - feat: "New features"
-    - fix: "Bug fixes"
-    - refactor: "Code refactoring"
+    feat: "New features"
+    fix: "Bug fixes"
+    refactor: "Code refactoring"
   ignored:
     - chore
