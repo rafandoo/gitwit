@@ -1,6 +1,7 @@
 package br.dev.rplus.entity;
 
 import br.dev.rplus.cli.wiz.CommitWizard;
+import br.dev.rplus.config.GitWitConfig;
 import br.dev.rplus.service.CommitMessageService;
 import br.dev.rplus.cup.utils.StringUtils;
 import org.eclipse.jgit.lib.Constants;
@@ -49,33 +50,39 @@ public record CommitMessage(String type, String scope, String shortDescription, 
      * Generates a changelog-specific format that includes the optional scope,
      * short description, and commit hash in parentheses.
      *
+     * @param format the configuration for the changelog format.
      * @return a formatted string suitable for changelog entries.
      */
-    public String formatForChangelog() {
+    public String formatForChangelog(GitWitConfig.ChangelogConfig.ChangelogFormat format) {
         StringBuilder sb = new StringBuilder();
-        if (!StringUtils.isNullOrBlank(scope)) {
+        if (format.isShowScope() && !StringUtils.isNullOrBlank(scope)) {
             sb.append(scope).append(": ");
         }
         sb.append(shortDescription.trim());
-        sb.append(" (").append(hash.trim()).append(")");
+        if (format.isShowShortHash()) {
+            sb.append(" (").append(hash.trim()).append(")");
+        }
         return sb.toString();
     }
 
     /**
      * Formats the commit message for a changelog entry with additional details.
      * <p>
-     * Similar to {@link #formatForChangelog()}, but includes the commit type
+     * Similar to {@link #formatForChangelog(GitWitConfig.ChangelogConfig.ChangelogFormat)}, but includes the commit type
      * and optionally the scope in the output.
      *
+     * @param format the configuration for the changelog format.
      * @return a formatted string suitable for alternative changelog entries.
      */
-    public String formatForChangelogOthers() {
+    public String formatForChangelogOthers(GitWitConfig.ChangelogConfig.ChangelogFormat format) {
         StringBuilder sb = new StringBuilder(type);
-        if (!StringUtils.isNullOrBlank(scope)) {
+        if (format.isShowScope() && !StringUtils.isNullOrBlank(scope)) {
             sb.append(" (").append(scope).append(")");
         }
         sb.append(": ").append(shortDescription.trim());
-        sb.append(" (").append(hash.trim()).append(")");
+        if (format.isShowShortHash()) {
+            sb.append(" (").append(hash.trim()).append(")");
+        }
         return sb.toString();
     }
 

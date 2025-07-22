@@ -51,8 +51,8 @@ public class GitWitConfig {
 
     @Data
     public static class ShortDescriptionConfig {
-        private String description = "imperativo no presente";
-        private boolean required;
+        private String description;
+        private boolean required = true;
         private int minLength = 1;
         private int maxLength = 72;
     }
@@ -68,8 +68,17 @@ public class GitWitConfig {
 
     @Data
     public static class ChangelogConfig {
-        private Map<String, String> values;
+        private String title = "Changelog";
+        private Map<String, String> types;
+        private boolean showOtherTypes = true;
         private List<String> ignored;
+        private ChangelogFormat format = new ChangelogFormat();
+
+        @Data
+        public static class ChangelogFormat {
+            private boolean showScope = true;
+            private boolean showShortHash = true;
+        }
     }
 
     /**

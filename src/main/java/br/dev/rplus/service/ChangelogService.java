@@ -64,13 +64,13 @@ public final class ChangelogService {
      * @param from   the starting Git reference for commit range.
      * @param to     the ending Git reference for commit range (defaults to HEAD if {@code null}).
      * @param config the configuration settings for changelog generation.
-     * @return the {@link Path} to the generated changelog file.
+     * @return a {@link StringBuilder} containing the generated changelog.
      * @throws GitWitException if changelog generation fails due to configuration or I/O errors.
      */
-    public Path generateChangelog(String from, String to, GitWitConfig config) {
-        Map<String, String> values = config.getChangelog().getValues();
-        if (values == null) {
-            throw new GitWitException(ExceptionMessage.CHANGELOG_VALUES_REQUIRED);
+    public StringBuilder generateChangelog(String from, String to, GitWitConfig config) {
+        Map<String, String> types = config.getChangelog().getTypes();
+        if (types == null) {
+            throw new GitWitException(ExceptionMessage.CHANGELOG_TYPES_REQUIRED);
         }
 
         List<String> ignored = Objects.requireNonNullElse(
@@ -87,45 +87,35 @@ public final class ChangelogService {
             .filter(commitMessage -> !ignored.contains(commitMessage.type()))
             .collect(Collectors.groupingBy(CommitMessage::type));
 
-        try {
-            return this.writeChangeLog(groupedByType, values);
-        } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.CHANGELOG_FAILURE_WRITE, e);
-        }
+        return this.generateMarkdown(config, groupedByType, types);
     }
 
     /**
-     * Writes a changelog file based on grouped commit messages and predefined values.
+     * Generates a Markdown-formatted changelog based on grouped commit messages.
      *
-     * @param groupedByType a map of commit types to their corresponding commit messages.
-     * @param values        a map of commit type keys to their display titles.
-     * @return the {@link Path} to the generated changelog file, or {@code null} if no commits are found.
-     * @throws IOException if there is an error creating or writing to the changelog file.
+     * @param config        the configuration settings for changelog generation
+     * @param groupedByType a map of commit messages grouped by their type
+     * @param types         a map of commit type keys to their display titles
+     * @return a {@link StringBuilder} containing the generated Markdown changelog, or {@code null} if no commits are found
      */
-    private Path writeChangeLog(Map<String, List<CommitMessage>> groupedByType, Map<String, String> values) throws IOException {
-        Path changelogFile = this.getChangelogFile();
-
-        if (!Files.exists(changelogFile)) {
-            Files.createFile(changelogFile);
-        }
-
+    private StringBuilder generateMarkdown(GitWitConfig config, Map<String, List<CommitMessage>> groupedByType, Map<String, String> types) {
         if (groupedByType.isEmpty()) {
             MessageService.getInstance().warn("warn.changelog_no_commits");
             return null;
         }
 
         StringBuilder sb = new StringBuilder();
-        Heading heading = new Heading("Changelog", 1);
+        Heading heading = new Heading(config.getChangelog().getTitle(), 1);
         heading.setUnderlineStyle(false);
         sb.append(heading).append("\n\n");
 
-        values.forEach((typeKey, title) -> {
+        types.forEach((typeKey, typeTitle) -> {
             if (groupedByType.containsKey(typeKey)) {
                 List<String> messages = groupedByType.get(typeKey).stream()
-                    .map(CommitMessage::formatForChangelog)
+                    .map(message -> message.formatForChangelog(config.getChangelog().getFormat()))
                     .collect(Collectors.toList());
                 if (!messages.isEmpty()) {
-                    sb.append(new Heading(title, 3)).append("\n\n");
+                    sb.append(new Heading(typeTitle, 3)).append("\n\n");
                     sb.append(new UnorderedList<>(messages)).append("\n\n");
                 }
 
@@ -133,17 +123,36 @@ public final class ChangelogService {
             }
         });
 
-        sb.append(new Heading(I18nService.getInstance().getMessage("changelog.other_changes"), 3))
-            .append("\n\n");
-        sb.append(new UnorderedList<>(
-            groupedByType.values()
-                .stream()
-                .flatMap(List::stream)
-                .map(CommitMessage::formatForChangelogOthers)
-                .collect(Collectors.toList())
-        ));
+        if (config.getChangelog().isShowOtherTypes()) {
+            sb.append(new Heading(I18nService.getInstance().getMessage("changelog.other_changes"), 3))
+                .append("\n\n");
+            sb.append(new UnorderedList<>(
+                groupedByType.values()
+                    .stream()
+                    .flatMap(List::stream)
+                    .map(message -> message.formatForChangelogOthers(config.getChangelog().getFormat()))
+                    .toList()
+            ));
+        }
 
-        Files.writeString(changelogFile, sb.toString());
+        return sb;
+    }
+
+    /**
+     * Writes a changelog file based on grouped commit messages and predefined values.
+     *
+     * @param content the content to be written to the changelog file.
+     * @return the {@link Path} to the generated changelog file.
+     * @throws IOException if there is an error creating or writing to the changelog file.
+     */
+    public Path writeChangeLog(String content) throws IOException {
+        Path changelogFile = this.getChangelogFile();
+
+        if (!Files.exists(changelogFile)) {
+            Files.createFile(changelogFile);
+        }
+
+        Files.writeString(changelogFile, content);
         return changelogFile;
     }
 }

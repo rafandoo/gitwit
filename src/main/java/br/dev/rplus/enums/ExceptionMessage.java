@@ -26,8 +26,9 @@ public enum ExceptionMessage {
     COMMIT_TYPES_REQUIRED(10, "error.commit_types_required"),
     SCOPE_TYPE_INVALID(11, "error.scope_type_invalid"),
     SCOPE_VALUES_REQUIRED(12, "error.scope_values_required"),
-    CHANGELOG_VALUES_REQUIRED(13, "error.changelog_values_required"),
+     CHANGELOG_TYPES_REQUIRED(13, "error.changelog_types_required"),
     CHANGELOG_FAILURE_WRITE(14, "error.changelog_failure_write"),
+    CLIPBOARD_COPY_FAILURE(15, "error.clipboard_copy_failure"),
 
     NOT_A_GIT_REPOSITORY(21, "error.not_a_git_repository"),
     INIT_REPOSITORY_FAILED(26, "error.init_repository_failed"),

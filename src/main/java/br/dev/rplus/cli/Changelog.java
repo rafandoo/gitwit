@@ -1,10 +1,14 @@
 package br.dev.rplus.cli;
 
 import br.dev.rplus.config.GitWitConfig;
+import br.dev.rplus.enums.ExceptionMessage;
+import br.dev.rplus.exception.GitWitException;
 import br.dev.rplus.service.ChangelogService;
 import br.dev.rplus.service.MessageService;
+import br.dev.rplus.util.ClipboardUtil;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 /**
@@ -36,13 +40,33 @@ public class Changelog extends BaseCommand {
     )
     private String to;
 
+    @CommandLine.Option(
+        names = {"-c", "--copy"},
+        description = "Copy the changelog to the clipboard."
+    )
+    private boolean copyToClipboard;
+
     @Override
     public void run() {
         MessageService.getInstance().info("changelog.start");
         GitWitConfig config = loadConfig();
-        Path changelogPath = ChangelogService.getInstance().generateChangelog(this.from, this.to, config);
-        if (changelogPath != null) {
-            MessageService.getInstance().success("changelog.generated", changelogPath);
+
+        StringBuilder changelogContent = ChangelogService.getInstance().generateChangelog(this.from, this.to, config);
+
+        if (changelogContent != null) {
+            MessageService.getInstance().info("changelog.generated");
+            if (this.copyToClipboard) {
+                if (ClipboardUtil.copyToClipboard(changelogContent.toString())) {
+                    MessageService.getInstance().success("changelog.copied");
+                }
+            } else {
+                try {
+                    Path changelogPath = ChangelogService.getInstance().writeChangeLog(changelogContent.toString());
+                    MessageService.getInstance().success("changelog.written", changelogPath);
+                } catch (IOException e) {
+                    throw new GitWitException(ExceptionMessage.CHANGELOG_FAILURE_WRITE, e);
+                }
+            }
         }
     }
 }

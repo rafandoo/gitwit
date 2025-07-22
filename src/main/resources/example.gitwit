@@ -41,9 +41,14 @@ longDescription:
   maxLength: 100
 
 changelog:
-  values:
+  title: "Changelog"
+  types:
     feat: "New features"
     fix: "Bug fixes"
     refactor: "Code refactoring"
+  showOtherTypes: true
   ignored:
     - chore
+  format:
+    showScope: true
+    showShortHash: true

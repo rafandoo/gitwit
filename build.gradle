@@ -8,9 +8,12 @@ apply from: './version.gradle'
 group = 'br.dev.rplus'
 version = loadVersion().getVersion()
 
+mainClassName = 'br.dev.rplus.App'
+
+
 ext.defaultManifestAttributes = { Project p ->
     return ['Manifest-Version'      : '1.0',
-            'Main-Class'            : 'br.dev.rplus.App',
+            'Main-Class'            : p.mainClassName,
             'Specification-Version' : p.version,
             'Specification-Vendor'  : 'R+ Dev',
             'Specification-Title'   : 'GitWit',
