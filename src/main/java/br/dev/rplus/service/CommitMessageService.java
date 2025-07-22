@@ -105,46 +105,50 @@ public final class CommitMessageService {
                 CommitPromptKeys.COMMIT_SHORT_DESC
             );
 
-            int shortMin = config.getShortDescription().getMinLength();
-            int shortMax = config.getShortDescription().getMaxLength();
+             if (message.shortDescription() != null) {
+                int shortMin = config.getShortDescription().getMinLength();
+                int shortMax = config.getShortDescription().getMaxLength();
 
-            this.ensure(
-                message.shortDescription().length() >= shortMin,
-                5,
-                CommitPromptKeys.COMMIT_SHORT_DESC,
-                shortMin
-            );
-            this.ensure(
-                message.shortDescription().length() <= shortMax,
-                6,
-                CommitPromptKeys.COMMIT_SHORT_DESC,
-                shortMax
-            );
+                this.ensure(
+                    message.shortDescription().length() >= shortMin,
+                    5,
+                    CommitPromptKeys.COMMIT_SHORT_DESC,
+                    shortMin
+                );
+                this.ensure(
+                    message.shortDescription().length() <= shortMax,
+                    6,
+                    CommitPromptKeys.COMMIT_SHORT_DESC,
+                    shortMax
+                );
+            }
         }
 
         /* ─────────── Commit Long Description ─────────── */
         if (config.getLongDescription().isRequired()) {
-            int longMin = config.getLongDescription().getMinLength();
-            int longMax = config.getLongDescription().getMaxLength();
-
             this.ensure(
                 !StringUtils.isNullOrBlank(message.longDescription()),
                 7,
                 CommitPromptKeys.COMMIT_LONG_DESC
             );
 
-            this.ensure(
-                message.longDescription().length() >= longMin,
-                8,
-                CommitPromptKeys.COMMIT_LONG_DESC,
-                longMin
-            );
-            this.ensure(
-                message.longDescription().length() <= longMax,
-                9,
-                CommitPromptKeys.COMMIT_LONG_DESC,
-                longMax
-            );
+            if (message.shortDescription() != null) {
+                int longMin = config.getLongDescription().getMinLength();
+                int longMax = config.getLongDescription().getMaxLength();
+
+                this.ensure(
+                    message.longDescription().length() >= longMin,
+                    8,
+                    CommitPromptKeys.COMMIT_LONG_DESC,
+                    longMin
+                );
+                this.ensure(
+                    message.longDescription().length() <= longMax,
+                    9,
+                    CommitPromptKeys.COMMIT_LONG_DESC,
+                    longMax
+                );
+            }
         }
 
         if (!this.violations.isEmpty() && throwOnFailure) {
@@ -209,8 +213,8 @@ public final class CommitMessageService {
     private void ensure(boolean condition, int code, CommitPromptKeys scope, Object... params) {
         if (!condition) {
             this.violations.add(Violation.of(
-                I18nService.getInstance().getMessage(scope.getValue()),
-                I18nService.getInstance().getMessage(MESSAGES.get(code), params)
+                I18nService.getInstance().resolve(scope.getValue()),
+                I18nService.getInstance().resolve(MESSAGES.get(code), params)
             ));
         }
     }

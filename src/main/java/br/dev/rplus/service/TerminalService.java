@@ -6,6 +6,7 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Class responsible for managing the terminal, providing access to the terminal instance.
@@ -50,9 +51,9 @@ public final class TerminalService {
                     .name("GitWit Terminal")
                     .color(true)
                     .system(true)
-                    .streams(System.in, System.out)
-                    .jni(true)
                     .dumb(false)
+                    .encoding(StandardCharsets.UTF_8)
+                    .nativeSignals(true)
                     .build();
 
                 MessageService.getInstance().debug("Terminal type: %s", terminal.getType());

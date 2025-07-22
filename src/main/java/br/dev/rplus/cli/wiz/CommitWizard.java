@@ -76,7 +76,7 @@ public class CommitWizard {
         boolean scopeOptional = !this.config.getScope().isRequired();
         String scopePrompt = this.composePromptMessage(
             I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_SCOPE.getValue()),
-            this.config.getTypes().getDescription(),
+            this.config.getScope().getDescription(),
             !this.config.getScope().isRequired()
         );
 
@@ -180,11 +180,11 @@ public class CommitWizard {
     }
 
     /**
-     * Adds a text prompt to the prompt builder.
+     * Adds a text input prompt to the prompt builder.
      *
-     * @param name    the name of the prompt.
-     * @param message the message to show.
-     * @param builder the prompt builder.
+     * @param name    the name of the text prompt.
+     * @param message the message to display for the text input.
+     * @param builder the prompt builder to add the text prompt to.
      */
     private void promptText(String name, String message, PromptBuilder builder) {
         builder.createInputPrompt()
@@ -201,12 +201,33 @@ public class CommitWizard {
      */
     private CommitMessage buildCommit(Map<String, PromptResultItemIF> results) {
         return new CommitMessage(
-            results.get(CommitPromptKeys.COMMIT_TYPE.getKey()).getResult(),
-            results.get(CommitPromptKeys.COMMIT_SCOPE.getKey()).getResult(),
-            results.get(CommitPromptKeys.COMMIT_SHORT_DESC.getKey()).getResult(),
-            results.getOrDefault(CommitPromptKeys.COMMIT_LONG_DESC.getKey(), null).getResult(),
+            this.validatePromptResult(results, CommitPromptKeys.COMMIT_TYPE.getKey()),
+            this.validatePromptResult(results, CommitPromptKeys.COMMIT_SCOPE.getKey()),
+            this.validatePromptResult(results, CommitPromptKeys.COMMIT_SHORT_DESC.getKey()),
+            this.validatePromptResult(results, CommitPromptKeys.COMMIT_LONG_DESC.getKey()),
             null
         );
+    }
+
+    /**
+     * Validates and retrieves a prompt result from a map of results.
+     *
+     * @param results the map of prompt results to search.
+     * @param key     the key to look up in the results map.
+     * @return the result string if present and non-blank, otherwise {@code null}.
+     */
+    private String validatePromptResult(Map<String, PromptResultItemIF> results, String key) {
+        if (results.containsKey(key)) {
+            PromptResultItemIF result = results.get(key);
+            if (
+                result != null
+                    && !StringUtils.isNullOrBlank(result.getResult())
+                    && !result.getResult().equalsIgnoreCase("null")
+            ) {
+                return result.getResult();
+            }
+        }
+        return null;
     }
 
     /**

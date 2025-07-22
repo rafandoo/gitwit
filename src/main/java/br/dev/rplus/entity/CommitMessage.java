@@ -34,7 +34,9 @@ public record CommitMessage(String type, String scope, String shortDescription, 
         if (!StringUtils.isNullOrBlank(scope)) {
             sb.append(" (").append(scope).append(")");
         }
-        sb.append(": ").append(shortDescription.trim());
+        if (!StringUtils.isNullOrBlank(shortDescription)) {
+            sb.append(": ").append(shortDescription.trim());
+        }
         if (!StringUtils.isNullOrBlank(longDescription)) {
             sb.append("\n\n").append(longDescription.trim());
         }
