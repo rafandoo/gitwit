@@ -77,7 +77,7 @@ public final class ChangelogService {
             config.getChangelog().getIgnored(), new ArrayList<>()
         );
 
-        Iterable<RevCommit> commits = GitService.getInstance()
+        List<RevCommit> commits = GitService.getInstance()
             .getCommits(from, Objects.requireNonNullElse(to, Constants.HEAD));
 
         List<CommitMessage> commitMessages = new ArrayList<>();

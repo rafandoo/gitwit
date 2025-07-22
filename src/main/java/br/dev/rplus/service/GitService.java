@@ -8,16 +8,24 @@ import br.dev.rplus.enums.ExceptionMessage;
 import br.dev.rplus.exception.GitWitException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.*;
+import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevObject;
+import org.eclipse.jgit.revwalk.RevTag;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.SystemReader;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -192,6 +200,7 @@ public final class GitService {
     private void configureGitHooks() {
         try {
             StoredConfig config = this.loadGitConfig(GitConfigScope.LOCAL);
+            config.load();
             if (
                 !GitRepositoryParam.HOOKS_DIR_NAME.get()
                     .asString()
@@ -223,6 +232,8 @@ public final class GitService {
             }
         } catch (IOException e) {
             throw new GitWitException(ExceptionMessage.CORE_HOOK_PATH_FAILED, e);
+        } catch (ConfigInvalidException e) {
+            throw new GitWitException(ExceptionMessage.GIT_CONFIG_INVALID, e);
         }
     }
 
@@ -248,6 +259,7 @@ public final class GitService {
             }
 
             StoredConfig config = this.loadGitConfig(GitConfigScope.LOCAL);
+            config.load();
             String configuredHooksPath = config.getString("core", null, "hooksPath");
 
             if (GitRepositoryParam.HOOKS_DIR_NAME.get().asString().equals(configuredHooksPath)) {
@@ -259,8 +271,9 @@ public final class GitService {
                 MessageService.getInstance().info("git.service.hooks.not_configured");
             }
         } catch (IOException e) {
-            // TODO: Handle this exception more gracefully
-            throw new GitWitException(ExceptionMessage.GENERAL, e);
+            throw new GitWitException(ExceptionMessage.INIT_REPOSITORY_FAILED, e);
+        } catch (ConfigInvalidException e) {
+            throw new GitWitException(ExceptionMessage.GIT_CONFIG_INVALID, e);
         }
     }
 
@@ -282,7 +295,7 @@ public final class GitService {
      */
     private StoredConfig loadGitConfig(GitConfigScope scope) throws IOException {
         return switch (scope) {
-            case GLOBAL -> SystemReader.getInstance().openUserConfig(null, null);
+            case GLOBAL -> SystemReader.getInstance().openUserConfig(null, FS.DETECTED);
             case LOCAL -> {
                 try (Git git = Git.open(this.getGit().toFile())) {
                     yield git.getRepository().getConfig();
@@ -301,6 +314,7 @@ public final class GitService {
     private void handleAlias(GitConfigScope scope, boolean add) {
         try {
             StoredConfig config = this.loadGitConfig(scope);
+            config.load();
 
             String alias = GitRepositoryParam.GITWIT_ALIAS.get().asString();
             String existing = config.getString("alias", null, alias);
@@ -330,6 +344,8 @@ public final class GitService {
             }
         } catch (IOException e) {
             throw new GitWitException(ExceptionMessage.INIT_REPOSITORY_FAILED, e);
+        } catch (ConfigInvalidException e) {
+            throw new GitWitException(ExceptionMessage.GIT_CONFIG_INVALID, e);
         }
     }
 
@@ -418,23 +434,80 @@ public final class GitService {
      *
      * @param from any rev‑spec accepted by Git (tag, branch, hash).
      * @param to   any rev‑spec accepted by Git (tag, branch, hash).
-     * @return iterable of {@link RevCommit}.
+     * @return list of {@link RevCommit}, inclusive from and to (if reachable).
      */
-    public Iterable<RevCommit> getCommits(String from, String to) {
+    public List<RevCommit> getCommits(String from, String to) {
         try (Git git = Git.open(this.getGit().toFile())) {
             Repository repo = git.getRepository();
+            List<RevCommit> commitList = new ArrayList<>();
+
+            RevWalk walk = new RevWalk(repo);
+            walk.setRetainBody(true);
+
+            if (from == null && to == null) {
+                // Only the latest commit
+                git.log().setMaxCount(1).call().forEach(commitList::add);
+                return commitList;
+            }
+
+            if (from != null && to == null) {
+                // All commits reachable from `from`
+                ObjectId fromId = this.resolveCommitId(repo, walk, from);
+                git.log().add(fromId).call().forEach(commitList::add);
+                return commitList;
+            }
 
             if (from == null) {
-                return git.log().setMaxCount(1).call();
+                // Only the `to` commit
+                ObjectId toId = this.resolveCommitId(repo, walk, to);
+                RevCommit toCommit = walk.parseCommit(toId);
+                commitList.add(toCommit);
+                return commitList;
             }
 
-            if (to == null) {
-                return git.log().add(repo.resolve(from)).call();
-            }
+            // Range between `from` and `to`, inclusive
+            ObjectId fromId = this.resolveCommitId(repo, walk, from);
+            ObjectId toId = this.resolveCommitId(repo, walk, to);
 
-            return git.log().add(repo.resolve(from)).add(repo.resolve(to)).call();
-        } catch (IOException | GitAPIException e) {
-            throw new RuntimeException(e);
+            Iterable<RevCommit> commits = git.log().addRange(fromId, toId).call();
+
+            // Add 'from' explicitly (inclusive)
+            RevCommit fromCommit = walk.parseCommit(fromId);
+            commitList.add(fromCommit);
+
+            // Add intermediate commits (excluding from)
+            for (RevCommit commit : commits) {
+                commitList.add(commit);
+            }
+            return commitList;
+        } catch (IOException e) {
+            throw new GitWitException(ExceptionMessage.INIT_REPOSITORY_FAILED, e);
+        } catch (NoHeadException e) {
+            throw new GitWitException(ExceptionMessage.NO_HEAD);
+        } catch (GitAPIException e) {
+            throw new GitWitException(ExceptionMessage.GIT_API_EXCEPTION, e);
+        }
+    }
+
+    /**
+     * Resolves a rev-spec (branch, tag, commit hash) to a {@link ObjectId} of a commit.
+     * Supports annotated tags by dereferencing them to the commit they point to.
+     *
+     * @param repo the Git repository.
+     * @param walk the {@link RevWalk} instance for parsing commits.
+     * @param rev  the rev-spec to resolve.
+     * @return the resolved {@link ObjectId} of the commit.
+     */
+    private ObjectId resolveCommitId(Repository repo, RevWalk walk, String rev) throws IOException {
+        ObjectId id = repo.resolve(rev);
+        RevObject obj = walk.parseAny(id);
+
+        if (obj instanceof RevTag tag) {
+            return tag.getObject();
+        } else if (obj instanceof RevCommit commit) {
+            return commit.getId();
+        } else {
+            throw new GitWitException(ExceptionMessage.UNSUPPORTED_OBJECT_TYPE, String.valueOf(obj.getType()));
         }
     }
 }

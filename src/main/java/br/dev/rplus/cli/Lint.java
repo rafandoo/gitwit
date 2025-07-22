@@ -5,9 +5,11 @@ import br.dev.rplus.entity.CommitMessage;
 import br.dev.rplus.service.CommitMessageService;
 import br.dev.rplus.service.GitService;
 import br.dev.rplus.service.MessageService;
+import org.eclipse.jgit.revwalk.RevCommit;
 import picocli.CommandLine;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,7 +55,9 @@ public class Lint extends BaseCommand {
 
         // Prepare commit messages map
         Map<String, CommitMessage> messages = new HashMap<>();
-        GitService.getInstance().getCommits(from, to).forEach(
+        List<RevCommit> commits = GitService.getInstance().getCommits(from, to);
+
+        commits.forEach(
             commit -> messages.put(commit.getId().getName(), CommitMessage.of(commit))
         );
 

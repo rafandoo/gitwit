@@ -42,7 +42,7 @@ public class GitWitException extends RuntimeException {
     public GitWitException(ExceptionMessage error, boolean suppressClassName, String... params) {
         super(null, null, false, false);
         this.code = error.getCode();
-        this.message = I18nService.getInstance().getMessage(error.getMessage(), (Object[]) params);
+        this.message = I18nService.getInstance().resolve(error.getMessage(), (Object[]) params);
         this.suppressClassName = suppressClassName;
     }
 
@@ -53,7 +53,7 @@ public class GitWitException extends RuntimeException {
     public GitWitException(ExceptionMessage error, Throwable cause, boolean suppressClassName, String... params) {
         super(cause);
         this.code = error.getCode();
-        this.message = I18nService.getInstance().getMessage(error.getMessage(), (Object[]) params);
+        this.message = I18nService.getInstance().resolve(error.getMessage(), (Object[]) params);
         this.suppressClassName = suppressClassName;
     }
 
