@@ -67,6 +67,7 @@ changelog:
   # Commit types to be excluded from changelog generation
   ignored:
     - chore
+
   format:
     # Whether breaking changes should be displayed in a separate section
     showBreakingChanges: true
