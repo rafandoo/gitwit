@@ -29,6 +29,7 @@ public class GitWitConfig {
     private ScopeConfig scope = new ScopeConfig();
     private ShortDescriptionConfig shortDescription = new ShortDescriptionConfig();
     private LongDescriptionConfig longDescription = new LongDescriptionConfig();
+    private BreakingChangesConfig breakingChanges = new BreakingChangesConfig();
     private ChangelogConfig changelog = new ChangelogConfig();
 
     @Data
@@ -52,7 +53,6 @@ public class GitWitConfig {
     @Data
     public static class ShortDescriptionConfig {
         private String description;
-        private boolean required = true;
         private int minLength = 1;
         private int maxLength = 72;
     }
@@ -76,9 +76,16 @@ public class GitWitConfig {
 
         @Data
         public static class ChangelogFormat {
+            private boolean showBreakingChanges = false;
             private boolean showScope = true;
             private boolean showShortHash = true;
         }
+    }
+
+    @Data
+    public static class BreakingChangesConfig {
+        private boolean enabled;
+        private String description;
     }
 
     /**

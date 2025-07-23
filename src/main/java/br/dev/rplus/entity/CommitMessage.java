@@ -5,25 +5,38 @@ import br.dev.rplus.config.GitWitConfig;
 import br.dev.rplus.service.CommitMessageService;
 import br.dev.rplus.cup.utils.StringUtils;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 /**
  * Immutable value object representing a Conventional Commit.
  * <pre>
- *   type(scope): short description
+ *   type(scope)!: short description
  *
  *   long description
+ *
+ *   BREAKING CHANGE: description
  * </pre>
  * Instances are created by {@link CommitWizard} and validated by
  * {@link CommitMessageService}.
  *
- * @param type             commit type, e.g. <code>feat</code>, <code>fix</code>.
- * @param scope            scope affected by the change.
- * @param shortDescription imperative, present‑tense summary (<code>maxLength</code> enforced).
- * @param longDescription  detailed explanation (can span multiple lines).
- * @param hash             commit hash.
+ * @param type                commit type, e.g. <code>feat</code>, <code>fix</code>.
+ * @param scope               scope affected by the change.
+ * @param shortDescription    imperative, present‑tense summary (<code>maxLength</code> enforced).
+ * @param longDescription     detailed explanation (can span multiple lines).
+ * @param breakingChanges     boolean indicating whether the commit contains breaking changes.
+ * @param breakingChangesDesc description of the breaking changes.
+ * @param hash                commit hash.
  */
-public record CommitMessage(String type, String scope, String shortDescription, String longDescription, String hash) {
+public record CommitMessage(
+    String type,
+    String scope,
+    String shortDescription,
+    String longDescription,
+    boolean breakingChanges,
+    String breakingChangesDesc,
+    ObjectId hash
+) {
 
     /**
      * Formats this message following the Conventional Commits specification.
@@ -35,11 +48,17 @@ public record CommitMessage(String type, String scope, String shortDescription, 
         if (!StringUtils.isNullOrBlank(scope)) {
             sb.append(" (").append(scope).append(")");
         }
+        if (breakingChanges) {
+            sb.append("!");
+        }
         if (!StringUtils.isNullOrBlank(shortDescription)) {
             sb.append(": ").append(shortDescription.trim());
         }
         if (!StringUtils.isNullOrBlank(longDescription)) {
             sb.append("\n\n").append(longDescription.trim());
+        }
+        if (!StringUtils.isNullOrBlank(breakingChangesDesc)) {
+            sb.append("\n\nBREAKING CHANGE: ").append(breakingChangesDesc.trim());
         }
         return sb.toString();
     }
@@ -58,9 +77,12 @@ public record CommitMessage(String type, String scope, String shortDescription, 
         if (format.isShowScope() && !StringUtils.isNullOrBlank(scope)) {
             sb.append(scope).append(": ");
         }
+        if (breakingChanges) {
+            sb.append("!");
+        }
         sb.append(shortDescription.trim());
         if (format.isShowShortHash()) {
-            sb.append(" (").append(hash.trim()).append(")");
+            sb.append(" (").append(hash.abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name()).append(")");
         }
         return sb.toString();
     }
@@ -79,9 +101,12 @@ public record CommitMessage(String type, String scope, String shortDescription, 
         if (format.isShowScope() && !StringUtils.isNullOrBlank(scope)) {
             sb.append(" (").append(scope).append(")");
         }
+        if (breakingChanges) {
+            sb.append("!");
+        }
         sb.append(": ").append(shortDescription.trim());
         if (format.isShowShortHash()) {
-            sb.append(" (").append(hash.trim()).append(")");
+            sb.append(" (").append(hash.abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name()).append(")");
         }
         return sb.toString();
     }
@@ -98,7 +123,15 @@ public record CommitMessage(String type, String scope, String shortDescription, 
      */
     public static CommitMessage of(RevCommit commit) {
         if (commit == null || StringUtils.isNullOrBlank(commit.getFullMessage())) {
-            return new CommitMessage(null, null, null, null, null);
+            return new CommitMessage(
+                null,
+                null,
+                null,
+                null,
+                false,
+                null,
+                null
+            );
         }
 
         String[] parts = commit.getFullMessage().split("\n\n", 2);
@@ -106,17 +139,22 @@ public record CommitMessage(String type, String scope, String shortDescription, 
         String body = parts.length > 1 ? parts[1] : null;
 
         // header = "type(scope): subject"  OR  "type: subject"
-        String type;
+        String type = "";
         String scope = null;
+        boolean breakingChange = false;
         String subject;
 
         int colon = header.indexOf(':');
         if (colon < 0) {                            // malformed, keep everything as subject
-            type = "";
             subject = header.trim();
         } else {
             String headLeft = header.substring(0, colon).trim();   // type or type(scope)
             subject = header.substring(colon + 1).trim();
+
+            breakingChange = headLeft.endsWith("!");
+            if (breakingChange) {
+                headLeft = header.substring(0, headLeft.length() - 1);
+            }
 
             int open = headLeft.indexOf('(');
             int close = headLeft.indexOf(')');
@@ -127,12 +165,27 @@ public record CommitMessage(String type, String scope, String shortDescription, 
                 type = headLeft;
             }
         }
+
+        String description = body;
+        String breakingChangeDesc = null;
+
+        if (body != null && body.contains("BREAKING CHANGE:")) {
+            String[] bodyParts = body.split("(?m)^BREAKING CHANGE:\\s*", 2);
+            description = bodyParts[0].trim();
+            if (bodyParts.length > 1) {
+                breakingChangeDesc = bodyParts[1].trim();
+                breakingChange = true;
+            }
+        }
+
         return new CommitMessage(
             type.trim(),
             scope,
             subject,
-            body,
-            commit.getId().abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name()
+            description,
+            breakingChange,
+            breakingChangeDesc,
+            commit.getId()
         );
     }
 }
