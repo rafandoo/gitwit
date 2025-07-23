@@ -98,30 +98,28 @@ public final class CommitMessageService {
         );
 
         /* ─────────── Commit Short Description ─────────── */
-        if (config.getShortDescription().isRequired()) {
+        this.ensure(
+            !StringUtils.isNullOrBlank(message.shortDescription()),
+            4,
+            CommitPromptKeys.COMMIT_SHORT_DESC
+        );
+
+        if (message.shortDescription() != null) {
+            int shortMin = config.getShortDescription().getMinLength();
+            int shortMax = config.getShortDescription().getMaxLength();
+
             this.ensure(
-                !StringUtils.isNullOrBlank(message.shortDescription()),
-                4,
-                CommitPromptKeys.COMMIT_SHORT_DESC
+                message.shortDescription().length() >= shortMin,
+                5,
+                CommitPromptKeys.COMMIT_SHORT_DESC,
+                shortMin
             );
-
-             if (message.shortDescription() != null) {
-                int shortMin = config.getShortDescription().getMinLength();
-                int shortMax = config.getShortDescription().getMaxLength();
-
-                this.ensure(
-                    message.shortDescription().length() >= shortMin,
-                    5,
-                    CommitPromptKeys.COMMIT_SHORT_DESC,
-                    shortMin
-                );
-                this.ensure(
-                    message.shortDescription().length() <= shortMax,
-                    6,
-                    CommitPromptKeys.COMMIT_SHORT_DESC,
-                    shortMax
-                );
-            }
+            this.ensure(
+                message.shortDescription().length() <= shortMax,
+                6,
+                CommitPromptKeys.COMMIT_SHORT_DESC,
+                shortMax
+            );
         }
 
         /* ─────────── Commit Long Description ─────────── */

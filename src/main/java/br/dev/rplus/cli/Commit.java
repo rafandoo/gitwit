@@ -78,6 +78,8 @@ public class Commit extends BaseCommand {
                 this.scope,
                 this.shortDescription,
                 this.longDescription,
+                false,
+                null,
                 null
             );
             CommitMessageService.getInstance().validate(message, config);

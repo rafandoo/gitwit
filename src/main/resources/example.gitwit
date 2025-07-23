@@ -2,7 +2,9 @@
 # This file defines the rules and options for creating semantic commits.
 
 ---
+
 types:
+  # Select the type of change you're committing (e.g., feat, fix)
   description: "Select the type of change you're committing"
   values:
     feat: "A new feature"
@@ -14,6 +16,8 @@ types:
     chore: "Other changes that don't modify src or test files"
 
 scope:
+  # Specify the scope of the change (e.g., component or module).
+  # When using 'list', only predefined values are allowed.
   description: "Specify the scope of the change (e.g. component or module)"
   required: false
   type: list # You can use 'list' or 'text'
@@ -28,27 +32,48 @@ scope:
     - config
 
 shortDescription:
+  # Short summary of the change (imperative, present tense)
   description: "Provide a short, descriptive summary of the change"
   required: true
   minLength: 5
   maxLength: 70
 
 longDescription:
+  # Additional context or rationale for the change (e.g., reasons for the implementation)
   enabled: true
   description: "Additional details about the change, why it was made, and any context"
   required: false
   minLength: 20
   maxLength: 100
 
+breakingChanges:
+  # Describe any breaking changes, including what changed and how to migrate
+  enabled: true
+  description: "List any breaking changes and their impact"
+
 changelog:
+  # Optional title used as a heading for the generated changelog
   title: "Changelog"
+
+  # Maps commit types to titles for organizing the changelog
   types:
     feat: "New features"
     fix: "Bug fixes"
     refactor: "Code refactoring"
+
+  # Whether to include other types not explicitly listed in the 'types' section
   showOtherTypes: true
+
+  # Commit types to be excluded from changelog generation
   ignored:
     - chore
+
   format:
+    # Whether breaking changes should be displayed in a separate section
+    showBreakingChanges: true
+
+    # Whether to display the scope in each changelog entry
     showScope: true
+
+    # Whether to display the short hash of each commit
     showShortHash: true
