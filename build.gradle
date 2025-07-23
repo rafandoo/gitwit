@@ -8,12 +8,9 @@ apply from: './version.gradle'
 group = 'br.dev.rplus'
 version = loadVersion().getVersion()
 
-mainClassName = 'br.dev.rplus.App'
-
-
 ext.defaultManifestAttributes = { Project p ->
     return ['Manifest-Version'      : '1.0',
-            'Main-Class'            : p.mainClassName,
+            'Main-Class'            : p.application.mainClass,
             'Specification-Version' : p.version,
             'Specification-Vendor'  : 'R+ Dev',
             'Specification-Title'   : 'GitWit',
@@ -99,4 +96,8 @@ jar {
         'META-INF/maven/**',
         'about.html',
         'module-info.class'
+}
+
+application {
+    mainClass = 'br.dev.rplus.App'
 }

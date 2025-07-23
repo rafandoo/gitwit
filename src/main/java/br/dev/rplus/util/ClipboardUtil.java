@@ -8,6 +8,7 @@ import lombok.experimental.UtilityClass;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -71,8 +72,14 @@ public final class ClipboardUtil {
         Process process = pb.start();
 
         try (OutputStream os = process.getOutputStream()) {
-            os.write(text.getBytes(StandardCharsets.UTF_8));
-            os.flush();
+            if (OperatingSystem.isWindows()) {
+                Charset charset = Charset.forName(EncodingUtil.getWindowsEncoding());
+                os.write(text.getBytes(charset));
+                os.flush();
+            } else {
+                os.write(text.getBytes(StandardCharsets.UTF_8));
+                os.flush();
+            }
         }
 
         return process.waitFor() == 0;

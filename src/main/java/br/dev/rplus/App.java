@@ -2,13 +2,16 @@ package br.dev.rplus;
 
 import br.dev.rplus.cli.*;
 import br.dev.rplus.config.GitWitConfig;
+import br.dev.rplus.cup.os.OperatingSystem;
 import br.dev.rplus.enums.ExceptionMessage;
 import br.dev.rplus.exception.GitWitException;
 import br.dev.rplus.service.TerminalService;
+import br.dev.rplus.util.EncodingUtil;
 import lombok.Getter;
 import picocli.CommandLine;
 
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.ConsoleHandler;
@@ -93,6 +96,13 @@ public class App extends BaseCommand {
         if (App.isDebug()) {
             configureDebugLogging();
         }
+
+        if (OperatingSystem.isWindows()) {
+            EncodingUtil.setSystemEncoding(EncodingUtil.getWindowsEncoding());
+        } else {
+            EncodingUtil.setSystemEncoding(Charset.defaultCharset().displayName());
+        }
+
         int ec = new CommandLine(app).execute(args);
         TerminalService.getInstance().close();
         System.exit(ec);
