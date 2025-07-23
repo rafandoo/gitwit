@@ -32,59 +32,175 @@ public class GitWitConfig {
     private BreakingChangesConfig breakingChanges = new BreakingChangesConfig();
     private ChangelogConfig changelog = new ChangelogConfig();
 
+    /**
+     * Configuration for commit types.
+     */
     @Data
     public static class TypesConfig {
+
+        /**
+         * General description of what the commit type selection is for.
+         */
         private String description;
+
+        /**
+         * Mapping of commit type identifiers to their human-readable descriptions.
+         */
         private Map<String, String> values;
     }
 
+    /**
+     * Configuration for the scope field.
+     */
     @Data
     public static class ScopeConfig {
+
+        /**
+         * Optional description to explain what the scope field represents.
+         */
         private String description;
+
+        /**
+         * Indicates whether the scope is mandatory or optional.
+         */
         private boolean required;
 
         /**
-         * Either <code>list</code> or <code>text</code>.
+         * Defines the input type: "text" (free-form) or "list" (predefined values).
+         * Defaults to "text".
          */
         private String type = "text";
+
+        /**
+         * List of allowed scope values, only used when type is "list".
+         */
         private List<String> values;
     }
 
+    /**
+     * Configuration for the short description field.
+     */
     @Data
     public static class ShortDescriptionConfig {
+
+        /**
+         * Optional description to guide the user when filling the short description.
+         */
         private String description;
+
+        /**
+         * Minimum number of characters required.
+         */
         private int minLength = 1;
+
+        /**
+         * Maximum number of characters allowed (conventionally 72).
+         */
         private int maxLength = 72;
     }
 
+    /**
+     * Configuration for the long description field.
+     */
     @Data
     public static class LongDescriptionConfig {
+
+        /**
+         * Enables or disables the long description field.
+         */
         private boolean enabled;
+
+        /**
+         * Optional help message to guide the user when writing the long description.
+         */
         private String description;
+
+        /**
+         * Indicates whether the long description is required.
+         */
         private boolean required;
+
+        /**
+         * Minimum number of characters allowed (default is 0).
+         */
         private int minLength = 0;
+
+        /**
+         * Maximum number of characters allowed.
+         */
         private int maxLength = 100;
     }
 
+    /**
+     * Configuration the changelog.
+     */
     @Data
     public static class ChangelogConfig {
+
+        /**
+         * The title displayed at the top of the changelog document.
+         * Defaults to "Changelog".
+         */
         private String title = "Changelog";
+
+        /**
+         * A map of commit types and their section titles in the changelog.
+         * Key = commit type (e.g., "feat"), Value = section title (e.g., "New features").
+         */
         private Map<String, String> types;
+
+        /**
+         * Whether to show types not listed in the `types` section under a generic "Other Changes" section.
+         */
         private boolean showOtherTypes = true;
+
+        /**
+         * List of commit types to ignore when generating the changelog.
+         */
         private List<String> ignored;
+
+        /**
+         * Formatting preferences for rendering each commit entry.
+         */
         private ChangelogFormat format = new ChangelogFormat();
 
+        /**
+         * Configuration for formatting commit entries in the changelog.
+         */
         @Data
         public static class ChangelogFormat {
+
+            /**
+             * Whether to include a separate section for breaking changes.
+             */
             private boolean showBreakingChanges = false;
+
+            /**
+             * Whether to display the scope next to the commit type (e.g., `feat(ui): ...`).
+             */
             private boolean showScope = true;
+
+            /**
+             * Whether to display the short hash of the commit at the end of each entry.
+             */
             private boolean showShortHash = true;
         }
     }
 
+    /**
+     * Configuration for breaking changes.
+     */
     @Data
     public static class BreakingChangesConfig {
+
+        /**
+         * Enables the breaking change prompt in the wizard.
+         */
         private boolean enabled;
+
+        /**
+         * Optional description to explain what counts as a breaking change.
+         */
         private String description;
     }
 
