@@ -197,7 +197,7 @@ public class CommitWizard {
             CommitPromptKeys.COMMIT_BREAKING_CHANGES_DESC.getKey(),
             this.composePromptMessage(
                 I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_BREAKING_CHANGES_DESC.getValue()),
-                this.config.getShortDescription().getDescription(),
+                this.config.getBreakingChanges().getDescription(),
                 false
             ),
             builder

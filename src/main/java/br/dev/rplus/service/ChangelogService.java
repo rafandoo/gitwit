@@ -111,6 +111,8 @@ public final class ChangelogService {
 
         if (config.getChangelog().getFormat().isShowBreakingChanges()) {
             sb.append(new Heading("Breaking Changes", 3)).append("\n\n");
+            List<String> allBreakingChanges = new ArrayList<>();
+
             groupedByType.forEach((type, commitMessages) -> {
                 List<CommitMessage> breakingChanges = commitMessages.stream()
                     .filter(CommitMessage::breakingChanges)
@@ -118,15 +120,15 @@ public final class ChangelogService {
 
                 commitMessages.removeAll(breakingChanges);
 
-                UnorderedList<String> unorderedList = new UnorderedList<>(
+                allBreakingChanges.addAll(
                     breakingChanges.stream()
                         .map(message -> message.formatForChangelogOthers(config.getChangelog().getFormat()))
                         .toList()
                 );
-
-                sb.append(unorderedList);
             });
-            sb.append("\n\n");
+            if (!allBreakingChanges.isEmpty()) {
+                sb.append(new UnorderedList<>(allBreakingChanges)).append("\n\n");
+            }
         }
 
         types.forEach((typeKey, typeTitle) -> {
