@@ -7,6 +7,9 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Utility class for handling character encoding operations, particularly for Windows code pages.
+ */
 @UtilityClass
 public final class EncodingUtil {
 
@@ -31,6 +34,14 @@ public final class EncodingUtil {
         return "1252";
     }
 
+    /**
+     * Sets the system output and error streams to use the specified encoding.
+     * <p>
+     * This method is useful for ensuring that console output is correctly encoded,
+     * especially when dealing with non-ASCII characters.
+     *
+     * @param encoding the character encoding to set for system output and error streams.
+     */
     public void setSystemEncoding(String encoding) {
         Charset charset = Charset.forName(encoding);
 

@@ -98,7 +98,7 @@ public record CommitMessage(
             .replace("{description}", StringUtils.isNullOrBlank(shortDescription) ? "" : shortDescription.trim())
             .replace("{hash}", hash != null && !StringUtils.isNullOrBlank(hash.name()) ? hash.name() : "")
             .replace("{shortHash}", hash != null && !StringUtils.isNullOrBlank(hash.name()) ? hash.abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name() : "")
-            .replace("{breakingChange}", breakingChanges ? "!" : "")
+            .replace("{breakingChanges}", breakingChanges ? "!" : "")
             .replace("{author}", authorIdent == null || StringUtils.isNullOrBlank(authorIdent.getName()) ? "" : authorIdent.getName())
             .replace("{date}", formattedDate);
     }
