@@ -2,11 +2,18 @@ package br.dev.rplus.entity;
 
 import br.dev.rplus.cli.wiz.CommitWizard;
 import br.dev.rplus.config.GitWitConfig;
+import br.dev.rplus.enums.ChangelogScope;
+import br.dev.rplus.service.ChangelogService;
 import br.dev.rplus.service.CommitMessageService;
 import br.dev.rplus.cup.utils.StringUtils;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Immutable value object representing a Conventional Commit.
@@ -27,6 +34,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
  * @param breakingChanges     boolean indicating whether the commit contains breaking changes.
  * @param breakingChangesDesc description of the breaking changes.
  * @param hash                commit hash.
+ * @param authorIdent         commit author data as well as the commit date.
  */
 public record CommitMessage(
     String type,
@@ -35,7 +43,8 @@ public record CommitMessage(
     String longDescription,
     boolean breakingChanges,
     String breakingChangesDesc,
-    ObjectId hash
+    ObjectId hash,
+    PersonIdent authorIdent
 ) {
 
     /**
@@ -66,49 +75,32 @@ public record CommitMessage(
     /**
      * Formats the commit message for a changelog entry.
      * <p>
-     * Generates a changelog-specific format that includes the optional scope,
-     * short description, and commit hash in parentheses.
+     * This method uses a template based on the provided format and scope,
+     * replacing placeholders with the commit's details.
      *
      * @param format the configuration for the changelog format.
+     * @param scope  the scope of the changelog entry, which determines the template used.
      * @return a formatted string suitable for changelog entries.
      */
-    public String formatForChangelog(GitWitConfig.ChangelogConfig.ChangelogFormat format) {
-        StringBuilder sb = new StringBuilder();
-        if (format.isShowScope() && !StringUtils.isNullOrBlank(scope)) {
-            sb.append(scope).append(": ");
-        }
-        if (breakingChanges) {
-            sb.append("!");
-        }
-        sb.append(shortDescription.trim());
-        if (format.isShowShortHash()) {
-            sb.append(" (").append(hash.abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name()).append(")");
-        }
-        return sb.toString();
-    }
+    public String formatForChangelog(GitWitConfig.ChangelogConfig.ChangelogFormat format, ChangelogScope scope) {
+        String template = ChangelogService.getInstance().getChangelogCommitTemplateByScope(format, scope);
 
-    /**
-     * Formats the commit message for a changelog entry with additional details.
-     * <p>
-     * Similar to {@link #formatForChangelog(GitWitConfig.ChangelogConfig.ChangelogFormat)}, but includes the commit type
-     * and optionally the scope in the output.
-     *
-     * @param format the configuration for the changelog format.
-     * @return a formatted string suitable for alternative changelog entries.
-     */
-    public String formatForChangelogOthers(GitWitConfig.ChangelogConfig.ChangelogFormat format) {
-        StringBuilder sb = new StringBuilder(type);
-        if (format.isShowScope() && !StringUtils.isNullOrBlank(scope)) {
-            sb.append(" (").append(scope).append(")");
+        String formattedDate = "";
+        if (authorIdent != null && authorIdent.getWhenAsInstant() != null) {
+            Instant instant = authorIdent.getWhenAsInstant();
+            LocalDateTime dateTime = LocalDateTime.ofInstant(instant, authorIdent.getZoneId());
+            formattedDate = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         }
-        if (breakingChanges) {
-            sb.append("!");
-        }
-        sb.append(": ").append(shortDescription.trim());
-        if (format.isShowShortHash()) {
-            sb.append(" (").append(hash.abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name()).append(")");
-        }
-        return sb.toString();
+
+        return template
+            .replace("{type}", StringUtils.isNullOrBlank(this.type) ? "" : this.type)
+            .replace("{scope}", StringUtils.isNullOrBlank(this.scope) ? "" : this.scope)
+            .replace("{description}", StringUtils.isNullOrBlank(shortDescription) ? "" : shortDescription.trim())
+            .replace("{hash}", hash != null && !StringUtils.isNullOrBlank(hash.name()) ? hash.name() : "")
+            .replace("{shortHash}", hash != null && !StringUtils.isNullOrBlank(hash.name()) ? hash.abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name() : "")
+            .replace("{breakingChange}", breakingChanges ? "!" : "")
+            .replace("{author}", authorIdent == null || StringUtils.isNullOrBlank(authorIdent.getName()) ? "" : authorIdent.getName())
+            .replace("{date}", formattedDate);
     }
 
     /**
@@ -129,6 +121,7 @@ public record CommitMessage(
                 null,
                 null,
                 false,
+                null,
                 null,
                 null
             );
@@ -185,7 +178,8 @@ public record CommitMessage(
             description,
             breakingChange,
             breakingChangeDesc,
-            commit.getId()
+            commit.getId(),
+            commit.getAuthorIdent()
         );
     }
 }

@@ -155,6 +155,11 @@ public class GitWitConfig {
         private boolean showOtherTypes = true;
 
         /**
+         * Whether to include a separate section for breaking changes.
+         */
+        private boolean showBreakingChanges = false;
+
+        /**
          * List of commit types to ignore when generating the changelog.
          */
         private List<String> ignored;
@@ -171,19 +176,24 @@ public class GitWitConfig {
         public static class ChangelogFormat {
 
             /**
-             * Whether to include a separate section for breaking changes.
+             * Template for the main section of the changelog.
              */
-            private boolean showBreakingChanges = false;
+            private String sectionTemplate;
 
             /**
-             * Whether to display the scope next to the commit type (e.g., `feat(ui): ...`).
+             * Template for the breaking changes section.
              */
-            private boolean showScope = true;
+            private String breakingChangesTemplate;
 
             /**
-             * Whether to display the short hash of the commit at the end of each entry.
+             * Template for other types of changes not covered by the main sections.
              */
-            private boolean showShortHash = true;
+            private String otherTypesTemplate;
+
+            /**
+             * Default template for formatting commit messages in the changelog.
+             */
+            private String defaultTemplate = "{scope}: {description} ({shortHash})";
         }
     }
 

@@ -1,7 +1,9 @@
 package br.dev.rplus.service;
 
 import br.dev.rplus.config.GitWitConfig;
+import br.dev.rplus.cup.utils.StringUtils;
 import br.dev.rplus.entity.CommitMessage;
+import br.dev.rplus.enums.ChangelogScope;
 import br.dev.rplus.enums.ConfigPaths;
 import br.dev.rplus.enums.ExceptionMessage;
 import br.dev.rplus.exception.GitWitException;
@@ -109,7 +111,7 @@ public final class ChangelogService {
         heading.setUnderlineStyle(false);
         sb.append(heading).append("\n\n");
 
-        if (config.getChangelog().getFormat().isShowBreakingChanges()) {
+        if (config.getChangelog().isShowBreakingChanges()) {
             sb.append(new Heading("Breaking Changes", 3)).append("\n\n");
             List<String> allBreakingChanges = new ArrayList<>();
 
@@ -122,7 +124,7 @@ public final class ChangelogService {
 
                 allBreakingChanges.addAll(
                     breakingChanges.stream()
-                        .map(message -> message.formatForChangelogOthers(config.getChangelog().getFormat()))
+                        .map(message -> message.formatForChangelog(config.getChangelog().getFormat(), ChangelogScope.BREAKING_CHANGES))
                         .toList()
                 );
             });
@@ -134,7 +136,7 @@ public final class ChangelogService {
         types.forEach((typeKey, typeTitle) -> {
             if (groupedByType.containsKey(typeKey)) {
                 List<String> messages = groupedByType.get(typeKey).stream()
-                    .map(message -> message.formatForChangelog(config.getChangelog().getFormat()))
+                    .map(message -> message.formatForChangelog(config.getChangelog().getFormat(), ChangelogScope.SECTION))
                     .collect(Collectors.toList());
                 if (!messages.isEmpty()) {
                     sb.append(new Heading(typeTitle, 3)).append("\n\n");
@@ -152,7 +154,7 @@ public final class ChangelogService {
                 groupedByType.values()
                     .stream()
                     .flatMap(List::stream)
-                    .map(message -> message.formatForChangelogOthers(config.getChangelog().getFormat()))
+                    .map(message -> message.formatForChangelog(config.getChangelog().getFormat(), ChangelogScope.OTHER_TYPES))
                     .toList()
             ));
         }
@@ -176,5 +178,30 @@ public final class ChangelogService {
 
         Files.writeString(changelogFile, content);
         return changelogFile;
+    }
+
+    /**
+     * Retrieves the commit message template for a specific changelog format and scope.
+     *
+     * @param format the changelog format configuration.
+     * @param scope  the scope of the changelog (e.g., section, breaking changes, other types).
+     * @return the commit message template as a {@link String}.
+     * @throws GitWitException if no template is defined for the specified scope and no default template is available.
+     */
+    public String getChangelogCommitTemplateByScope(GitWitConfig.ChangelogConfig.ChangelogFormat format, ChangelogScope scope) {
+        String template = switch (scope) {
+            case SECTION -> format.getSectionTemplate();
+            case BREAKING_CHANGES -> format.getBreakingChangesTemplate();
+            case OTHER_TYPES -> format.getOtherTypesTemplate();
+        };
+
+        if (StringUtils.isNullOrBlank(template)) {
+            String defaultTemplate = format.getDefaultTemplate();
+            if (!StringUtils.isNullOrBlank(defaultTemplate)) {
+                return defaultTemplate;
+            }
+            throw new GitWitException(ExceptionMessage.CHANGELOG_NO_TEMPLATE_DEFINED);
+        }
+        return template;
     }
 }
