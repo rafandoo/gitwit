@@ -43,6 +43,12 @@ public class Commit extends BaseCommand {
     private boolean add;
 
     @CommandLine.Option(
+        names = {"-am", "--amend"},
+        description = "Amend the last commit instead of creating a new one."
+    )
+    private boolean amend;
+
+    @CommandLine.Option(
         names = {"-t", "--type"},
         description = "Type of the commit (e.g., feat fix chore)."
     )
@@ -80,6 +86,7 @@ public class Commit extends BaseCommand {
                 this.longDescription,
                 false,
                 null,
+                null,
                 null
             );
             CommitMessageService.getInstance().validate(message, config);
@@ -89,7 +96,7 @@ public class Commit extends BaseCommand {
         }
 
         // Perform the commit
-        RevCommit commit = GitService.getInstance().commit(message, this.add);
+        RevCommit commit = GitService.getInstance().commit(message, this.add, this.amend);
 
         if (commit != null) {
             MessageService.getInstance().success(

@@ -64,16 +64,32 @@ changelog:
   # Whether to include other types not explicitly listed in the 'types' section
   showOtherTypes: true
 
+  # Whether breaking changes should be displayed in a separate section
+  showBreakingChanges: true
+
   # Commit types to be excluded from changelog generation
   ignored:
     - chore
 
   format:
-    # Whether breaking changes should be displayed in a separate section
-    showBreakingChanges: true
+    # Supported substitutions:
+    # - {type}: commit type.
+    # - {scope}: commit scope.
+    # - {description}: short description.
+    # - {hash}: full commit hash.
+    # - {shortHash}: first 7 characters of the hash.
+    # - {breakingChanges}: inserts an indication of whether there were breaking changes.
+    # - {author}: commit author.
+    # - {date}: commit date (in yyyy-MM-dd HH:mm:ss format).
 
-    # Whether to display the scope in each changelog entry
-    showScope: true
+    # Template used for commits that are in a changelog section (defined in 'types')
+    sectionTemplate: "{scope}: {description} ({shortHash})"
 
-    # Whether to display the short hash of each commit
-    showShortHash: true
+    # Template used for breaking changes (regardless of type)
+    breakingChangesTemplate: "{type} ({scope})!: {description} ({shortHash})"
+
+    # Template used for types that are not listed in 'types'
+    otherTypesTemplate: "{type} ({scope}): {description} ({shortHash})"
+
+    # Generic fallback if the others do not apply
+    defaultTemplate: "{type}: {description}"

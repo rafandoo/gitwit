@@ -286,6 +286,7 @@ public class CommitWizard {
             this.validatePromptResult(results, CommitPromptKeys.COMMIT_LONG_DESC.getKey()),
             breakingChanges,
             this.validatePromptResult(results, CommitPromptKeys.COMMIT_BREAKING_CHANGES_DESC.getKey()),
+            null,
             null
         );
     }

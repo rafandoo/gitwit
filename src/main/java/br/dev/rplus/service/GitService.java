@@ -390,20 +390,22 @@ public final class GitService {
      *
      * @param commitMessage the commit message to be used for the commit.
      * @param autoAdd       if true, automatically stages all files in the repository before committing.
+     * @param amend         if true, amends the last commit instead of creating a new one.
      * @return the created {@link RevCommit} representing the new commit.
      * @throws GitWitException if any Git-related errors occur during the commit process.
      */
-    public RevCommit commit(CommitMessage commitMessage, boolean autoAdd) {
+    public RevCommit commit(CommitMessage commitMessage, boolean autoAdd, boolean amend) {
         RevCommit commit;
         try (Git git = Git.open(this.getGit().toFile())) {
             if (autoAdd) {
-                git.add().addFilepattern(".").call();
                 MessageService.getInstance().info("git.service.commit.adding_files");
+                git.add().addFilepattern(".").call();
             }
             commit = git.commit()
                 .setMessage(commitMessage.format())
                 .setSign(false)
                 .setAllowEmpty(false)
+                .setAmend(amend)
                 .call();
         } catch (IOException e) {
             throw new GitWitException(ExceptionMessage.INIT_REPOSITORY_FAILED, e);
@@ -471,14 +473,15 @@ public final class GitService {
 
             Iterable<RevCommit> commits = git.log().addRange(fromId, toId).call();
 
-            // Add 'from' explicitly (inclusive)
-            RevCommit fromCommit = walk.parseCommit(fromId);
-            commitList.add(fromCommit);
-
             // Add intermediate commits (excluding from)
             for (RevCommit commit : commits) {
                 commitList.add(commit);
             }
+
+            // Add 'from' explicitly (inclusive)
+            RevCommit fromCommit = walk.parseCommit(fromId);
+            commitList.add(fromCommit);
+
             return commitList;
         } catch (IOException e) {
             throw new GitWitException(ExceptionMessage.INIT_REPOSITORY_FAILED, e);
