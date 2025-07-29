@@ -93,14 +93,16 @@ public record CommitMessage(
         }
 
         return template
-            .replace("{type}", StringUtils.isNullOrBlank(this.type) ? "" : this.type)
-            .replace("{scope}", StringUtils.isNullOrBlank(this.scope) ? "" : this.scope)
+            .replace("{type}", StringUtils.isNullOrBlank(this.type) ? "" : this.type.trim())
+            .replace("{scope}", StringUtils.isNullOrBlank(this.scope) ? "" : this.scope.trim())
             .replace("{description}", StringUtils.isNullOrBlank(shortDescription) ? "" : shortDescription.trim())
             .replace("{hash}", hash != null && !StringUtils.isNullOrBlank(hash.name()) ? hash.name() : "")
             .replace("{shortHash}", hash != null && !StringUtils.isNullOrBlank(hash.name()) ? hash.abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name() : "")
             .replace("{breakingChanges}", breakingChanges ? "!" : "")
             .replace("{author}", authorIdent == null || StringUtils.isNullOrBlank(authorIdent.getName()) ? "" : authorIdent.getName())
-            .replace("{date}", formattedDate);
+            .replace("{date}", formattedDate)
+            .replace("():", "")
+            .replaceAll("^\\s+", "");
     }
 
     /**

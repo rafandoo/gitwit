@@ -84,7 +84,6 @@ java -jar gitwit.jar --config-example
 | `scope.type`                               |    ✔️    | String  |                  text                  | Defines if the scope field is open text (`text`) or a predefined list (`list`)                    |
 | `scope.values`                             |    ❌     | List    |                   -                    | List of allowed scopes to organize commits (optional but recommended when `scope.type` is `list`) |
 | `shortDescription.description`             |    ❌     | String  |                   -                    | Optional description to help users fill in the short description                                  |
-| `shortDescription.required`                |    ❌     | Boolean |                  True                  | Defines whether the short description is required                                                 |
 | `shortDescription.minLength`               |    ❌     | Int     |                   1                    | Minimum number of characters allowed in the short description                                     |
 | `shortDescription.maxLength`               |    ❌     | Int     |                   72                   | Maximum number of characters allowed in the short description                                     |
 | `longDescription.enabled`                  |    ❌     | Boolean |                 False                  | Enables the long description field                                                                |

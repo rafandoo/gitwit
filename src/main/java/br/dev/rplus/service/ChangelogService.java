@@ -112,7 +112,6 @@ public final class ChangelogService {
         sb.append(heading).append("\n\n");
 
         if (config.getChangelog().isShowBreakingChanges()) {
-            sb.append(new Heading("Breaking Changes", 3)).append("\n\n");
             List<String> allBreakingChanges = new ArrayList<>();
 
             groupedByType.forEach((type, commitMessages) -> {
@@ -129,6 +128,7 @@ public final class ChangelogService {
                 );
             });
             if (!allBreakingChanges.isEmpty()) {
+                sb.append(new Heading("Breaking Changes", 3)).append("\n\n");
                 sb.append(new UnorderedList<>(allBreakingChanges)).append("\n\n");
             }
         }
