@@ -8,7 +8,7 @@ import br.dev.rplus.cup.enums.TypedValue;
 public enum ConfigPaths {
 
     CONFIG_FILE(".gitwit"),
-    EXAMPLE_CONFIG_FILE("example.gitwit"),
+    EXAMPLE_CONFIG_FILE("example_%s.gitwit"),
 
     CHANGELOG_FILE("CHANGELOG.md"),
 

@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+ import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -237,6 +238,9 @@ public class GitWitConfig {
      * Warns if a configuration file already exists and skips generation.
      */
     public static void generateExample() {
+        String lang = Locale.getDefault().toString();
+        String fallback = "en_US";
+
         Path repo = GitService.getInstance().getRepo();
         Path configPath = repo.resolve(ConfigPaths.CONFIG_FILE.get().asString());
 
@@ -245,13 +249,24 @@ public class GitWitConfig {
             return;
         }
 
-        try (
-            InputStream is = GitWitConfig.class.getClassLoader().getResourceAsStream(
-                ConfigPaths.EXAMPLE_CONFIG_FILE.get().asString()
-            )
-        ) {
-            assert is != null;
-            Files.copy(is, configPath, StandardCopyOption.REPLACE_EXISTING);
+        String resourcePattern = ConfigPaths.EXAMPLE_CONFIG_FILE.get().asString();
+        String langResource = String.format(resourcePattern, lang);
+        String fallbackResource = String.format(resourcePattern, fallback);
+
+        InputStream is = GitWitConfig.class
+            .getClassLoader()
+            .getResourceAsStream(langResource);
+        if (is == null) {
+            is = GitWitConfig.class
+                .getClassLoader()
+                .getResourceAsStream(fallbackResource);
+            if (is == null) {
+                throw new GitWitException(ExceptionMessage.CONFIG_EXAMPLE_NOT_FOUND);
+            }
+        }
+
+        try (InputStream stream = is) {
+            Files.copy(stream, configPath, StandardCopyOption.REPLACE_EXISTING);
             MessageService.getInstance().success("success.config_example_generated", configPath);
         } catch (IOException e) {
             throw new GitWitException(ExceptionMessage.CONFIG_EXAMPLE_COPY_FAILED, e);

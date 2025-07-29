@@ -17,6 +17,7 @@ public enum ExceptionMessage {
     CONFIG_FILE_NOT_FOUND(32, "error.config_file_not_found"),
     CONFIG_FILE_INVALID(33, "error.config_file_invalid"),
     CONFIG_EXAMPLE_COPY_FAILED(33, "error.config_example_copy_failed"),
+    CONFIG_EXAMPLE_NOT_FOUND(34, "error.config_example_not_found"),
     COMMIT_WIZARD_CREATION_FAILED(2, "error.commit_wizard_creation_failed"),
     COMMIT_MSG_WRITE_FAILED(3, "error.commit_msg_write_failed"),
     TERMINAL_CREATION_ERROR(4, "error.terminal_creation_error"),

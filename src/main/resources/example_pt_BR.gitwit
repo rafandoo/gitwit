@@ -1,0 +1,95 @@
+# Arquivo de configurações do GitWit
+# Este arquivo é usado para definir regras e opções para criar commits semânticos.
+
+---
+
+types:
+  # Selecione o tipo de alteração que você está a realizar (e.g. feat, fix)
+  description: "Selecione o tipo de alteração que você está realizando"
+  values:
+    feat: "Uma nova funcionalidade"
+    fix: "Correção de um bug"
+    docs: "Mudanças na documentação"
+    style: "Alterações que não afetam o significado do código (e.g. formatação)"
+    refactor: "Alterações de código que não corrigem um bug nem adicionam um recurso"
+    test: "Adicionar ou corrigir testes"
+    chore: "Outras alterações que não modificam os arquivos src ou test"
+
+scope:
+  # Especifique o escopo da mudança (e.g., component, module, etc).
+  # Quando usar 'list', apenas valores predefinidos são permitidos.
+  description: "Especifique o escopo da mudança (e.g. component, module, etc.)"
+  required: false
+  type: list # Você pode usar 'list' ou 'text'
+  values:
+    - core
+    - api
+    - cli
+    - ui
+    - infra
+    - tests
+    - docs
+    - config
+
+shortDescription:
+  # Breve resumo da mudança (imperativo, presente)
+  description: "Forneça um breve resumo descritivo da mudança"
+  required: true
+  minLength: 5
+  maxLength: 70
+
+longDescription:
+  # Contexto ou justificativa adicional para a mudança (e.g. razões para a implementação)
+  enabled: true
+  description: "Detalhes adicionais sobre a mudança, por que ela foi feita e qualquer contexto"
+  required: false
+  minLength: 20
+  maxLength: 100
+
+breakingChanges:
+  # Descreva quaisquer breaking changes, incluindo o que mudou e como migrar
+  enabled: true
+  description: "Liste todas as mudanças significativas e seu impacto"
+
+changelog:
+  # Título opcional usado como cabeçalho para o changelog gerado
+  title: "Changelog"
+
+  # Mapeamento de tipos de commit para seções do changelog
+  types:
+    feat: "Novas funcionalidades"
+    fix: "Correções de bugs"
+    refactor: "Refatorações"
+
+  # Se deve incluir outros tipos não listados explicitamente na seção 'types'
+  showOtherTypes: true
+
+  # Se as breaking changes devem ser exibidas numa seção separada
+  showBreakingChanges: true
+
+  # Tipos de commit a serem excluídos da geração de changelog
+  ignored:
+    - chore
+
+  format:
+    # Substituições suportadas:
+    # - {type}: tipo do commit.
+    # - {scope}: escopo do commit.
+    # - {description}: descrição curta.
+    # - {hash}: hash completo do commit.
+    # - {shortHash}: os primeiros 7 caracteres do commit.
+    # - {breakingChanges}: insere uma indicação se houve breaking change.
+    # - {author}: autor do commit.
+    # - {date}: data do commit (no formato yyyy-MM-dd HH:mm:ss).
+
+    # Modelo usado para commits que estão numa seção de changelog (definida em 'types')
+    sectionTemplate: "{scope}: {description} ({shortHash})"
+
+    # Modelo usado para breaking changes (independente do tipo)
+    breakingChangesTemplate: "{type} ({scope})!: {description} ({shortHash})"
+
+    # Modelo usado para tipos que não estão listados em 'types'
+    otherTypesTemplate: "{type} ({scope}): {description} ({shortHash})"
+
+    # Fallback genérico se os outros não se aplicarem
+    defaultTemplate: "{type}: {description}"
