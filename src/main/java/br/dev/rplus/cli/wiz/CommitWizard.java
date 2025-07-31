@@ -9,6 +9,7 @@ import br.dev.rplus.exception.GitWitException;
 import br.dev.rplus.service.CommitMessageService;
 import br.dev.rplus.service.I18nService;
 import br.dev.rplus.service.TerminalService;
+import br.dev.rplus.util.EmojiUtil;
 import org.jline.consoleui.elements.ConfirmChoice;
 import org.jline.consoleui.prompt.ConsolePrompt;
 import org.jline.consoleui.prompt.PromptResultItemIF;
@@ -229,7 +230,11 @@ public class CommitWizard {
             .sorted(Map.Entry.comparingByKey())
             .forEach(option -> listPrompt.newItem()
                 .name(option.getKey())
-                .text(String.format("%-" + maxKeyLength + "s %s", option.getKey(), option.getValue()))
+                .text(String.format(
+                    "%-" + maxKeyLength + "s %s",
+                    EmojiUtil.processEmojis(option.getKey()),
+                    EmojiUtil.processEmojis(option.getValue())
+                ))
                 .add()
             );
 
@@ -306,7 +311,7 @@ public class CommitWizard {
                     && !StringUtils.isNullOrBlank(result.getResult())
                     && !result.getResult().equalsIgnoreCase("null")
             ) {
-                return result.getResult();
+                return EmojiUtil.replaceEmojiWithAlias(result.getResult());
             }
         }
         return null;
@@ -340,7 +345,7 @@ public class CommitWizard {
         String optionalText = I18nService.getInstance().getMessage("commit.prompt.optional");
 
         if (!StringUtils.isNullOrBlank(description)) {
-            message.append(" (").append(description);
+            message.append(" (").append(EmojiUtil.processEmojis(description));
             message.append(optional ? ", " + optionalText + "):" : "):");
         } else if (optional) {
             message.append(" (").append(optionalText).append("):");

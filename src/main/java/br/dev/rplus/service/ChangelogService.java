@@ -7,6 +7,7 @@ import br.dev.rplus.enums.ChangelogScope;
 import br.dev.rplus.enums.ConfigPaths;
 import br.dev.rplus.enums.ExceptionMessage;
 import br.dev.rplus.exception.GitWitException;
+import br.dev.rplus.util.EmojiUtil;
 import net.steppschuh.markdowngenerator.list.UnorderedList;
 import net.steppschuh.markdowngenerator.text.heading.Heading;
 import org.eclipse.jgit.lib.Constants;
@@ -107,7 +108,10 @@ public final class ChangelogService {
         }
 
         StringBuilder sb = new StringBuilder();
-        Heading heading = new Heading(config.getChangelog().getTitle(), 1);
+        Heading heading = new Heading(
+            EmojiUtil.processEmojis(config.getChangelog().getTitle()),
+            1
+        );
         heading.setUnderlineStyle(false);
         sb.append(heading).append("\n\n");
 
@@ -123,7 +127,9 @@ public final class ChangelogService {
 
                 allBreakingChanges.addAll(
                     breakingChanges.stream()
-                        .map(message -> message.formatForChangelog(config.getChangelog().getFormat(), ChangelogScope.BREAKING_CHANGES))
+                        .map(message -> message.formatForChangelog(
+                            config.getChangelog().getFormat(), ChangelogScope.BREAKING_CHANGES)
+                        )
                         .toList()
                 );
             });
@@ -136,7 +142,10 @@ public final class ChangelogService {
         types.forEach((typeKey, typeTitle) -> {
             if (groupedByType.containsKey(typeKey)) {
                 List<String> messages = groupedByType.get(typeKey).stream()
-                    .map(message -> message.formatForChangelog(config.getChangelog().getFormat(), ChangelogScope.SECTION))
+                    .map(message -> message.formatForChangelog(
+                        config.getChangelog().getFormat(),
+                        ChangelogScope.SECTION
+                    ))
                     .collect(Collectors.toList());
                 if (!messages.isEmpty()) {
                     sb.append(new Heading(typeTitle, 3)).append("\n\n");
@@ -154,7 +163,10 @@ public final class ChangelogService {
                 groupedByType.values()
                     .stream()
                     .flatMap(List::stream)
-                    .map(message -> message.formatForChangelog(config.getChangelog().getFormat(), ChangelogScope.OTHER_TYPES))
+                    .map(message -> message.formatForChangelog(
+                        config.getChangelog().getFormat(),
+                        ChangelogScope.OTHER_TYPES
+                    ))
                     .toList()
             ));
         }
