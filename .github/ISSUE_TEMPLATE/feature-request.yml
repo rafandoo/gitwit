@@ -1,0 +1,29 @@
+name: Feature Request
+description: Suggest an idea for future development
+title: ':sparkles: - <title>'
+labels: ['enhancement', 'needs-triage']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature for GitWit!
+        Please fill out the details below to help us understand and evaluate your request.
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: Is your feature request related to a problem?
+      description: Describe any problem or limitation this feature would help to solve.
+      placeholder: A clear and concise description of the problem. e.g. I'm always frustrated when...
+    validations:
+      required: false
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you’d like
+      description: Outline your proposed solution in detail, including how it should behave or look.
+      placeholder: Describe the feature, how it should work, and what benefit it brings to users.
+    validations:
+      required: true
