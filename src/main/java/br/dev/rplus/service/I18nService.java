@@ -1,6 +1,7 @@
 package br.dev.rplus.service;
 
 import br.dev.rplus.enums.ConfigPaths;
+import lombok.Getter;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -13,6 +14,7 @@ public final class I18nService {
 
     private static I18nService instance;
 
+    @Getter
     private final ResourceBundle messages;
 
     /**

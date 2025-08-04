@@ -13,19 +13,20 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(
     name = "uninstall",
-    description = "Uninstall the GitWit in the current repository."
+    resourceBundle = "i18n.commands.uninstall",
+    sortOptions = false
 )
 public class Uninstall extends BaseCommand {
 
     @CommandLine.Option(
         names = {"-hk", "--hook"},
-        description = "Uninstall GitWit as a prepare-commit-msg hook for the current repository."
+        descriptionKey = "uninstall.option.hook"
     )
     private boolean hook;
 
     @CommandLine.Option(
         names = {"-g", "--global"},
-        description = "Uninstall GitWit globally."
+        descriptionKey = "uninstall.option.global"
     )
     private boolean global;
 
