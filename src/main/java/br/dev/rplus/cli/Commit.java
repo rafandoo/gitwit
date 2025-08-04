@@ -32,43 +32,44 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(
     name = "commit",
-    description = "Launches the interactive commit wizard or performs a direct commit using provided options."
+    resourceBundle = "i18n.commands.commit",
+    sortOptions = false
 )
 public class Commit extends BaseCommand {
 
     @CommandLine.Option(
         names = {"-a", "--add"},
-        description = "Automatically stage all modified and untracked files before committing."
+        descriptionKey = "commit.option.add"
     )
     private boolean add;
 
     @CommandLine.Option(
         names = {"-am", "--amend"},
-        description = "Amend the last commit instead of creating a new one."
+        descriptionKey = "commit.option.amend"
     )
     private boolean amend;
 
     @CommandLine.Option(
         names = {"-t", "--type"},
-        description = "Type of the commit (e.g., feat fix chore)."
+        descriptionKey = "commit.option.type"
     )
     private String type;
 
     @CommandLine.Option(
         names = {"-s", "--scope"},
-        description = "Scope of the commit (e.g., core, ui, auth)."
+        descriptionKey = "commit.option.scope"
     )
     private String scope;
 
     @CommandLine.Option(
         names = {"-d", "--description"},
-        description = "Short description of the commit."
+        descriptionKey = "commit.option.short-description"
     )
     private String shortDescription;
 
     @CommandLine.Option(
         names = {"-l", "--long-description"},
-        description = "Detailed (multi-line) description of the commit."
+        descriptionKey = "commit.option.long-description"
     )
     private String longDescription;
 

@@ -25,19 +25,20 @@ import java.util.Map;
  */
 @CommandLine.Command(
     name = "lint",
-    description = "Validates one or more Git commits."
+    resourceBundle = "i18n.commands.lint",
+    sortOptions = false
 )
 public class Lint extends BaseCommand {
 
     @CommandLine.Option(
         names = {"-f", "--from"},
-        description = "Start commit (inclusive). Defaults to HEAD if omitted."
+        descriptionKey = "lint.option.from"
     )
     private String from;
 
     @CommandLine.Option(
         names = {"-t", "--to"},
-        description = "End commit (inclusive). Optional if validating a single commit."
+        descriptionKey = "lint.option.to"
     )
     private String to;
 

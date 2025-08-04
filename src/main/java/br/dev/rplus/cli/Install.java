@@ -20,25 +20,26 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(
     name = "install",
-    description = "Install the GitWit in the current repository."
+    resourceBundle = "i18n.commands.install",
+    sortOptions = false
 )
 public class Install extends BaseCommand {
 
     @CommandLine.Option(
-        names = {"-f", "--force"},
-        description = "Overwrite existing hook if present."
-    )
-    private boolean force;
-
-    @CommandLine.Option(
         names = {"-hk", "--hook"},
-        description = "Install GitWit as a prepare-commit-msg hook for the current repository."
+        descriptionKey = "install.option.hook"
     )
     private boolean hook;
 
     @CommandLine.Option(
+        names = {"-f", "--force"},
+        descriptionKey = "install.option.force"
+    )
+    private boolean force;
+
+    @CommandLine.Option(
         names = {"-g", "--global"},
-        description = "Install GitWit as a global Git alias."
+        descriptionKey = "install.option.global"
     )
     private boolean global;
 
