@@ -1,4 +1,10 @@
-<h1 align="center">GitWit</h1>
+<p align="center">
+    <picture>
+        <img src="./docs/logo.webp" alt="GitWit Logo" width="50%" />
+    </picture>
+</p>
+
+---
 
 ## 📝 Project description
 
