@@ -139,7 +139,7 @@ public record CommitMessage(
         boolean breakingChange = false;
         String subject;
 
-        int colon = header.indexOf(':');
+        int colon = header.lastIndexOf(':');
         if (colon < 0) {                            // malformed, keep everything as subject
             subject = header.trim();
         } else {
