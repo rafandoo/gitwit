@@ -1,4 +1,10 @@
-<h1 align="center">GitWit</h1>
+<p align="center">
+  <picture>
+    <img src="./src/main/docs/public/banner.webp" alt="GitWit Logo" width="50%" style="background-color: rgba(255, 255, 255, 0.85); border-radius: 20px; display: inline-block; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+  </picture>
+</p>
+
+---
 
 ## 📝 Project description
 
@@ -62,44 +68,6 @@ cd gitwit
 
 ./gradlew clean build
 ```
-
-## ⚙️ Configurations
-
-You can customize GitWit using a `.gitwit` file placed in your repository root or home directory.
-
-To generate an example file:
-
-```bash
-java -jar gitwit.jar --config-example
-```
-
-### ✅ Summary of config options
-
-| Key                                        | Required | Type    |             Default value              | Description                                                                                       |
-|--------------------------------------------|:--------:|---------|:--------------------------------------:|---------------------------------------------------------------------------------------------------|
-| `types.description`                        |    ❌     | String  |                   -                    | Optional description to help users understand how to use the commit type                          |
-| `types.values`                             |    ✔️    | List    |                   -                    | List of allowed types for commits                                                                 |
-| `scope.description`                        |    ❌     | String  |                   -                    | Optional description to help users understand the scope usage                                     |
-| `scope.required`                           |    ❌     | Boolean |                 False                  | Defines whether the scope is required or not                                                      |
-| `scope.type`                               |    ✔️    | String  |                  text                  | Defines if the scope field is open text (`text`) or a predefined list (`list`)                    |
-| `scope.values`                             |    ❌     | List    |                   -                    | List of allowed scopes to organize commits (optional but recommended when `scope.type` is `list`) |
-| `shortDescription.description`             |    ❌     | String  |                   -                    | Optional description to help users fill in the short description                                  |
-| `shortDescription.minLength`               |    ❌     | Int     |                   1                    | Minimum number of characters allowed in the short description                                     |
-| `shortDescription.maxLength`               |    ❌     | Int     |                   72                   | Maximum number of characters allowed in the short description                                     |
-| `longDescription.enabled`                  |    ❌     | Boolean |                 False                  | Enables the long description field                                                                |
-| `longDescription.description`              |    ❌     | String  |                   -                    | Optional description to help users fill in the long description                                   |
-| `longDescription.required`                 |    ❌     | Boolean |                 False                  | Defines whether the long description is required                                                  |
-| `longDescription.minLength`                |    ❌     | Int     |                   0                    | Minimum number of characters allowed in the long description                                      |
-| `longDescription.maxLength`                |    ❌     | Int     |                  100                   | Maximum number of characters allowed in the long description                                      |
-| `changelog.title`                          |    ❌     | String  |               Changelog                | Title to be used at the top of the generated changelog                                            |
-| `changelog.types`                          |    ✔️    | List    |                   -                    | List of commit types and their titles to group entries when generating changelogs                 |
-| `changelog.showOtherTypes`                 |    ❌     | Boolean |                  True                  | Whether to include other commit types not explicitly listed in `changelog.types`                  |
-| `changelog.showBreakingChanges`            |    ❌     | Boolean |                 False                  | Whether breaking changes should be displayed in a separate section                                |
-| `changelog.ignored`                        |    ❌     | List    |                   -                    | List of commit types to be ignored in changelog generation                                        |
-| `changelog.format.sectionTemplate`         |    ❌     | String  |                   -                    | Template used for commits that are in a changelog section (defined in 'types')                    |
-| `changelog.format.breakingChangesTemplate` |    ❌     | String  |                   -                    | Template used for breaking changes (regardless of type)                                           |
-| `changelog.format.otherTypesTemplate`      |    ❌     | String  |                   -                    | Template used for types that are not listed in 'types'                                            |
-| `changelog.format.defaultTemplate`         |    ❌     | String  | "{scope}: {description} ({shortHash})" | Generic fallback if the others do not apply                                                       |
 
 ## 🔧 Functionalities
 

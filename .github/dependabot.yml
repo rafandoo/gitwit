@@ -9,3 +9,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "bun"
+    directory: "./src/main/docs"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10

@@ -1,0 +1,19 @@
+@font-face {
+    font-family: 'Golos';
+    src: url('./../font/GolosText-SemiBold.woff2') format('woff2');
+}
+
+:root {
+    --vp-c-brand-1: #ff9a4d;
+    --vp-c-brand-2: #ff8632;
+    --vp-c-brand-3: #e46d18;
+    --vp-c-brand-soft: rgb(255 134 50 / 16%);
+}
+
+.VPNavBarTitle {
+    font-family: 'Golos', sans-serif;
+}
+
+.name.clip {
+    font-family: 'Golos', sans-serif;
+}

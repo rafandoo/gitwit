@@ -23,26 +23,27 @@ import java.nio.file.Path;
  */
 @CommandLine.Command(
     name = "changelog",
-    description = "Generates a changelog between two commits."
+    resourceBundle = "i18n.commands.changelog",
+    sortOptions = false
 )
 public class Changelog extends BaseCommand {
 
     @CommandLine.Option(
         names = {"-f", "--from"},
-        description = "Start commit (inclusive).",
+        descriptionKey = "changelog.option.from",
         required = true
     )
     private String from;
 
     @CommandLine.Option(
         names = {"-t", "--to"},
-        description = "End commit (inclusive). Optional if validating a single commit."
+        descriptionKey = "changelog.option.to"
     )
     private String to;
 
     @CommandLine.Option(
         names = {"-c", "--copy"},
-        description = "Copy the changelog to the clipboard."
+        descriptionKey = "changelog.option.copy"
     )
     private boolean copyToClipboard;
 

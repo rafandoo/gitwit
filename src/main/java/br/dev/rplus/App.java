@@ -30,9 +30,9 @@ import java.util.logging.Logger;
         Hook.class,
         Lint.class,
         Changelog.class,
-        CommandLine.HelpCommand.class
     },
-    description = "GitWit application for helping you write better commit messages."
+    resourceBundle = "i18n.commands.app",
+    sortOptions = false
 )
 @SuppressWarnings("CanBeFinal")
 public class App extends BaseCommand {
@@ -40,13 +40,13 @@ public class App extends BaseCommand {
     @Getter
     @CommandLine.Option(
         names = {"-d", "--debug"},
-        description = "Activates debug mode, where more information about processes is displayed."
+        descriptionKey = "app.option.debug"
     )
     private static boolean debug = false;
 
     @CommandLine.Option(
         names = {"-ce", "--config-example"},
-        description = "Generates an example of the configuration file."
+        descriptionKey = "app.option.config-example"
     )
     private boolean configExample = false;
 
@@ -103,7 +103,8 @@ public class App extends BaseCommand {
             EncodingUtil.setSystemEncoding(Charset.defaultCharset().displayName());
         }
 
-        int ec = new CommandLine(app).execute(args);
+        CommandLine cmd = new CommandLine(app);
+        int ec = cmd.execute(args);
         TerminalService.getInstance().close();
         System.exit(ec);
     }

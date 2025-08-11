@@ -1,0 +1,36 @@
+name: Question
+description: Ask a question or request clarification about GitWit
+title: ':thinking: - <title>'
+labels: ['question']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question about GitWit? We're happy to help!
+        Please provide as much detail as possible so we can answer accurately.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: What’s your question?
+      description: Clearly describe what you're trying to understand or clarify. If applicable, include context such as the command, feature, or scenario you're referring to.
+      placeholder: I'm trying to configure GitWit to work with XYZ but I'm not sure how to [...]
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Topic Category
+      description: Which area of GitWit is your question related to?
+      options:
+        - Setup and Deployment
+        - Configuration
+        - App Usage
+        - Development
+        - Documentation
+        - Language Support
+        - Other
+    validations:
+      required: true
