@@ -30,7 +30,7 @@ public enum GitRepositoryParam {
     /**
      * Name of the Git alias for GitWit.
      */
-    GITWIT_ALIAS("gw");
+    GITWIT_ALIAS("wit");
 
     private final TypedValue value;
 
