@@ -16,6 +16,9 @@ export default defineConfig({
   appearance: "dark",
   lastUpdated: true,
   base: '/gitwit/',
+  head: [
+    ['link', { rel: 'icon', href: '/gitwit/favicon.ico' }]
+  ],
   themeConfig: {
     search: {
       provider: 'local'
