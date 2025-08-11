@@ -3,9 +3,8 @@ name: Deploy Documentation site to GitHub Pages
 on:
   push:
     paths:
-      - "./src/main/docs/**"
-      - ".github/workflows/docs.yml"
-      - "*.md"
+      - 'src/main/docs/**'
+      - '.github/workflows/docs.yml'
     branches:
       - main
   workflow_dispatch:
