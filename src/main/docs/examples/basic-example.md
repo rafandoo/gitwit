@@ -19,7 +19,7 @@ types:
     sec: "Security-related changes"
 
 scope:
-  description: "Specify the scope of the change (e.g., component, module, etc.)" etc.)"
+  description: "Specify the scope of the change (e.g., component, module, etc.)"
   required: true
   type: list
   values:
