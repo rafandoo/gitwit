@@ -225,18 +225,14 @@ public class CommitWizard {
             .max()
             .orElse(0);
 
-        options.entrySet()
-            .stream()
-            .sorted(Map.Entry.comparingByKey())
-            .forEach(option -> listPrompt.newItem()
-                .name(option.getKey())
-                .text(String.format(
-                    "%-" + maxKeyLength + "s %s",
-                    EmojiUtil.processEmojis(option.getKey()),
-                    EmojiUtil.processEmojis(option.getValue())
-                ))
-                .add()
-            );
+        options.forEach((key, value) -> listPrompt.newItem()
+            .name(key)
+            .text(String.format(
+                "%-" + maxKeyLength + "s %s",
+                EmojiUtil.processEmojis(key),
+                EmojiUtil.processEmojis(value)
+            ))
+            .add());
 
         if (optional) {
             listPrompt.newItem()

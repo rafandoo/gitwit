@@ -71,14 +71,26 @@ public final class ChangelogService {
      * @throws GitWitException if changelog generation fails due to configuration or I/O errors.
      */
     public StringBuilder generateChangelog(String from, String to, GitWitConfig config) {
-        Map<String, String> types = config.getChangelog().getTypes();
-        if (types == null) {
+        Map<String, String> types = config.getChangelog()
+            .getTypes()
+            .entrySet()
+            .stream()
+            .collect(Collectors.toMap(
+                entry -> EmojiUtil.replaceEmojiWithAlias(entry.getKey()),
+                Map.Entry::getValue
+            ));
+
+        if (types.isEmpty()) {
             throw new GitWitException(ExceptionMessage.CHANGELOG_TYPES_REQUIRED);
         }
 
         List<String> ignored = Objects.requireNonNullElse(
-            config.getChangelog().getIgnored(), new ArrayList<>()
-        );
+                config.getChangelog().getIgnored(),
+                new ArrayList<String>()
+            )
+            .stream()
+            .map(EmojiUtil::replaceEmojiWithAlias)
+            .toList();
 
         List<RevCommit> commits = GitService.getInstance()
             .getCommits(from, Objects.requireNonNullElse(to, Constants.HEAD));

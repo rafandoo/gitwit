@@ -101,7 +101,8 @@ public record CommitMessage(
             .replace("{breakingChanges}", breakingChanges ? "!" : "")
             .replace("{author}", authorIdent == null || StringUtils.isNullOrBlank(authorIdent.getName()) ? "" : authorIdent.getName())
             .replace("{date}", formattedDate)
-            .replace("():", "")
+            .replaceAll("\\s?\\(\\)", "")
+            .replaceAll("^:\\s+", "")
             .replaceAll("^\\s+", "");
     }
 
