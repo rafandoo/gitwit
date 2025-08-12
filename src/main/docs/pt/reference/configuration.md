@@ -218,3 +218,12 @@ Variáveis suportadas nos templates:
 - `{breakingChanges}`: tag de breaking change
 - `{author}`: autor do commit
 - `{date}`: data e hora do commit
+
+## Exemplos de configuração
+
+A seguir, você encontrará dois modelos prontos para uso, cada um com um estilo próprio:
+
+- [Exemplo Básico](./../examples/basic-example.md) — ideal para quem está começando ou deseja manter o padrão de commits simples e objetivo.
+- [Exemplo com Emojis](./../examples/emoji-example.md) — perfeito para quem quer adicionar expressividade e facilitar a identificação visual dos commits no histórico.
+
+Use o que melhor se adapta ao seu fluxo de trabalho — ou combine ideias para criar sua própria configuração personalizada.

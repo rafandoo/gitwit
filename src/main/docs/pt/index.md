@@ -32,4 +32,7 @@ features:
   - title: Configurações personalizáveis
     icon: 🛠️
     details: Ajuste escopos, tipos e mensagens conforme o seu fluxo de trabalho.
+  - title: Suporte a emojis
+    icon: 🎉
+    details: Adicione emojis aos seus commits.
 ---

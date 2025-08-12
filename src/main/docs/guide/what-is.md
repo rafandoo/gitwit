@@ -3,12 +3,12 @@
 <br>
 <p align="center">
   <picture>
-    <img src="./../public/banner.webp" alt="GitWit Logo" width="50%" style="background-color: rgba(255, 255, 255, 0.85); border-radius: 20px; display: inline-block; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+    <img src="/banner.webp" alt="GitWit Logo" width="50%" style="background-color: rgba(255, 255, 255, 0.85); border-radius: 20px; display: inline-block; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
   </picture>
 </p>
 
 GitWit is a command-line application written in Java, designed to help developers keep their Git repositories organized, coherent, and standardized.
-It acts as an intelligent commit assistant, offering an interactive interface for creating commit messages, generating changelogs, and automating conventions such as the [Conventional Commits standard](https://www.conventionalcommits.org/).
+It acts as an intelligent commit assistant, offering an interactive interface for creating commit messages, generating changelogs, and automating conventions such as the [Conventional Commits](https://www.conventionalcommits.org/) standard.
 
 ## 🧠 What does the application do?
 

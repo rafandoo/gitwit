@@ -39,6 +39,14 @@ export default defineConfig({
         ],
       },
       {
+        text: 'Exemplos',
+        base: '/pt/examples',
+        items: [
+            { text: 'Exemplo básico', link: '/basic-example' },
+            { text: 'Emojis', link: '/emoji-example' },
+        ],
+      },
+      {
         text: 'Outros',
         base: '/pt/other',
         collapsed: true,

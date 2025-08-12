@@ -15,7 +15,7 @@ hero:
       link: /guide/what-is
     - theme: alt
       text: View on GitHub
-      link: https://github.com/rafandoo/gitwit      
+      link: https://github.com/rafandoo/gitwit
 
 features:
   - title: Conventional Commits
@@ -26,11 +26,14 @@ features:
     details: Create guided commits with smart prompts.
   - title: Commit linting
     icon: ✅
-    details: Automatically check and validate commit messages. 
+    details: Automatically check and validate commit messages.
   - title: Changelog Generation
     icon: 📜
     details: Generate complete changelogs based on commit history.
   - title: Customizable Settings
     icon: 🛠️
     details: Adjust scopes, types, and messages to suit your workflow.
+  - title: Emoji Support
+    icon: 🎉
+    details: Add emojis to your commits.
 ---
