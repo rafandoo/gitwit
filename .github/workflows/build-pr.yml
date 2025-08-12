@@ -1,4 +1,4 @@
-name: Build PR
+name: Build Pull Request
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-pr:
+  build-backend-pr:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,3 +30,28 @@ jobs:
 
       - name: Build project
         run: ./gradlew clean build
+
+  build-docs-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install dependencies
+        run: bun install
+        working-directory: ./src/main/docs
+
+      - name: Build with VitePress
+        run: bun run docs:build
+        working-directory: ./src/main/docs
