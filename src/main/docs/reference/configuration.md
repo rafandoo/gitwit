@@ -217,3 +217,12 @@ Supported template variables:
 - `{breakingChanges}`: Breaking change tag
 - `{author}`: Commit author
 - `{date}`: Date and time of the commit
+
+## Configuration examples
+
+Below you will find two ready-to-use templates, each with its own style:
+
+- [Basic Example](./../examples/basic-example.md) - ideal for those who are starting out or want to keep the commit pattern simple and objective.
+- [Example with Emojis](./../examples/emoji-example.md) - perfect for anyone who wants to add expressiveness and facilitate the visual identification of commits in history.
+
+Use the one that best fits your workflow - or combine ideas to create your own custom configuration.

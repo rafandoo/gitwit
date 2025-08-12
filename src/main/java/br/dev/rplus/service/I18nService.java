@@ -2,6 +2,7 @@ package br.dev.rplus.service;
 
 import br.dev.rplus.enums.ConfigPaths;
 import lombok.Getter;
+import br.dev.rplus.util.EmojiUtil;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -21,7 +22,10 @@ public final class I18nService {
      * Private constructor to prevent instantiation.
      */
     private I18nService() {
-        this.messages = ResourceBundle.getBundle(ConfigPaths.MESSAGES_FILE.get().asString(), Locale.getDefault());
+        this.messages = ResourceBundle.getBundle(
+            ConfigPaths.MESSAGES_FILE.get().asString(),
+            Locale.getDefault()
+        );
     }
 
     /**
@@ -43,7 +47,8 @@ public final class I18nService {
      * @return the localized message corresponding to the key.
      */
     public String getMessage(String key) {
-        return this.messages.getString(key);
+        String message = this.messages.getString(key);
+        return EmojiUtil.processEmojis(message);
     }
 
     /**
@@ -54,7 +59,7 @@ public final class I18nService {
      * @return the localized message corresponding to the key, with parameters substituted.
      */
     public String getMessage(String key, Object... params) {
-        return MessageFormat.format(this.messages.getString(key), params);
+        return MessageFormat.format(this.getMessage(key), params);
     }
 
     /**
@@ -69,6 +74,6 @@ public final class I18nService {
         if (this.messages.containsKey(message)) {
             return this.getMessage(message, params);
         }
-        return String.format(message, params);
+        return EmojiUtil.processEmojis(String.format(message, params));
     }
 }

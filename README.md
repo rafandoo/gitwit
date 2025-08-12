@@ -72,18 +72,27 @@ cd gitwit
 ## 🔧 Functionalities
 
 ✔️ Interactive commit wizard – Step-by-step prompt for type, scope, short & long descriptions.
+
 ✔️ Commit linting – Validate commits individually or in ranges.
+
 ✔️ Changelog generation – Group commits by type and scope.
+
 ✔️ Custom YAML configuration – Define allowed types, scopes, and validation rules.
+
 ✔️ Multilingual support – Supports English and Portuguese messages.
+
 ✔️ Git hook friendly – Can be wired into Git lifecycle manually.
+
+✔️ Emoji support for commit types.
 
 ## 🚀 Future enhancements
 
 ✔️ Windows and Linux native installers.
+
 ✔️ Plugin support for custom lint rules.
+
 ✔️ Contribution metrics and insights.
-✔️ Emoji support for commit types.
+
 ✔️ Support for commit signing.
 
 ## License 🔑

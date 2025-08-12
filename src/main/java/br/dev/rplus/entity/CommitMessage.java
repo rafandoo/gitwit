@@ -101,7 +101,8 @@ public record CommitMessage(
             .replace("{breakingChanges}", breakingChanges ? "!" : "")
             .replace("{author}", authorIdent == null || StringUtils.isNullOrBlank(authorIdent.getName()) ? "" : authorIdent.getName())
             .replace("{date}", formattedDate)
-            .replace("():", "")
+            .replaceAll("\\s?\\(\\)", "")
+            .replaceAll("^:\\s+", "")
             .replaceAll("^\\s+", "");
     }
 
@@ -139,7 +140,7 @@ public record CommitMessage(
         boolean breakingChange = false;
         String subject;
 
-        int colon = header.indexOf(':');
+        int colon = header.lastIndexOf(':');
         if (colon < 0) {                            // malformed, keep everything as subject
             subject = header.trim();
         } else {

@@ -7,6 +7,7 @@ import br.dev.rplus.entity.Violation;
 import br.dev.rplus.enums.CommitPromptKeys;
 import br.dev.rplus.enums.ExceptionMessage;
 import br.dev.rplus.exception.GitWitException;
+import br.dev.rplus.util.EmojiUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,7 +86,13 @@ public final class CommitMessageService {
             CommitPromptKeys.COMMIT_TYPE
         );
         this.ensure(
-            config.getTypes().getValues().containsKey(message.type()),
+            config.getTypes()
+                .getValues()
+                .keySet()
+                .stream()
+                .map(EmojiUtil::replaceEmojiWithAlias)
+                .toList()
+                .contains(message.type()),
             2,
             CommitPromptKeys.COMMIT_TYPE
         );
