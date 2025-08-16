@@ -399,12 +399,12 @@ public final class GitService {
         try (Git git = Git.open(this.getGit().toFile())) {
             if (autoAdd) {
                 MessageService.getInstance().info("git.service.commit.adding_files");
-                git.add().addFilepattern(".").call();
+                git.add().addFilepattern(".").setRenormalize(false).call();
             }
             commit = git.commit()
                 .setMessage(commitMessage.format())
                 .setSign(false)
-                .setAllowEmpty(false)
+                .setAllowEmpty(amend)
                 .setAmend(amend)
                 .call();
         } catch (IOException e) {
