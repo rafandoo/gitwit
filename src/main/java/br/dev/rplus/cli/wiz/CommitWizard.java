@@ -136,7 +136,7 @@ public class CommitWizard {
                 CommitPromptKeys.COMMIT_BREAKING_CHANGES.getKey(),
                 this.composePromptMessage(
                     I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_BREAKING_CHANGES.getValue()),
-                    this.config.getBreakingChanges().getDescription(),
+                    I18nService.getInstance().resolve("commit.prompt.breaking_changes_label"),
                     false
                 ),
                 builder
@@ -243,7 +243,6 @@ public class CommitWizard {
         builder.createInputPrompt()
             .name(name)
             .message(message)
-            .defaultValue("")
             .addPrompt();
     }
 
