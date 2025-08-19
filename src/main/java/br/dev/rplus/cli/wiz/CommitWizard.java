@@ -57,63 +57,6 @@ public class CommitWizard {
         ConsolePrompt console = new ConsolePrompt(terminal);
         PromptBuilder builder = console.getPromptBuilder();
 
-        /* ─────────── Commit Breaking Changes ─────────── */
-        boolean breakingChanges = false;
-        if (this.config.getBreakingChanges().isEnabled()) {
-            ConsolePrompt bcConsole = new ConsolePrompt(terminal);
-            PromptBuilder bcBuilder = bcConsole.getPromptBuilder();
-
-            this.promptConfirm(
-                CommitPromptKeys.COMMIT_BREAKING_CHANGES.getKey(),
-                this.composePromptMessage(
-                    I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_BREAKING_CHANGES.getValue()),
-                    this.config.getBreakingChanges().getDescription(),
-                    false
-                ),
-                bcBuilder
-            );
-
-            Map<String, PromptResultItemIF> bcPromptResult;
-            try {
-                bcPromptResult = bcConsole.prompt(bcBuilder.build());
-            } catch (IOException e) {
-                throw new GitWitException(ExceptionMessage.COMMIT_WIZARD_CREATION_FAILED, e);
-            }
-
-            String result = this.validatePromptResult(
-                bcPromptResult,
-                CommitPromptKeys.COMMIT_BREAKING_CHANGES.getKey()
-            );
-
-            this.createPrompts(builder);
-            if (!StringUtils.isNullOrBlank(result) && result.equalsIgnoreCase(ConfirmChoice.ConfirmationValue.YES.name())) {
-                this.createBreakingChangesInputPrompt(builder);
-                breakingChanges = true;
-            }
-        }
-
-        // Build, validate and return the commit message.
-        CommitMessage message;
-        try {
-            message = this.buildCommit(console.prompt(builder.build()), breakingChanges);
-        } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.COMMIT_WIZARD_CREATION_FAILED, e);
-        }
-        CommitMessageService.getInstance().validate(message, this.config);
-
-        return message;
-    }
-
-    /**
-     * Creates prompts for a commit wizard based on the configured commit message template.
-     * <p>
-     * This method generates a series of interactive prompts for different aspects of a commit message,
-     * including commit type, scope, short description, and optional long description. The prompts
-     * are dynamically configured based on the current commit configuration.
-     *
-     * @param builder the {@link PromptBuilder} used to construct the interactive prompts.
-     */
-    private void createPrompts(PromptBuilder builder) {
         /* ─────────── Commit Type ─────────── */
         Map<String, String> types = this.config.getTypes().getValues();
         if (types == null || types.isEmpty()) {
@@ -186,6 +129,51 @@ public class CommitWizard {
                 builder
             );
         }
+
+        /* ─────────── Commit Breaking Changes ─────────── */
+        if (this.config.getBreakingChanges().isEnabled()) {
+            this.promptConfirm(
+                CommitPromptKeys.COMMIT_BREAKING_CHANGES.getKey(),
+                this.composePromptMessage(
+                    I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_BREAKING_CHANGES.getValue()),
+                    I18nService.getInstance().resolve("commit.prompt.breaking_changes_label"),
+                    false
+                ),
+                builder
+            );
+        }
+
+        Map<String, PromptResultItemIF> results;
+        try {
+            results = console.prompt(builder.build());
+        } catch (IOException e) {
+            throw new GitWitException(ExceptionMessage.COMMIT_WIZARD_CREATION_FAILED, e);
+        }
+
+        boolean breakingChanges = false;
+        String breakingChoice = this.validatePromptResult(results, CommitPromptKeys.COMMIT_BREAKING_CHANGES.getKey());
+        if (!StringUtils.isNullOrEmpty(breakingChoice) && breakingChoice.equalsIgnoreCase(ConfirmChoice.ConfirmationValue.YES.name())) {
+            breakingChanges = true;
+
+            results.forEach((k, v) ->
+                terminal.writer().println(""));
+            terminal.flush();
+
+            PromptBuilder breakingBuilder = console.getPromptBuilder();
+            this.createBreakingChangesInputPrompt(breakingBuilder);
+
+            try {
+                results.putAll(console.prompt(breakingBuilder.build()));
+            } catch (IOException e) {
+                throw new GitWitException(ExceptionMessage.COMMIT_WIZARD_CREATION_FAILED, e);
+            }
+        }
+
+        // Build, validate and return the commit message.
+        CommitMessage message = this.buildCommit(results, breakingChanges);
+        CommitMessageService.getInstance().validate(message, this.config);
+
+        return message;
     }
 
     /**
