@@ -13,6 +13,7 @@ Para ver a ajuda de qualquer comando, execute:
 ```bash
 gitwit <comando> --help
 ```
+
 :::
 
 ## 🔹 Comando principal (`gitwit`)
@@ -173,16 +174,18 @@ Gera um changelog formatado a partir das mensagens de commit.
 #### Uso:
 
 ```bash
-gitwit changelog [-chV] -f=<from> [-t=<to>]
+gitwit changelog [-achV] -f=<from> [-t=<to>] [-s=<subtitle>] 
 ```
 
-| Opção               | Descrição                                              |
-|---------------------|--------------------------------------------------------|
-| `-f, --from=<from>` | Ponto inicial (hash, tag ou branch).                   |
-| `-t, --to=<to>`     | Ponto final. Padrão: `HEAD`.                           |
-| `-c, --copy`        | Copia o changelog gerado para a área de transferência. |
-| `-h, --help`        | Mostra a ajuda.                                        |
-| `-V, --version`     | Mostra a versão.                                       |
+| Opção               | Descrição                                                               |
+|---------------------|-------------------------------------------------------------------------|
+| `-f, --from=<from>` | Ponto inicial (hash, tag ou branch).                                    |
+| `-t, --to=<to>`     | Ponto final. Padrão: `HEAD`.                                            |
+| `-s, --subtitle`    | Subtítulo a ser exibido no changelog.                                   |
+| `-a, --append`      | Indica se o changelog será anexado ao arquivo existente ou sobrescrito. |                 
+| `-c, --copy`        | Copia o changelog gerado para a área de transferência.                  |
+| `-h, --help`        | Mostra a ajuda.                                                         |
+| `-V, --version`     | Mostra a versão.                                                        |
 
 #### Exemplos:
 

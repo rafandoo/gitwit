@@ -9,6 +9,7 @@ import br.dev.rplus.exception.GitWitException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.*;
 import org.eclipse.jgit.errors.ConfigInvalidException;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -441,14 +442,17 @@ public final class GitService {
     public List<RevCommit> getCommits(String from, String to) {
         try (Git git = Git.open(this.getGit().toFile())) {
             Repository repo = git.getRepository();
-            List<RevCommit> commitList = new ArrayList<>();
-
             RevWalk walk = new RevWalk(repo);
             walk.setRetainBody(true);
 
+            List<RevCommit> commitList = new ArrayList<>();
+
             if (from == null && to == null) {
                 // Only the latest commit
-                git.log().setMaxCount(1).call().forEach(commitList::add);
+                ObjectId headId = repo.resolve(Constants.HEAD);
+                if (headId != null) {
+                    commitList.add(walk.parseCommit(headId));
+                }
                 return commitList;
             }
 
@@ -462,8 +466,7 @@ public final class GitService {
             if (from == null) {
                 // Only the `to` commit
                 ObjectId toId = this.resolveCommitId(repo, walk, to);
-                RevCommit toCommit = walk.parseCommit(toId);
-                commitList.add(toCommit);
+                commitList.add(walk.parseCommit(toId));
                 return commitList;
             }
 
@@ -471,18 +474,19 @@ public final class GitService {
             ObjectId fromId = this.resolveCommitId(repo, walk, from);
             ObjectId toId = this.resolveCommitId(repo, walk, to);
 
-            Iterable<RevCommit> commits = git.log().addRange(fromId, toId).call();
-
             // Add intermediate commits (excluding from)
-            for (RevCommit commit : commits) {
+            for (RevCommit commit : git.log().addRange(fromId, toId).call()) {
                 commitList.add(commit);
             }
 
             // Add 'from' explicitly (inclusive)
-            RevCommit fromCommit = walk.parseCommit(fromId);
-            commitList.add(fromCommit);
+            if (!this.isTag(repo, walk, from)) {
+                commitList.add(walk.parseCommit(fromId));
+            }
 
             return commitList;
+        } catch (MissingObjectException e) {
+            throw new GitWitException(ExceptionMessage.MISSING_OBJECT, e);
         } catch (IOException e) {
             throw new GitWitException(ExceptionMessage.INIT_REPOSITORY_FAILED, e);
         } catch (NoHeadException e) {
@@ -512,5 +516,23 @@ public final class GitService {
         } else {
             throw new GitWitException(ExceptionMessage.UNSUPPORTED_OBJECT_TYPE, String.valueOf(obj.getType()));
         }
+    }
+
+    /**
+     * Checks if the given rev-spec resolves to a tag in the repository.
+     *
+     * @param repository the Git repository.
+     * @param walk       the {@link RevWalk} instance for parsing objects.
+     * @param rev        the rev-spec to check.
+     * @return {@code true} if the rev-spec is a tag, {@code false} otherwise.
+     * @throws IOException if there is an error resolving the rev-spec or parsing the object.
+     */
+    private boolean isTag(Repository repository, RevWalk walk, String rev) throws IOException {
+        ObjectId id = repository.resolve(rev);
+        if (id == null) {
+            return false;
+        }
+        RevObject obj = walk.parseAny(id);
+        return obj instanceof RevTag;
     }
 }

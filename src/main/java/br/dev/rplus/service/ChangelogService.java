@@ -16,6 +16,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,13 +65,14 @@ public final class ChangelogService {
     /**
      * Generates a changelog based on Git commits between two references.
      *
-     * @param from   the starting Git reference for commit range.
-     * @param to     the ending Git reference for commit range (defaults to HEAD if {@code null}).
-     * @param config the configuration settings for changelog generation.
+     * @param from     the starting Git reference for commit range.
+     * @param to       the ending Git reference for commit range (defaults to HEAD if {@code null}).
+     * @param config   the configuration settings for changelog generation.
+     * @param subtitle an optional subtitle for the changelog. e.g. "Release Notes" or "Version 1.0.0".
      * @return a {@link StringBuilder} containing the generated changelog.
      * @throws GitWitException if changelog generation fails due to configuration or I/O errors.
      */
-    public StringBuilder generateChangelog(String from, String to, GitWitConfig config) {
+    public StringBuilder generateChangelog(String from, String to, GitWitConfig config, String subtitle) {
         Map<String, String> types = config.getChangelog()
             .getTypes()
             .entrySet()
@@ -102,30 +104,44 @@ public final class ChangelogService {
             .filter(commitMessage -> !ignored.contains(commitMessage.type()))
             .collect(Collectors.groupingBy(CommitMessage::type));
 
-        return this.generateMarkdown(config, groupedByType, types);
+        return this.generateMarkdown(config, groupedByType, types, subtitle);
     }
 
     /**
      * Generates a Markdown-formatted changelog based on grouped commit messages.
      *
-     * @param config        the configuration settings for changelog generation
-     * @param groupedByType a map of commit messages grouped by their type
-     * @param types         a map of commit type keys to their display titles
-     * @return a {@link StringBuilder} containing the generated Markdown changelog, or {@code null} if no commits are found
+     * @param config        the configuration settings for changelog generation.
+     * @param groupedByType a map of commit messages grouped by their type.
+     * @param types         a map of commit type keys to their display titles.
+     * @param subtitle      an optional subtitle for the changelog, e.g., "Release Notes" or "Version 1.0.0".
+     * @return a {@link StringBuilder} containing the generated Markdown changelog, or {@code null} if no commits are found.
      */
-    private StringBuilder generateMarkdown(GitWitConfig config, Map<String, List<CommitMessage>> groupedByType, Map<String, String> types) {
+    private StringBuilder generateMarkdown(
+        GitWitConfig config,
+        Map<String, List<CommitMessage>> groupedByType,
+        Map<String, String> types,
+        String subtitle
+    ) {
         if (groupedByType.isEmpty()) {
             MessageService.getInstance().warn("warn.changelog_no_commits");
             return null;
         }
 
         StringBuilder sb = new StringBuilder();
-        Heading heading = new Heading(
-            EmojiUtil.processEmojis(config.getChangelog().getTitle()),
-            1
-        );
-        heading.setUnderlineStyle(false);
-        sb.append(heading).append("\n\n");
+        if (!StringUtils.isNullOrBlank(config.getChangelog().getTitle())) {
+            Heading heading = new Heading(
+                EmojiUtil.processEmojis(config.getChangelog().getTitle()),
+                1
+            );
+            heading.setUnderlineStyle(false);
+            sb.append(heading).append("\n\n");
+        }
+
+        if (!StringUtils.isNullOrBlank(subtitle)) {
+            Heading headingSubtitle = new Heading(subtitle, 2);
+            headingSubtitle.setUnderlineStyle(false);
+            sb.append(headingSubtitle).append("\n\n");
+        }
 
         if (config.getChangelog().isShowBreakingChanges()) {
             List<String> allBreakingChanges = new ArrayList<>();
@@ -169,18 +185,19 @@ public final class ChangelogService {
         });
 
         if (config.getChangelog().isShowOtherTypes()) {
-            sb.append(new Heading(I18nService.getInstance().getMessage("changelog.other_changes"), 3))
-                .append("\n\n");
-            sb.append(new UnorderedList<>(
-                groupedByType.values()
-                    .stream()
-                    .flatMap(List::stream)
-                    .map(message -> message.formatForChangelog(
-                        config.getChangelog().getFormat(),
-                        ChangelogScope.OTHER_TYPES
-                    ))
-                    .toList()
-            ));
+            List<String> others = groupedByType.values()
+                .stream()
+                .flatMap(List::stream)
+                .map(message -> message.formatForChangelog(
+                    config.getChangelog().getFormat(),
+                    ChangelogScope.OTHER_TYPES
+                ))
+                .toList();
+            if (!others.isEmpty()) {
+                sb.append(new Heading(I18nService.getInstance().getMessage("changelog.other_changes"), 3))
+                    .append("\n\n");
+                sb.append(new UnorderedList<>(others));
+            }
         }
 
         return sb;
@@ -190,17 +207,19 @@ public final class ChangelogService {
      * Writes a changelog file based on grouped commit messages and predefined values.
      *
      * @param content the content to be written to the changelog file.
+     * @param append  if {@code true}, appends to the existing file; if {@code false}, overwrites it.
      * @return the {@link Path} to the generated changelog file.
      * @throws IOException if there is an error creating or writing to the changelog file.
      */
-    public Path writeChangeLog(String content) throws IOException {
+    public Path writeChangeLog(String content, boolean append) throws IOException {
         Path changelogFile = this.getChangelogFile();
 
-        if (!Files.exists(changelogFile)) {
-            Files.createFile(changelogFile);
+        if (append) {
+            String separator = Files.exists(changelogFile) ? "\n\n" : "";
+            Files.writeString(changelogFile, separator + content, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } else {
+            Files.writeString(changelogFile, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         }
-
-        Files.writeString(changelogFile, content);
         return changelogFile;
     }
 
