@@ -49,7 +49,8 @@ public enum ExceptionMessage {
     EMPTY_COMMIT(33, "error.git.empty_commit"),
     GIT_API_EXCEPTION(34, "error.git.git_api_exception"),
     GIT_CONFIG_INVALID(35, "error.git.git_config_invalid"),
-    UNSUPPORTED_OBJECT_TYPE(36, "error.git.unsupported_object_type");
+    UNSUPPORTED_OBJECT_TYPE(36, "error.git.unsupported_object_type"),
+    MISSING_OBJECT(37, "error.git.missing_object"),;
 
     private final int code;
     private final String message;
