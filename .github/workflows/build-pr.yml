@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   build-backend-pr:
     runs-on: ubuntu-latest
@@ -17,16 +21,17 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: 'graalvm'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: 'https://gradle.com/terms-of-service'
+          build-scan-terms-of-use-agree: 'yes'
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
-      - name: Install dependencies
-        run: ./gradlew dependencies
 
       - name: Build project
         run: ./gradlew clean build
@@ -45,13 +50,10 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
       - name: Install dependencies
         run: bun install
         working-directory: ./src/main/docs
 
-      - name: Build with VitePress
+      - name: Build documentation
         run: bun run docs:build
         working-directory: ./src/main/docs
