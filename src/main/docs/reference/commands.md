@@ -90,7 +90,7 @@ gitwit uninstall [-ghV] [-hk]
 <br>
 
 ::: warning ⚠️ Warning
-The --hook and --global options cannot be used together. 
+The --hook and --global options cannot be used together.
 :::
 
 #### Examples:
@@ -174,16 +174,18 @@ Generates a formatted changelog from commit messages.
 #### Usage:
 
 ```bash
-gitwit changelog [-chV] -f=<from> [-t=<to>]
+gitwit changelog [-achV] -f=<from> [-t=<to>] [-s=<subtitle>]
 ```
 
-| Option              | Description                                      |
-|---------------------|--------------------------------------------------|
-| `-f, --from=<from>` | Starting point (hash, tag, or branch).           |
-| `-t, --to=<to>`     | Ending point. Default: `HEAD`.                   |
-| `-c, --copy`        | Copies the generated changelog to the clipboard. |
-| `-h, --help`        | Show help.                                       |
-| `-V, --version`     | Show the version.                                |
+| Option              | Description                                                      |
+|---------------------|------------------------------------------------------------------|
+| `-f, --from=<from>` | Starting point (hash, tag, or branch).                           |
+| `-t, --to=<to>`     | Ending point. Default: `HEAD`.                                   |
+| `-s, --subtitle`    | Subtitle to be displayed in the changelog.                       |
+| `-a, --append`      | Indicates whether the changelog will be appended or overwritten. |
+| `-c, --copy`        | Copies the generated changelog to the clipboard.                 |
+| `-h, --help`        | Show help.                                                       |
+| `-V, --version`     | Show the version.                                                |
 
 #### Examples:
 

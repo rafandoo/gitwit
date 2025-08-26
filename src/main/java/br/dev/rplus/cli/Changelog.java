@@ -47,12 +47,25 @@ public class Changelog extends BaseCommand {
     )
     private boolean copyToClipboard;
 
+    @CommandLine.Option(
+        names = {"-s", "--subtitle"},
+        descriptionKey = "changelog.option.subtitle"
+    )
+    private String subtitle;
+
+    @CommandLine.Option(
+        names = {"-a", "--append"},
+        descriptionKey = "changelog.option.append"
+    )
+    private boolean append = false;
+
     @Override
     public void run() {
         MessageService.getInstance().info("changelog.start");
         GitWitConfig config = loadConfig();
 
-        StringBuilder changelogContent = ChangelogService.getInstance().generateChangelog(this.from, this.to, config);
+        StringBuilder changelogContent = ChangelogService.getInstance()
+            .generateChangelog(this.from, this.to, config, this.subtitle);
 
         if (changelogContent != null) {
             MessageService.getInstance().info("changelog.generated");
@@ -62,7 +75,7 @@ public class Changelog extends BaseCommand {
                 }
             } else {
                 try {
-                    Path changelogPath = ChangelogService.getInstance().writeChangeLog(changelogContent.toString());
+                    Path changelogPath = ChangelogService.getInstance().writeChangeLog(changelogContent.toString(), this.append);
                     MessageService.getInstance().success("changelog.written", changelogPath);
                 } catch (IOException e) {
                     throw new GitWitException(ExceptionMessage.CHANGELOG_FAILURE_WRITE, e);
