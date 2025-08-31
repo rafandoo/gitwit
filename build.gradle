@@ -1,12 +1,18 @@
+import io.github.fvarrui.javapackager.gradle.PackageTask
+import io.github.fvarrui.javapackager.model.LinuxConfig
+import io.github.fvarrui.javapackager.model.Platform
+
 plugins {
     id 'java'
     id 'application'
+    id 'io.github.fvarrui.javapackager.plugin' version '1.7.5'
 }
 
 apply from: './version.gradle'
 
 group = 'br.dev.rplus'
 version = loadVersion().getVersion()
+description = 'GitWit, an application to help you with commit standardization.'
 
 ext.defaultManifestAttributes = { Project p ->
     return ['Manifest-Version'      : '1.0',
@@ -49,6 +55,7 @@ dependencies {
     implementation 'net.steppschuh.markdowngenerator:markdowngenerator:1.3.1.1'
     implementation 'net.fellbaum:jemoji:1.7.4'
 
+    // Testing
     testImplementation platform('org.junit:junit-bom:5.13.3')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 
@@ -101,5 +108,45 @@ jar {
 }
 
 application {
-    mainClass = 'br.dev.rplus.App'
+    mainClass = 'br.dev.rplus.gitwit.App'
+}
+
+javapackager {
+    mainClass = project.application.getMainClass().get()
+    description = project.description
+
+    url = 'https://rafandoo.github.io/gitwit/'
+    organizationName = 'R+ Dev'
+    organizationEmail = 'rplus.inf@gmail.com'
+
+    jreMinVersion = JavaVersion.VERSION_21.toString()
+    generateInstaller = true
+
+    assetsDir = new File(project.projectDir.toString(), 'src/main/deploy')
+    outputDirectory = new File(layout.buildDirectory.get().asFile, 'packager')
+}
+
+tasks.register('packageLinux', PackageTask) {
+    group = 'Distribution'
+    dependsOn build
+
+    jdkPath = new File(System.getProperty('java.home'))
+    bundleJre = false
+    administratorRequired = false
+    platform = Platform.linux
+
+    linuxConfig(({
+        generateAppImage = false
+        categories = ['Utility']
+    } as Closure<LinuxConfig>))
+}
+
+tasks.register('packageWindows', PackageTask) {
+    group = 'Distribution'
+    dependsOn build
+
+    jdkPath = new File(System.getProperty('java.home'))
+    bundleJre = false
+    administratorRequired = true
+    platform = Platform.windows
 }
