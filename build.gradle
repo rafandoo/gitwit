@@ -1,6 +1,5 @@
 import io.github.fvarrui.javapackager.gradle.PackageTask
-import io.github.fvarrui.javapackager.model.LinuxConfig
-import io.github.fvarrui.javapackager.model.Platform
+import io.github.fvarrui.javapackager.model.*
 
 plugins {
     id 'java'
@@ -117,9 +116,12 @@ javapackager {
 
     url = 'https://rafandoo.github.io/gitwit/'
     organizationName = 'R+ Dev'
+    organizationUrl = url
     organizationEmail = 'rplus.inf@gmail.com'
 
     jreMinVersion = JavaVersion.VERSION_21.toString()
+    bundleJre = true
+    jdkPath = new File(System.getProperty('java.home'))
     generateInstaller = true
 
     assetsDir = new File(project.projectDir.toString(), 'src/main/deploy')
@@ -130,8 +132,6 @@ tasks.register('packageLinux', PackageTask) {
     group = 'Distribution'
     dependsOn build
 
-    jdkPath = new File(System.getProperty('java.home'))
-    bundleJre = false
     administratorRequired = false
     platform = Platform.linux
 
@@ -145,8 +145,22 @@ tasks.register('packageWindows', PackageTask) {
     group = 'Distribution'
     dependsOn build
 
-    jdkPath = new File(System.getProperty('java.home'))
-    bundleJre = false
-    administratorRequired = true
+    administratorRequired = false
     platform = Platform.windows
+
+    winConfig(({
+        generateMsi = false
+        generateMsm = false
+
+        headerType = 'console'
+
+        disableDirPage = false
+        disableFinishedPage = false
+        disableRunAfterInstall = true
+        disableWelcomePage = false
+        createDesktopIconTask = false
+        removeOldLibs = true
+
+        setupMode = 'installForCurrentUser'
+    } as Closure<WindowsConfig>))
 }
