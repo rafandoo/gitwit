@@ -2,17 +2,17 @@ class ApplicationVersion {
     Integer major
     Integer minor
     Integer patch
-    Boolean release
+     Integer releaseCandidate
 
-    ApplicationVersion(Integer major, Integer minor, Integer patch, Boolean release) {
+    ApplicationVersion(Integer major, Integer minor, Integer patch, Integer releaseCandidate) {
         this.major = major
         this.minor = minor
         this.patch = patch
-        this.release = release
+        this.releaseCandidate = releaseCandidate
     }
 
     private String getRelease() {
-        return this.release ? '' : '-SNAPSHOT'
+        return this.releaseCandidate <= 0 ? '' : '-RC' + this.releaseCandidate
     }
 
     String getVersion() {
@@ -36,7 +36,7 @@ ext.loadVersion = { ->
     return new ApplicationVersion(versionProperties.major.toInteger(),
         versionProperties.minor.toInteger(),
         versionProperties.patch.toInteger(),
-        versionProperties.release.toBoolean())
+        versionProperties.get('release-candidate').toInteger())
 
 }
 

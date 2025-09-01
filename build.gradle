@@ -133,6 +133,7 @@ tasks.register('packageLinux', PackageTask) {
     dependsOn build
 
     administratorRequired = false
+    useResourcesAsWorkingDir = false
     platform = Platform.linux
 
     linuxConfig(({
