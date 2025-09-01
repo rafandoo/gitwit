@@ -162,6 +162,11 @@ tasks.register('packageWindows', PackageTask) {
         createDesktopIconTask = false
         removeOldLibs = true
 
+        setupLanguages = [
+            english : 'compiler:Default.isl',
+            portuguese: "${project.projectDir.toString()}\\src\\main\\deploy\\languages\\BrazilianPortuguese.isl"
+        ]
+
         setupMode = 'installForCurrentUser'
     } as Closure<WindowsConfig>))
 }
