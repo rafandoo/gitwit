@@ -33,35 +33,32 @@ If you don't have Java or Git installed, check the official pages:
 
 - [Download Java](https://adoptium.net/pt-BR/temurin/releases)
 - [Download Git](https://git-scm.com/downloads)
-  :::
+:::
 
 ## 2. Download GitWit
 
-You can download the latest version JAR file directly from the terminal:
+GitWit is available for native installation on all major operating systems.
+You can get the packages directly from the [Releases](https://github.com/rafandoo/gitwit/releases) page in the GitHub repository.
 
-```bash
-curl -L https://github.com/rafandoo/gitwit/releases/latest/download/gitwit.jar -o gitwit.jar
-```
+In the attachments for each release, you'll find:
 
-Or, if you prefer, download it manually from the [Releases repository page on GitHub](https://github.com/rafandoo/gitwit/releases/latest).
+- Linux: .deb and .rpm packages (e.g., gitwit_1.0.0-RC2.deb, gitwit_1.0.0-RC2.rpm)
+- Windows: .exe installer (e.g., gitwit_1.0.0-RC2.exe)
 
-<br>
+Choose the package corresponding to your system and follow the standard installation process for your platform.
 
-::: info ℹ️ Native Installation
-Soon, we will also make packages available for simplified installation on Linux and Windows systems.
-:::
+To check the latest version of GitWit, click [here](https://github.com/rafandoo/gitwit/releases/latest).
 
 ## 3. Running GitWit
 
-To run GitWit, use the following command:
+After installation, GitWit will be available directly from the terminal:
 
-```bash
-java -jar gitwit.jar -h
-```
+bash
+gitwit -h
 
-This will display GitWit help, showing the available commands and their options.
+This command will display GitWit help, listing all available commands and their options.
 
-To see detailed documentation for each command, go to: [Command Reference](./../reference/commands.md).
+For detailed documentation for each command, visit [Command Reference](./../reference/commands.md).
 
 ## 4. Next Steps
 

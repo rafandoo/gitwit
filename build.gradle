@@ -86,6 +86,7 @@ tasks.withType(Jar).configureEach {
     manifest {
         attributes defaultManifestAttributes(project)
     }
+
     exclude '**/.gitkeep',
         'META-INF/*.RSA',
         'META-INF/*.SF',
@@ -94,6 +95,20 @@ tasks.withType(Jar).configureEach {
         'META-INF/*NOTICE*',
         'META-INF/maven/**',
         'about.html'
+}
+
+tasks.register('runnableJar', Jar) {
+    group = 'Build'
+    description = 'Assembles a runnable jar archive containing the main class and all dependencies.'
+
+    archiveClassifier.set('aio')
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    with tasks.jar
 }
 
 application {
