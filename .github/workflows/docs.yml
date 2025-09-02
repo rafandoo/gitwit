@@ -2,8 +2,8 @@ name: Deploy Documentation site to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
     paths:
       - 'src/main/docs/**'
       - '.github/workflows/docs.yml'
@@ -51,7 +51,7 @@ jobs:
         with:
           path: ./src/main/docs/.vitepress/dist
 
-  deploy:
+  deploy-docs:
     name: Deploy
     needs: build-docs
     permissions:

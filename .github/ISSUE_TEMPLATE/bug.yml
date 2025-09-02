@@ -1,4 +1,4 @@
-name: Bug
+name: 🐛 Bug report
 description: Something isn't working
 title: ':bug: - <title>'
 labels: ['bug', 'needs-triage']
@@ -53,11 +53,3 @@ body:
         - Screenshots or screen recordings of the issue
     validations:
       required: false
-
-  - type: checkboxes
-    id: required-checks
-    attributes:
-      label: Please confirm the following
-      options:
-        - label: I confirm that I’m using the **latest version** of GitWit.
-          required: true

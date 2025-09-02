@@ -1,0 +1,24 @@
+name: Setup environment
+description: "Checkout, Java and Gradle ready for build"
+
+inputs:
+  java-version:
+    description: 'Java version'
+    required: false
+    default: '21'
+  distribution:
+    description: 'Java distribution'
+    required: false
+    default: 'temurin'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Java
+      uses: actions/setup-java@v5
+      with:
+        java-version: ${{ inputs.java-version }}
+        distribution: ${{ inputs.distribution }}
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4

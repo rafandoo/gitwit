@@ -40,23 +40,24 @@ You can use it in local repositories to:
 - Validate commit messages (linting);
 - Generate changelogs based on commit history.
 
-Download the latest JAR release:
+You can get the packages directly from the [Releases](https://github.com/rafandoo/gitwit/releases) page in the GitHub repository.
 
-```bash
-curl -L https://github.com/rafandoo/gitwit/releases/latest/download/gitwit.jar -o gitwit.jar
-```
+In the attachments for each release, you'll find:
+
+- Linux: .deb and .rpm packages (e.g., gitwit_1.0.0-RC2.deb, gitwit_1.0.0-RC2.rpm)
+- Windows: .exe installer (e.g., gitwit_1.0.0-RC2.exe)
+
+Choose the package corresponding to your system and follow the standard installation process for your platform.
 
 You can now run commands like:
 
 ```bash
-java -jar gitwit.jar -h              # Show help
-java -jar gitwit.jar install         # Install GitWit alias in current repository
-java -jar gitwit.jar commit          # Start interactive commit wizard
-java -jar gitwit.jar lint            # Lint latest commit
-java -jar gitwit.jar changelog       # Generate changelog for current branch
+gitwit -h              # Show help
+gitwit install         # Install GitWit alias in current repository
+gitwit commit          # Start interactive commit wizard
+gitwit lint            # Lint latest commit
+gitwit changelog       # Generate changelog for current branch
 ```
-
-> ⚠️ Installers for Windows (.exe) and Linux (.deb/.sh) are under construction and will be provided soon.
 
 ### 🧪 Local Development
 
@@ -66,7 +67,14 @@ Clone the project and build it locally:
 git clone https://github.com/rafandoo/gitwit.git
 cd gitwit
 
-./gradlew clean build
+./gradlew clean runnableJar
+```
+
+In the `build/libs` directory, you will find the `gitwit-<version>-aio.jar` file, this is the "all in one" file that contains all the dependencies needed to run GitWit.
+You can run it using:
+
+```bash
+java -jar build/libs/gitwit-<version>-aio.jar -h
 ```
 
 ## 🔧 Functionalities
@@ -85,9 +93,9 @@ cd gitwit
 
 ✔️ Emoji support for commit types.
 
-## 🚀 Future enhancements
-
 ✔️ Windows and Linux native installers.
+
+## 🚀 Future enhancements
 
 ✔️ Plugin support for custom lint rules.
 

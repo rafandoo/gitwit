@@ -1,12 +1,17 @@
+import io.github.fvarrui.javapackager.gradle.PackageTask
+import io.github.fvarrui.javapackager.model.*
+
 plugins {
     id 'java'
     id 'application'
+    id 'io.github.fvarrui.javapackager.plugin' version '1.7.5'
 }
 
 apply from: './version.gradle'
 
 group = 'br.dev.rplus'
 version = loadVersion().getVersion()
+description = 'GitWit, an application to help you with commit standardization.'
 
 ext.defaultManifestAttributes = { Project p ->
     return ['Manifest-Version'      : '1.0',
@@ -49,6 +54,7 @@ dependencies {
     implementation 'net.steppschuh.markdowngenerator:markdowngenerator:1.3.1.1'
     implementation 'net.fellbaum:jemoji:1.7.4'
 
+    // Testing
     testImplementation platform('org.junit:junit-bom:5.13.3')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 
@@ -80,26 +86,93 @@ tasks.withType(Jar).configureEach {
     manifest {
         attributes defaultManifestAttributes(project)
     }
-    exclude '**/.gitkeep'
-}
 
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-
-    exclude 'META-INF/*.RSA',
+    exclude '**/.gitkeep',
+        'META-INF/*.RSA',
         'META-INF/*.SF',
         'META-INF/*.DSA',
         'META-INF/*LICENSE*',
         'META-INF/*NOTICE*',
         'META-INF/maven/**',
-        'about.html',
-        'module-info.class'
+        'about.html'
+}
+
+tasks.register('runnableJar', Jar) {
+    group = 'Build'
+    description = 'Assembles a runnable jar archive containing the main class and all dependencies.'
+
+    archiveClassifier.set('aio')
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    with tasks.jar
 }
 
 application {
-    mainClass = 'br.dev.rplus.App'
+    mainClass = 'br.dev.rplus.gitwit.App'
+}
+
+javapackager {
+    mainClass = project.application.getMainClass().get()
+    description = project.description
+
+    url = 'https://rafandoo.github.io/gitwit/'
+    organizationName = 'R+ Dev'
+    organizationUrl = url
+    organizationEmail = 'rplus.inf@gmail.com'
+
+    jreMinVersion = JavaVersion.VERSION_21.toString()
+    bundleJre = true
+    jdkPath = new File(System.getProperty('java.home'))
+    generateInstaller = true
+    modules = ['java.base', 'java.logging', 'java.management']
+
+    assetsDir = new File(project.projectDir.toString(), 'src/main/deploy')
+    outputDirectory = new File(layout.buildDirectory.get().asFile, 'packager')
+}
+
+tasks.register('packageLinux', PackageTask) {
+    group = 'Distribution'
+    dependsOn build
+
+    administratorRequired = false
+    useResourcesAsWorkingDir = false
+    platform = Platform.linux
+
+    linuxConfig(({
+        generateAppImage = false
+        categories = ['Utility']
+    } as Closure<LinuxConfig>))
+}
+
+tasks.register('packageWindows', PackageTask) {
+    group = 'Distribution'
+    dependsOn build
+
+    administratorRequired = false
+    platform = Platform.windows
+
+    winConfig(({
+        generateMsi = false
+        generateMsm = false
+
+        headerType = 'console'
+
+        disableDirPage = false
+        disableFinishedPage = false
+        disableRunAfterInstall = true
+        disableWelcomePage = false
+        createDesktopIconTask = false
+        removeOldLibs = true
+
+        setupLanguages = [
+            english : 'compiler:Default.isl',
+            portuguese: "${project.projectDir.toString()}\\src\\main\\deploy\\languages\\BrazilianPortuguese.isl"
+        ]
+
+        setupMode = 'installForCurrentUser'
+    } as Closure<WindowsConfig>))
 }

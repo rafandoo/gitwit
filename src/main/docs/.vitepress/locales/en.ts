@@ -16,7 +16,9 @@ export default defineConfig({
       {
         text: getVersion(),
         items: [
-          { text: 'Changelog', link: '/other/changelog' }
+          { text: 'Changelog', link: '/other/changelog' },
+          { text: 'Releases', link: 'https://github.com/rafandoo/gitwit/releases' },
+          { text: 'New Issue', link: 'https://github.com/rafandoo/gitwit/issues/new/choose' },
         ]
       }
     ],
