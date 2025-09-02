@@ -85,6 +85,16 @@ public class App extends BaseCommand {
     }
 
     /**
+     * Checks if the application is running from a JAR file.
+     *
+     * @return {@code true} if running from a JAR file, {@code false} otherwise.
+     */
+    public static boolean isRunningFromJar() {
+        String cmd = System.getProperty("sun.java.command", "");
+        return cmd.contains(".jar");
+    }
+
+    /**
      * Main entry point for the GitWit CLI application.
      * Initializes the application, executes the command line interface,
      * closes the terminal service, and exits with the command's exit code.

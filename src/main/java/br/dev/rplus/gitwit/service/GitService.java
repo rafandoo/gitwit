@@ -166,7 +166,7 @@ public final class GitService {
             "  merge|squash) exit 0 ;;\n" +
             "esac\n" +
             "# Run the Commit Wizard to obtain the message\n" +
-            "java -jar " + App.getApplicationPath().toString().replace("\\", "/") + " hook $COMMIT_MSG_FILE || {\n" +
+            this.getAliasCommand().replace("!", "") + " hook $COMMIT_MSG_FILE || {\n" +
             "  echo 'Commit Wizard failed; aborting commit.' >&2\n" +
             "  exit 1\n" +
             "}\n";
@@ -322,13 +322,7 @@ public final class GitService {
 
             if (add) {
                 if (existing == null) {
-                    // TODO: Create a new alias for each scope
-                    String command = String.format(
-                        "!java -jar %s",
-                        App.getApplicationPath().toString().replace("\\", "/")
-                    );
-
-                    config.setString("alias", null, alias, command);
+                    config.setString("alias", null, alias, this.getAliasCommand());
                     config.save();
                     MessageService.getInstance().info("git.service.alias.configured", scope.name().toLowerCase());
                 } else {
@@ -348,6 +342,29 @@ public final class GitService {
         } catch (ConfigInvalidException e) {
             throw new GitWitException(ExceptionMessage.GIT_CONFIG_INVALID, e);
         }
+    }
+
+    /**
+     * Constructs the command string to be used for the GitWit alias.
+     * <p>
+     * The command differs based on whether the application is running from a JAR file or not.
+     *
+     * @return the command string for the GitWit alias.
+     */
+    private String getAliasCommand() {
+        String command;
+        if (App.isRunningFromJar()) {
+            command = String.format(
+                "!java -jar %s",
+                App.getApplicationPath().toString().replace("\\", "/")
+            );
+        } else {
+            command = String.format(
+                "!%s",
+                App.getApplicationPath().toString().replace("\\", "/")
+            );
+        }
+        return command;
     }
 
     /**
