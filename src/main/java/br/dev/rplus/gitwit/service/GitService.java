@@ -63,7 +63,7 @@ public final class GitService {
      * @return an absolute {@link Path} to the repository directory.
      */
     public Path getRepo() {
-        return Paths.get("").toAbsolutePath();
+        return Paths.get(System.getProperty("user.dir", "")).toAbsolutePath();
     }
 
     /**
