@@ -17,7 +17,7 @@ jobs:
       contents: read
     steps:
       # Common setup
-      - uses: ./.github/actions/setup-env.yml
+      - uses: ./.github/actions/setup-env
 
       - name: Make gradlew executable
         run: chmod +x gradlew
@@ -36,7 +36,7 @@ jobs:
     needs: build
     steps:
       # Common setup
-      - uses: ./.github/actions/setup-env.yml
+      - uses: ./.github/actions/setup-env
 
       - name: Download base JARs
         uses: actions/download-artifact@v4
@@ -58,7 +58,7 @@ jobs:
     needs: build
     steps:
       # Common setup
-      - uses: ./.github/actions/setup-env.yml
+      - uses: ./.github/actions/setup-env
 
       - name: Install Inno Setup
         run: choco install -y innosetup
