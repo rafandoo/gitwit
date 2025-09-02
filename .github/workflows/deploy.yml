@@ -63,6 +63,7 @@ jobs:
             build/packager/*.deb
             build/packager/*.rpm
 
+
   package-windows:
     runs-on: windows-latest
     needs: build
@@ -120,3 +121,4 @@ jobs:
           files: |
             dist/linux/**
             dist/windows/**
+
