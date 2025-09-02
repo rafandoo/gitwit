@@ -24,7 +24,7 @@ public abstract class BaseCommand implements Runnable {
      */
     protected GitWitConfig loadConfig() {
         GitWitConfig config = GitWitConfig.load();
-        MessageService.getInstance().debug("commit.config.loaded", config);
+        MessageService.getInstance().debug("config.loaded", config);
         return config;
     }
 

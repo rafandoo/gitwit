@@ -222,6 +222,7 @@ public class GitWitConfig {
      */
     public static GitWitConfig load() {
         Path repo = GitService.getInstance().getRepo();
+        MessageService.getInstance().debug("config.loading", repo);
         Path configPath = repo.resolve(ConfigPaths.CONFIG_FILE.get().asString());
 
         if (!Files.exists(configPath)) {

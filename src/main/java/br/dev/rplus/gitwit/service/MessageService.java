@@ -57,7 +57,7 @@ public final class MessageService {
     /**
      * Creates an attributed string message with a specific type and style.
      *
-     * @param type    the type of message (e.g., "ERROR", "WARN", "INFO").
+     * @param type    the key of type of message (e.g., "ERROR", "WARN", "INFO").
      * @param style   the {@link AttributedStyle} to apply to the message type.
      * @param message the message template to format.
      * @param params  optional parameters to format into the message.
@@ -66,7 +66,7 @@ public final class MessageService {
     public AttributedString getMessage(String type, AttributedStyle style, String message, Object... params) {
         return this.getBuilder()
             .style(style)
-            .append(type).append(": ")
+            .append(this.getMessage(type)).append(": ")
             .style(AttributedStyle.DEFAULT)
             .append(this.getMessage(message, params))
             .toAttributedString();
@@ -80,7 +80,7 @@ public final class MessageService {
      * @return an {@link AttributedString} with the formatted and styled error message.
      */
     public AttributedString getErrorMessage(String message, Object... params) {
-        return this.getMessage("ERROR", TerminalStyle.ERROR.asAttributedStyle(), message, params);
+        return this.getMessage("message.error", TerminalStyle.ERROR.asAttributedStyle(), message, params);
     }
 
     /**
@@ -105,7 +105,8 @@ public final class MessageService {
         this.print(
             this.getBuilder()
                 .style(TerminalStyle.WARN.asAttributedStyle())
-                .append("WARN: ")
+                .append(this.getMessage("message.warning"))
+                .append(": ")
                 .style(AttributedStyle.DEFAULT)
                 .append(this.getMessage(message, params))
                 .toAttributedString()
@@ -122,7 +123,8 @@ public final class MessageService {
         this.print(
             this.getBuilder()
                 .style(TerminalStyle.INFO.asAttributedStyle())
-                .append("INFO: ")
+                .append(this.getMessage("message.info"))
+                .append(": ")
                 .style(AttributedStyle.DEFAULT)
                 .append(this.getMessage(message, params))
                 .toAttributedString()
@@ -140,7 +142,8 @@ public final class MessageService {
             this.print(
                 this.getBuilder()
                     .style(TerminalStyle.INFO.asAttributedStyle())
-                    .append("DEBUG: ")
+                    .append(this.getMessage("message.debug"))
+                    .append(": ")
                     .style(AttributedStyle.DEFAULT)
                     .append(this.getMessage(message, params))
                     .toAttributedString()
@@ -158,7 +161,8 @@ public final class MessageService {
         this.print(
             this.getBuilder()
                 .style(TerminalStyle.SUCCESS.asAttributedStyle())
-                .append("SUCCESS: ")
+                .append(this.getMessage("message.success"))
+                .append(": ")
                 .style(AttributedStyle.DEFAULT)
                 .append(this.getMessage(message, params))
                 .toAttributedString()
