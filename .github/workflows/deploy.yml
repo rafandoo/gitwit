@@ -59,7 +59,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-installers
-          path: build/packager/*.{deb,rpm}
+          path: |
+            build/packager/*.deb
+            build/packager/*.rpm
 
   package-windows:
     runs-on: windows-latest
