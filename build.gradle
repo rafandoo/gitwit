@@ -86,24 +86,14 @@ tasks.withType(Jar).configureEach {
     manifest {
         attributes defaultManifestAttributes(project)
     }
-    exclude '**/.gitkeep'
-}
-
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-
-    exclude 'META-INF/*.RSA',
+    exclude '**/.gitkeep',
+        'META-INF/*.RSA',
         'META-INF/*.SF',
         'META-INF/*.DSA',
         'META-INF/*LICENSE*',
         'META-INF/*NOTICE*',
         'META-INF/maven/**',
-        'about.html',
-        'module-info.class'
+        'about.html'
 }
 
 application {
@@ -123,6 +113,7 @@ javapackager {
     bundleJre = true
     jdkPath = new File(System.getProperty('java.home'))
     generateInstaller = true
+    modules = ['java.base', 'java.logging', 'java.management']
 
     assetsDir = new File(project.projectDir.toString(), 'src/main/deploy')
     outputDirectory = new File(layout.buildDirectory.get().asFile, 'packager')
