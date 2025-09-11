@@ -132,6 +132,7 @@ javapackager {
 
     assetsDir = new File(project.projectDir.toString(), 'src/main/deploy')
     outputDirectory = new File(layout.buildDirectory.get().asFile, 'packager')
+    useResourcesAsWorkingDir = false
 }
 
 tasks.register('packageLinux', PackageTask) {
@@ -139,7 +140,6 @@ tasks.register('packageLinux', PackageTask) {
     dependsOn build
 
     administratorRequired = false
-    useResourcesAsWorkingDir = false
     platform = Platform.linux
 
     linuxConfig(({
