@@ -4,7 +4,7 @@ import io.github.fvarrui.javapackager.model.*
 plugins {
     id 'java'
     id 'application'
-    id 'io.github.fvarrui.javapackager.plugin' version '1.7.5'
+    id 'io.github.fvarrui.javapackager.plugin' version '1.7.6'
 }
 
 apply from: './version.gradle'
