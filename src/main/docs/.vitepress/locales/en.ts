@@ -73,7 +73,7 @@ export default defineConfig({
 
     footer: {
       message: 'Released under the Apache License.',
-      copyright: 'Copyright © 2025-present <a href="https://rafandoo.github.io/">Rafael Camargo</a>'
+      copyright: 'Copyright © 2025-present <a href="https://rafandoo.dev/">Rafael Camargo</a>'
     },
   }
 })

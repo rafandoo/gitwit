@@ -9,7 +9,7 @@ plugins {
 
 apply from: './version.gradle'
 
-group = 'br.dev.rplus'
+group = 'dev.rafandoo'
 version = loadVersion().getVersion()
 description = 'GitWit, an application to help you with commit standardization.'
 
@@ -112,14 +112,13 @@ tasks.register('runnableJar', Jar) {
 }
 
 application {
-    mainClass = 'br.dev.rplus.gitwit.App'
+    mainClass = 'dev.rafandoo.gitwit.App'
 }
 
 javapackager {
     mainClass = project.application.getMainClass().get()
-    description = project.description
 
-    url = 'https://rafandoo.github.io/gitwit/'
+    url = 'https://rafandoo.dev/gitwit/'
     organizationName = 'R+ Dev'
     organizationUrl = url
     organizationEmail = 'rplus.inf@gmail.com'
