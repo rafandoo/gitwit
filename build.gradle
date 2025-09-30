@@ -55,7 +55,7 @@ dependencies {
     implementation 'net.fellbaum:jemoji:1.7.5'
 
     // Testing
-    testImplementation platform('org.junit:junit-bom:5.13.3')
+    testImplementation platform('org.junit:junit-bom:6.0.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 
     // Lombok
