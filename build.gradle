@@ -4,13 +4,12 @@ import io.github.fvarrui.javapackager.model.*
 plugins {
     id 'java'
     id 'application'
+    id 'dev.rafandoo.versioning' version '1.0.0'
     id 'io.github.fvarrui.javapackager.plugin' version '1.7.5'
 }
 
-apply from: './version.gradle'
-
 group = 'dev.rafandoo'
-version = loadVersion().getVersion()
+version = versioning.name
 description = 'GitWit, an application to help you with commit standardization.'
 
 ext.defaultManifestAttributes = { Project p ->
