@@ -1,6 +1,6 @@
 package dev.rafandoo.gitwit.cli.wiz;
 
-import br.dev.rplus.cup.utils.StringUtils;
+import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.enums.CommitPromptKeys;

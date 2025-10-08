@@ -5,7 +5,7 @@ import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.enums.ChangelogScope;
 import dev.rafandoo.gitwit.service.ChangelogService;
 import dev.rafandoo.gitwit.service.CommitMessageService;
-import br.dev.rplus.cup.utils.StringUtils;
+import dev.rafandoo.cup.utils.StringUtils;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;

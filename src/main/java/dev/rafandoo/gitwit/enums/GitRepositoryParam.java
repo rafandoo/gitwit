@@ -1,6 +1,6 @@
 package dev.rafandoo.gitwit.enums;
 
-import br.dev.rplus.cup.enums.TypedValue;
+import dev.rafandoo.cup.enums.TypedValue;
 
 /**
  * Represents configuration parameters and constants for Git repository settings.
