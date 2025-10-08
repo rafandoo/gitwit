@@ -1,9 +1,8 @@
 name: Deploy Documentation site to GitHub Pages
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [ published ]
     paths:
       - 'src/main/docs/**'
       - '.github/workflows/docs.yml'

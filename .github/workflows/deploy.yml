@@ -1,9 +1,8 @@
 name: Project deployment for a release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [ published ]
   workflow_dispatch:
 
 concurrency:
@@ -19,14 +18,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      # Common setup
-      - uses: ./.github/actions/setup-env
-
-      - name: Make gradlew executable
-        run: chmod +x gradlew
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
 
       - name: Build project
-        run: ./gradlew build
+        run: ./gradlew clean build
 
       - name: Upload base JARs
         uses: actions/upload-artifact@v4
@@ -43,8 +39,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      # Common setup
-      - uses: ./.github/actions/setup-env
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
 
       - name: Download base JARs
         uses: actions/download-artifact@v5
@@ -73,8 +69,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      # Common setup
-      - uses: ./.github/actions/setup-env
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
 
       - name: Install Inno Setup
         run: choco install -y innosetup
@@ -121,4 +117,3 @@ jobs:
           files: |
             dist/linux/**
             dist/windows/**
-
