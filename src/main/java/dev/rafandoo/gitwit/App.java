@@ -4,7 +4,7 @@ import dev.rafandoo.gitwit.cli.*;
 import dev.rafandoo.gitwit.cli.*;
 import dev.rafandoo.gitwit.cli.*;
 import dev.rafandoo.gitwit.config.GitWitConfig;
-import br.dev.rplus.cup.os.OperatingSystem;
+import dev.rafandoo.cup.os.OperatingSystem;
 import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.TerminalService;

@@ -1,8 +1,8 @@
 package dev.rafandoo.gitwit.config;
 
-import br.dev.rplus.cup.config.Config;
-import br.dev.rplus.cup.config.ConfigLoader;
-import br.dev.rplus.cup.config.source.YamlConfigSource;
+import dev.rafandoo.cup.config.Config;
+import dev.rafandoo.cup.config.ConfigLoader;
+import dev.rafandoo.cup.config.source.YamlConfigSource;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
 import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;

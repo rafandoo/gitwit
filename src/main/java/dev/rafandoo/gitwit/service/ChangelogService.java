@@ -1,7 +1,7 @@
 package dev.rafandoo.gitwit.service;
 
 import dev.rafandoo.gitwit.config.GitWitConfig;
-import br.dev.rplus.cup.utils.StringUtils;
+import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.enums.ChangelogScope;
 import dev.rafandoo.gitwit.enums.ConfigPaths;

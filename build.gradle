@@ -4,41 +4,39 @@ import io.github.fvarrui.javapackager.model.*
 plugins {
     id 'java'
     id 'application'
+    id 'dev.rafandoo.versioning' version '1.0.0'
     id 'io.github.fvarrui.javapackager.plugin' version '1.7.5'
 }
 
-apply from: './version.gradle'
-
 group = 'dev.rafandoo'
-version = loadVersion().getVersion()
+version = versioning.name
 description = 'GitWit, an application to help you with commit standardization.'
 
 ext.defaultManifestAttributes = { Project p ->
-    return ['Manifest-Version'      : '1.0',
-            'Main-Class'            : p.application.mainClass,
-            'Specification-Version' : p.version,
-            'Specification-Vendor'  : 'R+ Dev',
-            'Specification-Title'   : 'GitWit',
-            'Implementation-Version': p.version,
-            'Implementation-Vendor' : 'R+ Dev',
-            'Implementation-Title'  : 'GitWit',
-            'Built-Date'            : new Date().toString(),
-            'Built-JDK'             : System.getProperty('java.version'),
-            'Built-OS'              : System.getProperty('os.name'),
-            'Built-OS-Version'      : System.getProperty('os.version'),
-            'Built-OS-Architecture' : System.getProperty('os.arch')]
+    return [
+        'Manifest-Version'      : '1.0',
+        'Main-Class'            : p.application.mainClass,
+        'Specification-Version' : p.version,
+        'Specification-Vendor'  : 'R+ Dev',
+        'Specification-Title'   : 'GitWit',
+        'Implementation-Version': p.version,
+        'Implementation-Vendor' : 'R+ Dev',
+        'Implementation-Title'  : 'GitWit',
+        'Built-Date'            : new Date().toString(),
+        'Built-JDK'             : System.getProperty('java.version'),
+        'Built-OS'              : System.getProperty('os.name'),
+        'Built-OS-Version'      : System.getProperty('os.version'),
+        'Built-OS-Architecture' : System.getProperty('os.arch')
+    ]
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        url = 'https://raw.githubusercontent.com/rafandoo/cup/mvn-repo/'
-    }
 }
 
 dependencies {
-    implementation 'br.dev.rplus:cup-core:0.2.3'
+    implementation 'dev.rafandoo:cup-core:1.0.0'
 
     implementation 'info.picocli:picocli:4.7.7'
     annotationProcessor 'info.picocli:picocli-codegen:4.7.7'
@@ -57,6 +55,9 @@ dependencies {
     // Testing
     testImplementation platform('org.junit:junit-bom:5.13.3')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core:5.5.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.5.0'
+    testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
 
     // Lombok
     compileOnly("org.projectlombok:lombok:1.18.42")
@@ -168,7 +169,7 @@ tasks.register('packageWindows', PackageTask) {
         removeOldLibs = true
 
         setupLanguages = [
-            english : 'compiler:Default.isl',
+            english   : 'compiler:Default.isl',
             portuguese: "${project.projectDir.toString()}\\src\\main\\deploy\\languages\\BrazilianPortuguese.isl"
         ]
 
