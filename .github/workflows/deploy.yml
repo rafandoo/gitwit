@@ -43,7 +43,7 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: Download base JARs
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: project-libs
           path: build/libs
@@ -76,7 +76,7 @@ jobs:
         run: choco install -y innosetup
 
       - name: Download base JARs
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: project-libs
           path: build/libs
@@ -97,13 +97,13 @@ jobs:
       contents: write
     steps:
       - name: Download Linux installers
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: linux-installers
           path: dist/linux
 
       - name: Download Windows installer
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: windows-installer
           path: dist/windows
