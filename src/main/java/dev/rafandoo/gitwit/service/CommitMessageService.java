@@ -137,7 +137,7 @@ public final class CommitMessageService {
                 CommitPromptKeys.COMMIT_LONG_DESC
             );
 
-            if (message.shortDescription() != null) {
+            if (message.longDescription() != null) {
                 int longMin = config.getLongDescription().getMinLength();
                 int longMax = config.getLongDescription().getMaxLength();
 

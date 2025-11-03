@@ -33,6 +33,8 @@ public final class ChangelogService {
 
     private static ChangelogService instance;
 
+    private static final String NEW_LINE = "\n\n";
+
     /**
      * Private constructor to prevent instantiation.
      */
@@ -134,13 +136,13 @@ public final class ChangelogService {
                 1
             );
             heading.setUnderlineStyle(false);
-            sb.append(heading).append("\n\n");
+            sb.append(heading).append(NEW_LINE);
         }
 
         if (!StringUtils.isNullOrBlank(subtitle)) {
             Heading headingSubtitle = new Heading(subtitle, 2);
             headingSubtitle.setUnderlineStyle(false);
-            sb.append(headingSubtitle).append("\n\n");
+            sb.append(headingSubtitle).append(NEW_LINE);
         }
 
         if (config.getChangelog().isShowBreakingChanges()) {
@@ -162,8 +164,8 @@ public final class ChangelogService {
                 );
             });
             if (!allBreakingChanges.isEmpty()) {
-                sb.append(new Heading("Breaking Changes", 3)).append("\n\n");
-                sb.append(new UnorderedList<>(allBreakingChanges)).append("\n\n");
+                sb.append(new Heading("Breaking Changes", 3)).append(NEW_LINE);
+                sb.append(new UnorderedList<>(allBreakingChanges)).append(NEW_LINE);
             }
         }
 
@@ -176,8 +178,8 @@ public final class ChangelogService {
                     ))
                     .collect(Collectors.toList());
                 if (!messages.isEmpty()) {
-                    sb.append(new Heading(typeTitle, 3)).append("\n\n");
-                    sb.append(new UnorderedList<>(messages)).append("\n\n");
+                    sb.append(new Heading(typeTitle, 3)).append(NEW_LINE);
+                    sb.append(new UnorderedList<>(messages)).append(NEW_LINE);
                 }
 
                 groupedByType.remove(typeKey);
@@ -195,7 +197,7 @@ public final class ChangelogService {
                 .toList();
             if (!others.isEmpty()) {
                 sb.append(new Heading(I18nService.getInstance().getMessage("changelog.other_changes"), 3))
-                    .append("\n\n");
+                    .append(NEW_LINE);
                 sb.append(new UnorderedList<>(others));
             }
         }
@@ -215,7 +217,7 @@ public final class ChangelogService {
         Path changelogFile = this.getChangelogFile();
 
         if (append) {
-            String separator = Files.exists(changelogFile) ? "\n\n" : "";
+            String separator = Files.exists(changelogFile) ? NEW_LINE : "";
             Files.writeString(changelogFile, separator + content, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } else {
             Files.writeString(changelogFile, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);

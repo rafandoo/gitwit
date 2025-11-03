@@ -22,7 +22,7 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: Build project
-        run: ./gradlew clean build
+        run: ./gradlew clean build --no-daemon
 
       - name: Upload base JARs
         uses: actions/upload-artifact@v4

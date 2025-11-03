@@ -1,0 +1,35 @@
+---
+
+types:
+  values:
+    feat: "A new feature"
+    fix: "A bug fix"
+    docs: "Documentation only changes"
+    style: "Changes that do not affect the meaning of the code (e.g. formatting)"
+    refactor: "Code changes that neither fix a bug nor add a feature"
+    test: "Adding or correcting tests"
+    chore: "Other changes that don't modify src or test files"
+
+scope:
+  required: false
+  type: list
+  values:
+    - core
+    - api
+    - cli
+    - ui
+    - infra
+    - tests
+    - docs
+    - config
+
+shortDescription:
+  required: true
+  minLength: 5
+  maxLength: 70
+
+longDescription:
+  enabled: true
+  required: false
+  minLength: 20
+  maxLength: 100

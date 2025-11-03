@@ -20,6 +20,7 @@ import org.jline.terminal.Terminal;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -82,7 +83,7 @@ public class CommitWizard {
             !this.config.getScope().isRequired()
         );
 
-        switch (this.config.getScope().getType().toLowerCase()) {
+        switch (this.config.getScope().getType().toLowerCase(Locale.ROOT)) {
             case "list" -> {
                 Map<String, String> scopes = this.validateAndCopy(this.config.getScope().getValues(), 12)
                     .keySet()

@@ -8,6 +8,7 @@ import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.GitService;
 import dev.rafandoo.gitwit.service.MessageService;
+import dev.rafandoo.gitwit.util.EnvironmentUtil;
 import lombok.Data;
 
 import java.io.IOException;
@@ -15,9 +16,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
- import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * POJO that mirrors the YAML configuration used by the commit tool.
@@ -47,7 +46,7 @@ public class GitWitConfig {
         /**
          * Mapping of commit type identifiers to their human-readable descriptions.
          */
-        private Map<String, String> values;
+        private Map<String, String> values = new HashMap<>();
     }
 
     /**
@@ -64,7 +63,7 @@ public class GitWitConfig {
         /**
          * Indicates whether the scope is mandatory or optional.
          */
-        private boolean required;
+        private boolean required = false;
 
         /**
          * Defines the input type: "text" (free-form) or "list" (predefined values).
@@ -75,7 +74,7 @@ public class GitWitConfig {
         /**
          * List of allowed scope values, only used when type is "list".
          */
-        private List<String> values;
+        private List<String> values = new ArrayList<>();
     }
 
     /**
@@ -109,7 +108,7 @@ public class GitWitConfig {
         /**
          * Enables or disables the long description field.
          */
-        private boolean enabled;
+        private boolean enabled = false;
 
         /**
          * Optional help message to guide the user when writing the long description.
@@ -119,7 +118,7 @@ public class GitWitConfig {
         /**
          * Indicates whether the long description is required.
          */
-        private boolean required;
+        private boolean required = false;
 
         /**
          * Minimum number of characters allowed (default is 0).
@@ -148,7 +147,7 @@ public class GitWitConfig {
          * A map of commit types and their section titles in the changelog.
          * Key = commit type (e.g., "feat"), Value = section title (e.g., "New features").
          */
-        private Map<String, String> types;
+        private Map<String, String> types = new HashMap<>();
 
         /**
          * Whether to show types not listed in the `types` section under a generic "Other Changes" section.
@@ -163,7 +162,7 @@ public class GitWitConfig {
         /**
          * List of commit types to ignore when generating the changelog.
          */
-        private List<String> ignored;
+        private List<String> ignored = new ArrayList<>();
 
         /**
          * Formatting preferences for rendering each commit entry.
@@ -207,7 +206,7 @@ public class GitWitConfig {
         /**
          * Enables the breaking change prompt in the wizard.
          */
-        private boolean enabled;
+        private boolean enabled = false;
 
         /**
          * Optional description to explain what counts as a breaking change.
@@ -221,6 +220,16 @@ public class GitWitConfig {
      * @return {@link GitWitConfig} instance.
      */
     public static GitWitConfig load() {
+        if (EnvironmentUtil.isTesting()) {
+            String testConfigPath = System.getProperty("gitwit.config");
+            if (testConfigPath != null) {
+                Path path = Path.of(testConfigPath);
+                MessageService.getInstance().debug("config.loading", path);
+
+                Config config = ConfigLoader.from(path, new YamlConfigSource());
+                return config.as(GitWitConfig.class);
+            }
+        }
         Path repo = GitService.getInstance().getRepo();
         MessageService.getInstance().debug("config.loading", repo);
         Path configPath = repo.resolve(ConfigPaths.CONFIG_FILE.get().asString());
@@ -254,12 +263,12 @@ public class GitWitConfig {
         String langResource = String.format(resourcePattern, lang);
         String fallbackResource = String.format(resourcePattern, fallback);
 
-        InputStream is = GitWitConfig.class
-            .getClassLoader()
+        InputStream is = Thread.currentThread()
+            .getContextClassLoader()
             .getResourceAsStream(langResource);
         if (is == null) {
-            is = GitWitConfig.class
-                .getClassLoader()
+            is = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream(fallbackResource);
             if (is == null) {
                 throw new GitWitException(ExceptionMessage.CONFIG_EXAMPLE_NOT_FOUND);

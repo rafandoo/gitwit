@@ -20,6 +20,7 @@ public enum ExceptionMessage {
     CONFIG_EXAMPLE_NOT_FOUND(34, "error.config_example_not_found"),
     COMMIT_WIZARD_CREATION_FAILED(2, "error.commit_wizard_creation_failed"),
     COMMIT_MSG_WRITE_FAILED(3, "error.commit_msg_write_failed"),
+    COMMIT_EXECUTION_FAILED(7, "error.commit_execution_failed"),
     TERMINAL_CREATION_ERROR(4, "error.terminal_creation_error"),
     TERMINAL_FINISH_ERROR(5, "error.terminal_finish_error"),
     CONFIGURATION_CANNOT_BE_NULL(6, "error.configuration_cannot_be_null"),
@@ -50,7 +51,9 @@ public enum ExceptionMessage {
     GIT_API_EXCEPTION(34, "error.git.git_api_exception"),
     GIT_CONFIG_INVALID(35, "error.git.git_config_invalid"),
     UNSUPPORTED_OBJECT_TYPE(36, "error.git.unsupported_object_type"),
-    MISSING_OBJECT(37, "error.git.missing_object"),;
+    MISSING_OBJECT(37, "error.git.missing_object"),
+    REV_SPEC_NOT_FOUND(38, "error.git.rev_spec_not_found")
+    ;
 
     private final int code;
     private final String message;

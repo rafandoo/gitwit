@@ -4,6 +4,8 @@ import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
+import dev.rafandoo.gitwit.enums.ExceptionMessage;
+import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.CommitMessageService;
 import dev.rafandoo.gitwit.service.GitService;
 import dev.rafandoo.gitwit.service.MessageService;
@@ -105,7 +107,7 @@ public class Commit extends BaseCommand {
                 commit.getId().abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name()
             );
         } else {
-            MessageService.getInstance().error("commit.execution.failed");
+            throw new GitWitException(ExceptionMessage.COMMIT_EXECUTION_FAILED);
         }
     }
 }
