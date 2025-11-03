@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Install Command Tests")
-public class InstallTest extends AbstractGitMock {
+class InstallTest extends AbstractGitMock {
 
     @AfterEach
     void tearDown() {

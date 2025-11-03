@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Uninstall Command Tests")
-public class UninstallTest extends AbstractGitMock {
+class UninstallTest extends AbstractGitMock {
 
     @AfterEach
     void tearDown() {
