@@ -34,7 +34,7 @@ class LintTest {
 
         assertAll(
             () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
+            () -> assertEquals("", errText)
         );
     }
 
