@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: Build project
-        run: ./gradlew clean build
+        run: ./gradlew clean build --no-daemon
 
   build-docs-pr:
     runs-on: ubuntu-latest

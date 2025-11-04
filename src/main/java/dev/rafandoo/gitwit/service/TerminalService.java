@@ -2,6 +2,7 @@ package dev.rafandoo.gitwit.service;
 
 import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
+import dev.rafandoo.gitwit.util.EnvironmentUtil;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
@@ -47,14 +48,21 @@ public final class TerminalService {
     public synchronized Terminal getTerminal() {
         if (terminal == null) {
             try {
-                terminal = TerminalBuilder.builder()
-                    .name("GitWit Terminal")
-                    .color(true)
-                    .system(true)
-                    .dumb(false)
-                    .encoding(StandardCharsets.UTF_8)
-                    .nativeSignals(true)
-                    .build();
+                if (EnvironmentUtil.isTesting()) {
+                    terminal = TerminalBuilder.builder()
+                        .name("GitWit Test Terminal")
+                        .dumb(true)
+                        .build();
+                } else {
+                    terminal = TerminalBuilder.builder()
+                        .name("GitWit Terminal")
+                        .color(true)
+                        .system(true)
+                        .dumb(false)
+                        .encoding(StandardCharsets.UTF_8)
+                        .nativeSignals(true)
+                        .build();
+                }
 
                 MessageService.getInstance().debug("Terminal type: %s", terminal.getType());
                 MessageService.getInstance().debug("Ansi supported: %s", terminal.getType().contains("ansi"));

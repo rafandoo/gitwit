@@ -1,14 +1,13 @@
 package dev.rafandoo.gitwit;
 
 import dev.rafandoo.gitwit.cli.*;
-import dev.rafandoo.gitwit.cli.*;
-import dev.rafandoo.gitwit.cli.*;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.cup.os.OperatingSystem;
 import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.TerminalService;
 import dev.rafandoo.gitwit.util.EncodingUtil;
+import dev.rafandoo.gitwit.util.EnvironmentUtil;
 import lombok.Getter;
 import picocli.CommandLine;
 
@@ -36,7 +35,6 @@ import java.util.logging.Logger;
     resourceBundle = "i18n.commands.app",
     sortOptions = false
 )
-@SuppressWarnings("CanBeFinal")
 public class App extends BaseCommand {
 
     @Getter
@@ -55,7 +53,7 @@ public class App extends BaseCommand {
     /**
      * Private constructor to prevent instantiation.
      */
-    private App() {
+    public App() {
     }
 
     @Override
@@ -115,9 +113,17 @@ public class App extends BaseCommand {
             EncodingUtil.setSystemEncoding(Charset.defaultCharset().displayName());
         }
 
-        CommandLine cmd = new CommandLine(app);
-        int ec = cmd.execute(args);
-        TerminalService.getInstance().close();
+        int ec;
+        try {
+            CommandLine cmd = new CommandLine(app);
+            ec = cmd.execute(args);
+        } finally {
+            TerminalService.getInstance().close();
+        }
+
+        if (EnvironmentUtil.isTesting()) {
+            return;
+        }
         System.exit(ec);
     }
 

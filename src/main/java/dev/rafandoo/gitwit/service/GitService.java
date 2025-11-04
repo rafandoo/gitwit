@@ -6,6 +6,7 @@ import dev.rafandoo.gitwit.enums.GitConfigScope;
 import dev.rafandoo.gitwit.enums.GitRepositoryParam;
 import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
+import lombok.Generated;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.*;
 import org.eclipse.jgit.errors.ConfigInvalidException;
@@ -27,6 +28,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 /**
@@ -38,6 +40,9 @@ import java.util.stream.Stream;
 public final class GitService {
 
     private static GitService instance;
+
+    private static final String GIT_CONFIG_CORE = "core";
+    private static final String GIT_CONFIG_HOOKS_PATH = "hooksPath";
 
     /**
      * Private constructor to prevent instantiation.
@@ -117,6 +122,7 @@ public final class GitService {
      * @param dest the destination {@link Path} where the file will be moved.
      * @throws GitWitException if an I/O error occurs during file movement.
      */
+    @Generated
     private void moveHookFile(Path src, Path dest) {
         try {
             Files.move(src, dest, StandardCopyOption.REPLACE_EXISTING);
@@ -205,17 +211,17 @@ public final class GitService {
             if (
                 !GitRepositoryParam.HOOKS_DIR_NAME.get()
                     .asString()
-                    .equals(config.getString("core", null, "hooksPath"))
+                    .equals(config.getString(GIT_CONFIG_CORE, null, GIT_CONFIG_HOOKS_PATH))
             ) {
                 config.setString(
-                    "core",
+                    GIT_CONFIG_CORE,
                     null,
-                    "hooksPath",
+                    GIT_CONFIG_HOOKS_PATH,
                     GitRepositoryParam.HOOKS_DIR_NAME.get().asString()
                 );
 
                 config.setString(
-                    "core",
+                    GIT_CONFIG_CORE,
                     null,
                     "editor",
                     GitRepositoryParam.CORE_EDITOR_CAT.get().asString()
@@ -261,11 +267,11 @@ public final class GitService {
 
             StoredConfig config = this.loadGitConfig(GitConfigScope.LOCAL);
             config.load();
-            String configuredHooksPath = config.getString("core", null, "hooksPath");
+            String configuredHooksPath = config.getString(GIT_CONFIG_CORE, null, GIT_CONFIG_HOOKS_PATH);
 
             if (GitRepositoryParam.HOOKS_DIR_NAME.get().asString().equals(configuredHooksPath)) {
-                config.unset("core", null, "hooksPath");
-                config.unset("core", null, "editor");
+                config.unset(GIT_CONFIG_CORE, null, GIT_CONFIG_HOOKS_PATH);
+                config.unset(GIT_CONFIG_CORE, null, "editor");
                 config.save();
                 MessageService.getInstance().info("git.service.hooks.config_cleared");
             } else {
@@ -324,17 +330,17 @@ public final class GitService {
                 if (existing == null) {
                     config.setString("alias", null, alias, this.getAliasCommand());
                     config.save();
-                    MessageService.getInstance().info("git.service.alias.configured", scope.name().toLowerCase());
+                    MessageService.getInstance().info("git.service.alias.configured", scope.name().toLowerCase(Locale.ROOT));
                 } else {
-                    MessageService.getInstance().info("git.service.alias.already_configured", scope.name().toLowerCase());
+                    MessageService.getInstance().info("git.service.alias.already_configured", scope.name().toLowerCase(Locale.ROOT));
                 }
             } else {
                 if (existing != null) {
                     config.unset("alias", null, alias);
                     config.save();
-                    MessageService.getInstance().info("git.service.alias.removed", scope.name().toLowerCase());
+                    MessageService.getInstance().info("git.service.alias.removed", scope.name().toLowerCase(Locale.ROOT));
                 } else {
-                    MessageService.getInstance().info("git.service.alias.not_configured", scope.name().toLowerCase());
+                    MessageService.getInstance().info("git.service.alias.not_configured", scope.name().toLowerCase(Locale.ROOT));
                 }
             }
         } catch (IOException e) {
@@ -412,6 +418,7 @@ public final class GitService {
      * @return the created {@link RevCommit} representing the new commit.
      * @throws GitWitException if any Git-related errors occur during the commit process.
      */
+    @Generated
     public RevCommit commit(CommitMessage commitMessage, boolean autoAdd, boolean amend) {
         RevCommit commit;
         try (Git git = Git.open(this.getGit().toFile())) {
@@ -419,6 +426,11 @@ public final class GitService {
                 MessageService.getInstance().info("git.service.commit.adding_files");
                 git.add().addFilepattern(".").setRenormalize(false).call();
             }
+
+            if (commitMessage == null) {
+                throw new GitWitException(ExceptionMessage.NO_COMMIT_MESSAGE);
+            }
+
             commit = git.commit()
                 .setMessage(commitMessage.format())
                 .setSign(false)
@@ -457,9 +469,11 @@ public final class GitService {
      * @return list of {@link RevCommit}, inclusive from and to (if reachable).
      */
     public List<RevCommit> getCommits(String from, String to) {
+        RevWalk walk = null;
+        Repository repo = null;
         try (Git git = Git.open(this.getGit().toFile())) {
-            Repository repo = git.getRepository();
-            RevWalk walk = new RevWalk(repo);
+            repo = git.getRepository();
+            walk = new RevWalk(repo);
             walk.setRetainBody(true);
 
             List<RevCommit> commitList = new ArrayList<>();
@@ -510,6 +524,13 @@ public final class GitService {
             throw new GitWitException(ExceptionMessage.NO_HEAD);
         } catch (GitAPIException e) {
             throw new GitWitException(ExceptionMessage.GIT_API_EXCEPTION, e);
+        } finally {
+            if (walk != null) {
+                walk.close();
+            }
+            if (repo != null) {
+                repo.close();
+            }
         }
     }
 
@@ -524,6 +545,9 @@ public final class GitService {
      */
     private ObjectId resolveCommitId(Repository repo, RevWalk walk, String rev) throws IOException {
         ObjectId id = repo.resolve(rev);
+        if (id == null) {
+            throw new GitWitException(ExceptionMessage.REV_SPEC_NOT_FOUND, rev);
+        }
         RevObject obj = walk.parseAny(id);
 
         if (obj instanceof RevTag tag) {

@@ -1,7 +1,7 @@
 package dev.rafandoo.gitwit.service;
 
 import dev.rafandoo.gitwit.config.GitWitConfig;
-import dev.rafandoo.cup.utils.StringUtils;
+import br.dev.rplus.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.enums.ChangelogScope;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
 public final class ChangelogService {
 
     private static ChangelogService instance;
-
-    private static final String NEW_LINE = "\n\n";
 
     /**
      * Private constructor to prevent instantiation.
@@ -99,6 +97,10 @@ public final class ChangelogService {
         List<RevCommit> commits = GitService.getInstance()
             .getCommits(from, Objects.requireNonNullElse(to, Constants.HEAD));
 
+        commits.removeIf(
+            commit -> commit.getShortMessage().contains("Merge branch") || commit.getShortMessage().contains("Merge pull request")
+        );
+
         List<CommitMessage> commitMessages = new ArrayList<>();
         commits.forEach(commit -> commitMessages.add(CommitMessage.of(commit)));
 
@@ -136,13 +138,13 @@ public final class ChangelogService {
                 1
             );
             heading.setUnderlineStyle(false);
-            sb.append(heading).append(NEW_LINE);
+            sb.append(heading).append("\n\n");
         }
 
         if (!StringUtils.isNullOrBlank(subtitle)) {
             Heading headingSubtitle = new Heading(subtitle, 2);
             headingSubtitle.setUnderlineStyle(false);
-            sb.append(headingSubtitle).append(NEW_LINE);
+            sb.append(headingSubtitle).append("\n\n");
         }
 
         if (config.getChangelog().isShowBreakingChanges()) {
@@ -164,8 +166,8 @@ public final class ChangelogService {
                 );
             });
             if (!allBreakingChanges.isEmpty()) {
-                sb.append(new Heading("Breaking Changes", 3)).append(NEW_LINE);
-                sb.append(new UnorderedList<>(allBreakingChanges)).append(NEW_LINE);
+                sb.append(new Heading("Breaking Changes", 3)).append("\n\n");
+                sb.append(new UnorderedList<>(allBreakingChanges)).append("\n\n");
             }
         }
 
@@ -178,8 +180,8 @@ public final class ChangelogService {
                     ))
                     .collect(Collectors.toList());
                 if (!messages.isEmpty()) {
-                    sb.append(new Heading(typeTitle, 3)).append(NEW_LINE);
-                    sb.append(new UnorderedList<>(messages)).append(NEW_LINE);
+                    sb.append(new Heading(typeTitle, 3)).append("\n\n");
+                    sb.append(new UnorderedList<>(messages)).append("\n\n");
                 }
 
                 groupedByType.remove(typeKey);
@@ -197,7 +199,7 @@ public final class ChangelogService {
                 .toList();
             if (!others.isEmpty()) {
                 sb.append(new Heading(I18nService.getInstance().getMessage("changelog.other_changes"), 3))
-                    .append(NEW_LINE);
+                    .append("\n\n");
                 sb.append(new UnorderedList<>(others));
             }
         }
@@ -217,7 +219,7 @@ public final class ChangelogService {
         Path changelogFile = this.getChangelogFile();
 
         if (append) {
-            String separator = Files.exists(changelogFile) ? NEW_LINE : "";
+            String separator = Files.exists(changelogFile) ? "\n\n" : "";
             Files.writeString(changelogFile, separator + content, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } else {
             Files.writeString(changelogFile, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
