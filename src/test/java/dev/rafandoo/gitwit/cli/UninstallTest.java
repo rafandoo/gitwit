@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Uninstall Command Tests")
@@ -33,19 +33,21 @@ class UninstallTest extends AbstractGitMock {
         when(spyGitService.getRepo()).thenReturn(tempDir);
 
         String[] installArgs = {"install"};
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(installArgs);
-            assertEquals(0, exitCode);
-        });
-        assertTrue(errText.isBlank());
+
+        AtomicInteger exitCodeInstall = new AtomicInteger();
+        String errTextInstall = tapSystemErr(() -> exitCodeInstall.set(TestUtils.executeCommand(installArgs)));
 
         String[] uninstallArgs = {"uninstall"};
-        errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(uninstallArgs);
-            assertEquals(0, exitCode);
-        });
 
-        assertTrue(errText.isBlank());
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(uninstallArgs)));
+
+        assertAll(
+            () -> assertEquals(0, exitCodeInstall.get()),
+            () -> assertTrue(errTextInstall.isBlank()),
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
 
         verify(spyGitService).removeGitAliasLocal();
     }
@@ -62,21 +64,24 @@ class UninstallTest extends AbstractGitMock {
             "install",
             "--global"
         };
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(installArgs);
-            assertEquals(0, exitCode);
-        });
-        assertTrue(errText.isBlank());
+
+        AtomicInteger exitCodeInstall = new AtomicInteger();
+        String errTextInstall = tapSystemErr(() -> exitCodeInstall.set(TestUtils.executeCommand(installArgs)));
 
         String[] uninstallArgs = {
             "uninstall",
             "--global"
         };
-        errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(uninstallArgs);
-            assertEquals(0, exitCode);
-        });
-        assertTrue(errText.isBlank());
+
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(uninstallArgs)));
+
+        assertAll(
+            () -> assertEquals(0, exitCodeInstall.get()),
+            () -> assertTrue(errTextInstall.isBlank()),
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
 
         verify(spyGitService).removeGitAliasGlobal();
     }
@@ -93,21 +98,24 @@ class UninstallTest extends AbstractGitMock {
             "install",
             "--hook"
         };
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(installArgs);
-            assertEquals(0, exitCode);
-        });
-        assertTrue(errText.isBlank());
+
+        AtomicInteger exitCodeInstall = new AtomicInteger();
+        String errTextInstall = tapSystemErr(() -> exitCodeInstall.set(TestUtils.executeCommand(installArgs)));
 
         String[] uninstallArgs = {
             "uninstall",
             "--hook"
         };
-        errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(uninstallArgs);
-            assertEquals(0, exitCode);
-        });
-        assertTrue(errText.isBlank());
+
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(uninstallArgs)));
+
+        assertAll(
+            () -> assertEquals(0, exitCodeInstall.get()),
+            () -> assertTrue(errTextInstall.isBlank()),
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
 
         verify(spyGitService, never()).configureGitAliasLocal();
         verify(spyGitService, never()).configureGitAliasGlobal();
@@ -129,11 +137,12 @@ class UninstallTest extends AbstractGitMock {
             "--global"
         };
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(1, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertTrue(errText.contains(I18nService.getInstance().getMessage("uninstall.conflict.hook_global")));
+        assertAll(
+            () -> assertEquals(1, exitCode.get()),
+            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("uninstall.conflict.hook_global")))
+        );
     }
 }

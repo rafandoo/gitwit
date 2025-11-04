@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -42,12 +44,13 @@ class CommitTest extends AbstractGitMock {
             "-d", "Add new feature Z"
         };
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(0, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertEquals("", errText.trim());
+        assertAll(
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
     }
 
     @Test
@@ -65,12 +68,13 @@ class CommitTest extends AbstractGitMock {
             "-d", "Add new feature Z"
         };
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(1, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertTrue(errText.contains(I18nService.getInstance().getMessage(ExceptionMessage.COMMIT_EXECUTION_FAILED.getMessage())));
+        assertAll(
+            () -> assertEquals(1, exitCode.get()),
+            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage(ExceptionMessage.COMMIT_EXECUTION_FAILED.getMessage())))
+        );
     }
 
     @Test
@@ -86,12 +90,13 @@ class CommitTest extends AbstractGitMock {
             "-d", "Add new feature Z"
         };
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(1, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertTrue(errText.contains(I18nService.getInstance().getMessage("commit.validation.violations")));
+        assertAll(
+            () -> assertEquals(1, exitCode.get()),
+            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("commit.validation.violations")))
+        );
     }
 
     @Test
@@ -122,12 +127,13 @@ class CommitTest extends AbstractGitMock {
                 "commit",
             };
 
-            String errText = tapSystemErr(() -> {
-                int exitCode = TestUtils.executeCommand(args);
-                assertEquals(0, exitCode);
-            });
+            AtomicInteger exitCode = new AtomicInteger();
+            String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-            assertEquals("", errText.trim());
+            assertAll(
+                () -> assertEquals(0, exitCode.get()),
+                () -> assertTrue(errText.isBlank())
+            );
         }
     }
 

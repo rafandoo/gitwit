@@ -14,6 +14,7 @@ import org.mockito.MockedStatic;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,12 +74,13 @@ class ChangelogTest extends AbstractGitMock {
             "--to", "5678"
         };
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(0, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertTrue(errText.isEmpty());
+        assertAll(
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
     }
 
     @Test
@@ -101,11 +103,12 @@ class ChangelogTest extends AbstractGitMock {
             "--copy"
         };
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(0, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertTrue(errText.isEmpty());
+        assertAll(
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
     }
 }

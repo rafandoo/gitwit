@@ -15,6 +15,7 @@ import org.mockito.MockedStatic;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,12 +52,13 @@ class HookTest {
                 tempFile.toString()
             };
 
-            String errText = tapSystemErr(() -> {
-                int exitCode = TestUtils.executeCommand(args);
-                assertEquals(0, exitCode);
-            });
+            AtomicInteger exitCode = new AtomicInteger();
+            String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-            assertEquals("", errText.trim());
+            assertAll(
+                () -> assertEquals(0, exitCode.get()),
+                () -> assertTrue(errText.isBlank())
+            );
         }
     }
 
@@ -90,12 +92,13 @@ class HookTest {
                     "file.txt"
                 };
 
-                String errText = tapSystemErr(() -> {
-                    int exitCode = TestUtils.executeCommand(args);
-                    assertEquals(1, exitCode);
-                });
+                AtomicInteger exitCode = new AtomicInteger();
+                String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-                assertTrue(errText.contains(I18nService.getInstance().getMessage(ExceptionMessage.COMMIT_MSG_WRITE_FAILED.getMessage())));
+                assertAll(
+                    () -> assertEquals(1, exitCode.get()),
+                    () -> assertTrue(errText.contains(I18nService.getInstance().getMessage(ExceptionMessage.COMMIT_MSG_WRITE_FAILED.getMessage())))
+                );
             }
         }
     }

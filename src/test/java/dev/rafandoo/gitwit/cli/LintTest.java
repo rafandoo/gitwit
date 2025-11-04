@@ -9,6 +9,7 @@ import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,12 +29,13 @@ class LintTest {
             "--to", "eb2b9188883d29508a818129ac7e6ce5584db0c0"
         };
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(0, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertTrue(errText.isBlank());
+        assertAll(
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
     }
 
     @Test
@@ -49,12 +51,14 @@ class LintTest {
             when(spyGitService.getCommits(null, null)).thenReturn(List.of(commit));
 
             String[] args = {"lint"};
-            String errText = tapSystemErr(() -> {
-                int exitCode = TestUtils.executeCommand(args);
-                assertEquals(0, exitCode);
-            });
 
-            assertTrue(errText.isBlank());
+            AtomicInteger exitCode = new AtomicInteger();
+            String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
+
+            assertAll(
+                () -> assertEquals(0, exitCode.get()),
+                () -> assertTrue(errText.isBlank())
+            );
         }
     }
 
@@ -64,15 +68,17 @@ class LintTest {
         TestUtils.setupConfig(".lint.repo.gitwit");
         String[] args = {"lint", "--from", "invalidSHA"};
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(1, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
         String expectedMessage = I18nService.getInstance().getMessage(
             "error.git.rev_spec_not_found",
             "invalidSHA"
         );
-        assertTrue(errText.contains(expectedMessage));
+
+        assertAll(
+            () -> assertEquals(1, exitCode.get()),
+            () -> assertTrue(errText.contains(expectedMessage))
+        );
     }
 }

@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Install Command Tests")
@@ -34,12 +34,13 @@ class InstallTest extends AbstractGitMock {
 
         String[] args = {"install"};
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(0, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertTrue(errText.isBlank());
+        assertAll(
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
 
         verify(spyGitService).configureGitAliasLocal();
         verify(spyGitService, never()).configureGitAliasGlobal();
@@ -59,12 +60,13 @@ class InstallTest extends AbstractGitMock {
             "--global"
         };
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(0, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertTrue(errText.isBlank());
+        assertAll(
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
 
         verify(spyGitService).configureGitAliasGlobal();
         verify(spyGitService, never()).configureGitAliasLocal();
@@ -84,12 +86,13 @@ class InstallTest extends AbstractGitMock {
             "--hook"
         };
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(0, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertTrue(errText.isBlank());
+        assertAll(
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
 
         verify(spyGitService).setupCommitWizardHook(false);
         verify(spyGitService, never()).configureGitAliasLocal();
@@ -110,12 +113,13 @@ class InstallTest extends AbstractGitMock {
             "--global"
         };
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(1, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertTrue(errText.contains(I18nService.getInstance().getMessage("install.conflict.hook_global")));
+        assertAll(
+            () -> assertEquals(1, exitCode.get()),
+            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("install.conflict.hook_global")))
+        );
 
         verify(spyGitService, never()).configureGitAliasGlobal();
         verify(spyGitService, never()).configureGitAliasLocal();
@@ -136,12 +140,13 @@ class InstallTest extends AbstractGitMock {
             "--force"
         };
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(0, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertTrue(errText.isBlank());
+        assertAll(
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
 
         verify(spyGitService).setupCommitWizardHook(true);
         verify(spyGitService, never()).configureGitAliasLocal();
@@ -159,12 +164,13 @@ class InstallTest extends AbstractGitMock {
             "--hook"
         };
 
-        String errText = tapSystemErr(() -> {
-            int exitCode = TestUtils.executeCommand(args);
-            assertEquals(1, exitCode);
-        });
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertTrue(errText.contains(I18nService.getInstance().getMessage("error.not_a_git_repository")));
+        assertAll(
+            () -> assertEquals(1, exitCode.get()),
+            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("error.not_a_git_repository")))
+        );
 
         verify(spyGitService).setupCommitWizardHook(false);
         verify(spyGitService, never()).configureGitAliasLocal();
