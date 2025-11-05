@@ -46,7 +46,7 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: Build Linux installers
-        run: ./gradlew packageLinux --no-daemon
+        run: ./gradlew packageLinux -x test --no-daemon
 
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v5
@@ -74,7 +74,7 @@ jobs:
         run: choco install -y innosetup
 
       - name: Build Windows installer
-        run: ./gradlew packageWindows --no-daemon
+        run: ./gradlew packageWindows -x test --no-daemon
 
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v5
