@@ -1,4 +1,4 @@
-name: Project deployment for a release
+name: Release Deployment
 
 on:
   release:
@@ -6,57 +6,49 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy
+  group: deploy-release
   cancel-in-progress: false
 
 jobs:
-  build:
+  build-and-test:
+    name: 🧪 Build & Test Project
     runs-on: ubuntu-latest
     permissions:
       contents: read
+
     steps:
-      - name: Checkout repository
+      - name: Checkout source code
         uses: actions/checkout@v5
 
-      - name: Setup environment
+      - name: Set Up Build Environment
         uses: ./.github/actions/setup-env
 
-      - name: Build project
-        run: ./gradlew clean build --no-daemon
+      - name: Run Build & Tests
+        run: ./gradlew clean check --no-daemon
 
-      - name: Upload coverage reports to Codecov
+      - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Upload base JARs
-        uses: actions/upload-artifact@v5
-        with:
-          name: project-libs
-          path: build/libs/*.jar
-
   package-linux:
+    name: 📦 Package Linux Installers
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-and-test
     permissions:
       contents: read
+
     steps:
-      - name: Checkout repository
+      - name: Checkout Source Code
         uses: actions/checkout@v5
 
-      - name: Setup environment
+      - name: Set Up Build Environment
         uses: ./.github/actions/setup-env
 
-      - name: Download base JARs
-        uses: actions/download-artifact@v6
-        with:
-          name: project-libs
-          path: build/libs
+      - name: Build Linux installers
+        run: ./gradlew packageLinux --no-daemon
 
-      - name: Package Linux installers
-        run: ./gradlew packageLinux
-
-      - name: Upload Linux installers
+      - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v5
         with:
           name: linux-installers
@@ -64,56 +56,53 @@ jobs:
             build/packager/*.deb
             build/packager/*.rpm
 
-
   package-windows:
+    name: 📦 Package Windows Installer
     runs-on: windows-latest
-    needs: build
+    needs: build-and-test
     permissions:
       contents: read
+
     steps:
-      - name: Checkout repository
+      - name: Checkout Source Code
         uses: actions/checkout@v5
 
-      - name: Setup environment
+      - name: Set Up Build Environment
         uses: ./.github/actions/setup-env
 
       - name: Install Inno Setup
         run: choco install -y innosetup
 
-      - name: Download base JARs
-        uses: actions/download-artifact@v6
-        with:
-          name: project-libs
-          path: build/libs
+      - name: Build Windows installer
+        run: ./gradlew packageWindows --no-daemon
 
-      - name: Package Windows installer
-        run: ./gradlew packageWindows
-
-      - name: Upload Windows installer
+      - name: Upload Windows Artifact
         uses: actions/upload-artifact@v5
         with:
           name: windows-installer
           path: build/packager/*.exe
 
   release:
+    name: 🚀 Publish Release Artifacts
     runs-on: ubuntu-latest
     needs: [ package-linux, package-windows ]
     permissions:
       contents: write
+
     steps:
-      - name: Download Linux installers
+      - name: Download Linux Artifacts
         uses: actions/download-artifact@v6
         with:
           name: linux-installers
           path: dist/linux
 
-      - name: Download Windows installer
+      - name: Download Windows Artifact
         uses: actions/download-artifact@v6
         with:
           name: windows-installer
           path: dist/windows
 
-      - name: Verify release artifacts
+      - name: Verify Release Artifacts
         run: ls -R dist
 
       - name: Create GitHub Release

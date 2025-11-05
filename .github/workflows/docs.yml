@@ -1,4 +1,4 @@
-name: Deploy Documentation site to GitHub Pages
+name: Deploy Documentation to GitHub Pages
 
 on:
   release:
@@ -14,44 +14,45 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: deploy-docs
   cancel-in-progress: false
 
 jobs:
   build-docs:
+    name: 🛠 Build Documentation Site
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Source Code
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Setup Bun
+      - name: Set Up Bun Environment
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: Setup Pages
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Install dependencies
+      - name: Install Documentation Dependencies
         run: bun install
         working-directory: ./src/main/docs
 
-      - name: Build with VitePress
+      - name: Build VitePress Documentation
         run: |
           bun run docs:build
           touch .vitepress/dist/.nojekyll
         working-directory: ./src/main/docs
 
-      - name: Upload artifacts
+      - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v4
         with:
           path: ./src/main/docs/.vitepress/dist
 
   deploy-docs:
-    name: Deploy
+    name: 🚀 Deploy to GitHub Pages
     needs: build-docs
     permissions:
       pages: write
@@ -62,6 +63,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy Artifacts to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

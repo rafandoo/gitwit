@@ -1,4 +1,4 @@
-name: Build Pull Request
+name: Validate Pull Request
 
 on:
   pull_request:
@@ -10,37 +10,39 @@ permissions:
   pull-requests: read
 
 jobs:
-  build-backend-pr:
+  validate-backend:
+    name: 🧪 Build & Test Backend
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Source Code
         uses: actions/checkout@v5
 
-      - name: Setup environment
+      - name: Set Up Build Environment
         uses: ./.github/actions/setup-env
 
-      - name: Build project
+      - name: Run Build & Tests
         run: ./gradlew clean build --no-daemon
 
-  build-docs-pr:
+  validate-docs:
+    name: 📚 Build Documentation
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Source Code
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Setup Bun
+      - name: Set Up Bun Environment
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: Install dependencies
+      - name: Install Documentation Dependencies
         run: bun install
         working-directory: ./src/main/docs
 
-      - name: Build documentation
+      - name: Build Documentation
         run: bun run docs:build
         working-directory: ./src/main/docs
