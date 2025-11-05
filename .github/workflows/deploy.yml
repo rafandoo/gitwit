@@ -24,6 +24,11 @@ jobs:
       - name: Build project
         run: ./gradlew clean build --no-daemon
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Upload base JARs
         uses: actions/upload-artifact@v5
         with:
