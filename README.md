@@ -6,11 +6,6 @@
 
 ---
 
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rafandoo/gitwit/deploy.yml?style=for-the-badge)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rafandoo/gitwit/docs.yml?style=for-the-badge&label=Docs)
-![GitHub Release](https://img.shields.io/github/v/release/rafandoo/gitwit?include_prereleases&style=for-the-badge)
-![Codecov](https://img.shields.io/codecov/c/github/rafandoo/gitwit?style=for-the-badge)
-
 ## 🧰 Status & Ecosystem
 
 <p align="center">
