@@ -3,7 +3,6 @@ name: Release Deployment
 on:
   release:
     types: [ published ]
-  workflow_dispatch:
 
 concurrency:
   group: deploy-release
