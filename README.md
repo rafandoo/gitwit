@@ -12,20 +12,20 @@
 
   <!-- CI Status -->
   <a href="https://github.com/rafandoo/gitwit/actions/workflows/deploy.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/rafandoo/gitwit/deploy.yml?style=for-the-badge&label=Build" alt="Build Status">
+    <img src="https://img.shields.io/github/actions/workflow/status/rafandoo/gitwit/deploy.yml?colorA=363a4f&colorB=a6da95&style=for-the-badge&label=Build" alt="Build Status">
   </a>
   <a href="https://github.com/rafandoo/gitwit/actions/workflows/docs.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/rafandoo/gitwit/docs.yml?style=for-the-badge&label=Docs" alt="Docs Status">
+    <img src="https://img.shields.io/github/actions/workflow/status/rafandoo/gitwit/docs.yml?colorA=363a4f&colorB=a6da95&style=for-the-badge&label=Docs" alt="Docs Status">
   </a>
 
   <!-- Releases -->
   <a href="https://github.com/rafandoo/gitwit/releases">
-    <img src="https://img.shields.io/github/v/release/rafandoo/gitwit?include_prereleases&style=for-the-badge" alt="Latest Release">
+    <img src="https://img.shields.io/github/v/release/rafandoo/gitwit?include_prereleases&colorA=363a4f&colorB=f5a97f&style=for-the-badge" alt="Latest Release">
   </a>
 
   <!-- Code Quality -->
   <a href="https://app.codecov.io/gh/rafandoo/gitwit">
-    <img src="https://img.shields.io/codecov/c/github/rafandoo/gitwit?style=for-the-badge" alt="Code Coverage">
+    <img src="https://img.shields.io/codecov/c/github/rafandoo/gitwit?colorA=363a4f&style=for-the-badge" alt="Code Coverage">
   </a>
 
 </p>

@@ -174,6 +174,7 @@ application {
 
 javapackager {
     mainClass = project.application.getMainClass().get()
+    displayName = 'GitWit'
 
     url = 'https://rafandoo.dev/gitwit/'
     organizationName = 'R+ Dev'
@@ -200,6 +201,9 @@ tasks.register('packageLinux', PackageTask) {
 
     linuxConfig(({
         generateAppImage = false
+        generateDeb = true
+        generateRpm = true
+        wrapJar = true
         categories = ['Utility']
     } as Closure<LinuxConfig>))
 }
