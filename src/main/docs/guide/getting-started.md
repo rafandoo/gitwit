@@ -9,29 +9,20 @@ To better understand what it is and what it's for, see [What is GitWit?](./what-
 
 Before installing GitWit, make sure your environment meets the minimum requirements:
 
-- Java JRE 21 or higher
-
-GitWit is developed in Java, so you need the Java Runtime Environment installed.
-To check your Java version, run:
-
-```bash
-java -version
-```
-
 - Git installed and configured
 
-GitWit interacts directly with Git repositories, so having Git installed is essential. Verify the installation with:
-
-```bash
-git --version
-```
+  GitWit interacts directly with Git repositories, so having Git installed is essential. 
+  Verify the installation with:
+  
+  ```bash
+  git --version
+  ```
 
 <br>
 
 ::: info 💡 Tip
-If you don't have Java or Git installed, check the official pages:
+If you don't have Git installed, check the official page:
 
-- [Download Java](https://adoptium.net/pt-BR/temurin/releases)
 - [Download Git](https://git-scm.com/downloads)
 :::
 
@@ -42,19 +33,25 @@ You can get the packages directly from the [Releases](https://github.com/rafando
 
 In the attachments for each release, you'll find:
 
-- Linux: .deb and .rpm packages (e.g., gitwit_1.0.0-RC2.deb, gitwit_1.0.0-RC2.rpm)
-- Windows: .exe installer (e.g., gitwit_1.0.0-RC2.exe)
+- Linux: .deb and .rpm packages (e.g., gitwit_1.0.0.deb, gitwit_1.0.0.rpm)
+- Windows: .exe installer (e.g., gitwit_1.0.0.exe)
 
 Choose the package corresponding to your system and follow the standard installation process for your platform.
 
 To check the latest version of GitWit, click [here](https://github.com/rafandoo/gitwit/releases/latest).
 
+::: info ⚠ Important
+GitWit is developed in Java, so it requires the Java Runtime Environment (JRE) to function.
+To simplify installation, all packages already include a minimum version of the JRE, so you don't need to install it separately.
+:::
+
 ## 3. Running GitWit
 
 After installation, GitWit will be available directly from the terminal:
 
-bash
+```bash
 gitwit -h
+```
 
 This command will display GitWit help, listing all available commands and their options.
 

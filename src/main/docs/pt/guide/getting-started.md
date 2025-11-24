@@ -9,15 +9,6 @@ Para entender melhor o que é e para que serve, veja [O que é o GitWit?](./what
 
 Antes de instalar o GitWit, certifique-se de que seu ambiente atende aos requisitos mínimos:
 
-- Java JRE 21 ou superior
-
-  O GitWit é desenvolvido em Java, portanto você precisa do Java Runtime Environment instalado.
-  Para verificar sua versão do Java, execute:
-
-  ```bash
-  java -version
-  ```
-
 - Git instalado e configurado
 
   O GitWit interage diretamente com repositórios Git, então é essencial ter o Git instalado.
@@ -30,9 +21,8 @@ Antes de instalar o GitWit, certifique-se de que seu ambiente atende aos requisi
 <br>
 
 ::: info 💡 Dica
-Se você não tem o Java ou o Git instalados, consulte as páginas oficiais:
+Se você não tem o Git instalado, consulte a página oficial:
 
-- [Download Java](https://adoptium.net/pt-BR/temurin/releases)
 - [Download Git](https://git-scm.com/downloads)
 :::
 
@@ -43,12 +33,17 @@ Você pode obter os pacotes diretamente pela página de [Releases](https://githu
 
 Nos anexos de cada release você encontrará:
 
-- Linux: pacotes .deb e .rpm (ex.: gitwit_1.0.0-RC2.deb, gitwit_1.0.0-RC2.rpm)
-- Windows: instalador .exe (ex.: gitwit_1.0.0-RC2.exe)
+- Linux: pacotes .deb e .rpm (ex.: gitwit_1.0.0.deb, gitwit_1.0.0.rpm)
+- Windows: instalador .exe (ex.: gitwit_1.0.0.exe)
 
 Escolha o pacote correspondente ao seu sistema e siga o processo de instalação padrão da sua plataforma.
 
 Para conferir a versão mais recente do GitWit clique [aqui](https://github.com/rafandoo/gitwit/releases/latest).
+
+::: info ⚠ Importante
+O GitWit é desenvolvido em Java, portanto requer o Java Runtime Environment (JRE) para funcionar.  
+Para simplificar a instalação, todos os pacotes já acompanham uma versão mínima do JRE, não sendo necessário instalá-lo separadamente.  
+:::
 
 ## 3. Executando o GitWit
 
