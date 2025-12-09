@@ -5,7 +5,6 @@ import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.entity.Violation;
 import dev.rafandoo.gitwit.enums.CommitPromptKeys;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.util.EmojiUtil;
 
@@ -28,12 +27,12 @@ public final class CommitMessageService {
      */
     private static final Map<Integer, String> MESSAGES = new HashMap<>() {{
         put(1, "commit.validation.invalid_type");
-        put(2, "commit.validation.not_allowed_type");
-        put(3, "commit.validation.missing_scope");
-        put(4, "commit.validation.missing_short_description");
+        put(2, "commit.validation.type_not_allowed");
+        put(3, "commit.validation.scope_required");
+        put(4, "commit.validation.short_description_required");
         put(5, "commit.validation.short_description_too_short");
         put(6, "commit.validation.short_description_too_long");
-        put(7, "commit.validation.missing_long_description");
+        put(7, "commit.validation.long_description_required");
         put(8, "commit.validation.long_description_too_short");
         put(9, "commit.validation.long_description_too_long");
     }};
@@ -165,9 +164,8 @@ public final class CommitMessageService {
             }
 
             throw new GitWitException(
-                ExceptionMessage.GENERAL,
-                true,
-                MessageService.getInstance().getErrorMessage(sb.toString()).toAnsi()
+                MessageService.getInstance().getErrorMessage(sb.toString()).toAnsi(),
+                true
             );
         }
     }
@@ -199,9 +197,8 @@ public final class CommitMessageService {
                 violations.forEach(violation -> sb.append("    - ").append(violation).append("\n"));
             });
             throw new GitWitException(
-                ExceptionMessage.GENERAL,
-                true,
-                MessageService.getInstance().getErrorMessage(sb.toString()).toAnsi()
+                MessageService.getInstance().getErrorMessage(sb.toString()).toAnsi(),
+                true
             );
         }
     }

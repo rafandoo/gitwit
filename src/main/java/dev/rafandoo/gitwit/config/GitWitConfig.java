@@ -4,7 +4,6 @@ import dev.rafandoo.cup.config.Config;
 import dev.rafandoo.cup.config.ConfigLoader;
 import dev.rafandoo.cup.config.source.YamlConfigSource;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.GitService;
 import dev.rafandoo.gitwit.service.MessageService;
@@ -235,7 +234,7 @@ public class GitWitConfig {
         Path configPath = repo.resolve(ConfigPaths.CONFIG_FILE.get().asString());
 
         if (!Files.exists(configPath)) {
-            throw new GitWitException(ExceptionMessage.CONFIG_FILE_NOT_FOUND);
+            throw new GitWitException("config.error.not_found");
         }
 
         Config config = ConfigLoader.from(configPath, new YamlConfigSource());
@@ -255,7 +254,7 @@ public class GitWitConfig {
         Path configPath = repo.resolve(ConfigPaths.CONFIG_FILE.get().asString());
 
         if (Files.exists(configPath)) {
-            MessageService.getInstance().warn("error.config_already_exists");
+            MessageService.getInstance().warn("config.error.exists");
             return;
         }
 
@@ -271,15 +270,15 @@ public class GitWitConfig {
                 .getContextClassLoader()
                 .getResourceAsStream(fallbackResource);
             if (is == null) {
-                throw new GitWitException(ExceptionMessage.CONFIG_EXAMPLE_NOT_FOUND);
+                throw new GitWitException("config.error.example_missing");
             }
         }
 
         try (InputStream stream = is) {
             Files.copy(stream, configPath, StandardCopyOption.REPLACE_EXISTING);
-            MessageService.getInstance().success("success.config_example_generated", configPath);
+            MessageService.getInstance().success("config.example_generated", configPath);
         } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.CONFIG_EXAMPLE_COPY_FAILED, e);
+            throw new GitWitException("config.error.copy_example", e);
         }
     }
 }

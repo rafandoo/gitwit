@@ -3,7 +3,6 @@ package dev.rafandoo.gitwit.cli;
 import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.config.GitWitConfig;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.MessageService;
 import picocli.CommandLine;
@@ -45,9 +44,9 @@ public class Hook extends BaseCommand {
         try {
             Files.writeString(this.messageFile, msg.format());
         } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.COMMIT_MSG_WRITE_FAILED, e);
+            throw new GitWitException("commit.hook.error.commit_write", e);
         }
-        MessageService.getInstance().debug("commit.wizard.message_written", this.messageFile);
-        MessageService.getInstance().success("commit.wizard.message_success");
+        MessageService.getInstance().debug("commit.hook.written", this.messageFile);
+        MessageService.getInstance().success("commit.hook.success");
     }
 }

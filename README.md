@@ -68,8 +68,8 @@ You can get the packages directly from the [Releases](https://github.com/rafando
 
 In the attachments for each release, you'll find:
 
-- Linux: .deb and .rpm packages (e.g., gitwit_1.0.0-RC2.deb, gitwit_1.0.0-RC2.rpm)
-- Windows: .exe installer (e.g., gitwit_1.0.0-RC2.exe)
+- Linux: .deb and .rpm packages (e.g., gitwit_1.0.0.deb, gitwit_1.0.0.rpm)
+- Windows: .exe installer (e.g., gitwit_1.0.0.exe)
 
 Choose the package corresponding to your system and follow the standard installation process for your platform.
 

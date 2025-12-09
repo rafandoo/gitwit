@@ -5,7 +5,6 @@ import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.enums.ChangelogScope;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.util.EmojiUtil;
 import net.steppschuh.markdowngenerator.list.UnorderedList;
@@ -85,7 +84,7 @@ public final class ChangelogService {
             ));
 
         if (types.isEmpty()) {
-            throw new GitWitException(ExceptionMessage.CHANGELOG_TYPES_REQUIRED);
+            throw new GitWitException("changelog.error.types_required");
         }
 
         List<String> ignored = Objects.requireNonNullElse(
@@ -125,7 +124,7 @@ public final class ChangelogService {
         String subtitle
     ) {
         if (groupedByType.isEmpty()) {
-            MessageService.getInstance().warn("warn.changelog_no_commits");
+            MessageService.getInstance().warn("changelog.warn.no_commits");
             return null;
         }
 
@@ -196,7 +195,7 @@ public final class ChangelogService {
                 ))
                 .toList();
             if (!others.isEmpty()) {
-                sb.append(new Heading(I18nService.getInstance().getMessage("changelog.other_changes"), 3))
+                sb.append(new Heading(I18nService.getInstance().getMessage("changelog.other"), 3))
                     .append(NEW_LINE);
                 sb.append(new UnorderedList<>(others));
             }
@@ -245,7 +244,7 @@ public final class ChangelogService {
             if (!StringUtils.isNullOrBlank(defaultTemplate)) {
                 return defaultTemplate;
             }
-            throw new GitWitException(ExceptionMessage.CHANGELOG_NO_TEMPLATE_DEFINED);
+            throw new GitWitException("changelog.error.no_template");
         }
         return template;
     }

@@ -3,7 +3,6 @@ package dev.rafandoo.gitwit;
 import dev.rafandoo.gitwit.cli.*;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.cup.os.OperatingSystem;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.TerminalService;
 import dev.rafandoo.gitwit.util.EncodingUtil;
@@ -80,7 +79,7 @@ public class App extends BaseCommand {
                     .toURI()
             );
         } catch (URISyntaxException e) {
-            throw new GitWitException(ExceptionMessage.APP_DIRECTORY_ERROR, e.getMessage());
+            throw new GitWitException("error.app_dir", e.getMessage());
         }
     }
 

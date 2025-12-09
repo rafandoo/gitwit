@@ -80,7 +80,7 @@ class LintTest extends AbstractGitMock {
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
         String expectedMessage = I18nService.getInstance().getMessage(
-            "error.git.rev_spec_not_found",
+                "git.repo.error.rev_not_found",
             "invalidSHA"
         );
 

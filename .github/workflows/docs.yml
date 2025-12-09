@@ -51,7 +51,7 @@ jobs:
           path: ./src/main/docs/.vitepress/dist
 
   deploy-docs:
-    name: 🚀 Deploy to GitHub Pages
+    name: Deploy to GitHub Pages
     needs: build-docs
     permissions:
       pages: write

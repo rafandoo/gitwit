@@ -51,7 +51,7 @@ public class Lint extends BaseCommand {
         } else if (this.to == null) {
             MessageService.getInstance().info("lint.start_from", this.from);
         } else {
-            MessageService.getInstance().info("lint.start_multiple", this.from, this.to);
+            MessageService.getInstance().info("lint.start_range", this.from, this.to);
         }
 
         // Prepare commit messages map
@@ -62,7 +62,7 @@ public class Lint extends BaseCommand {
             commit -> messages.put(commit.getId().getName(), CommitMessage.of(commit))
         );
 
-        MessageService.getInstance().debug("lint.total_messages", messages.size());
+        MessageService.getInstance().debug("lint.total", messages.size());
 
         // Validate all collected commit messages
         CommitMessageService.getInstance().validate(messages, config);

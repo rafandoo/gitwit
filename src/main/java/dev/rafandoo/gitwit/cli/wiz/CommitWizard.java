@@ -4,7 +4,6 @@ import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.enums.CommitPromptKeys;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.CommitMessageService;
 import dev.rafandoo.gitwit.service.I18nService;
@@ -42,7 +41,7 @@ public class CommitWizard {
      */
     public CommitWizard(GitWitConfig config) {
         if (config == null) {
-            throw new GitWitException(ExceptionMessage.CONFIGURATION_CANNOT_BE_NULL);
+            throw new GitWitException("config.error.null", false);
         }
         this.config = config;
     }
@@ -61,7 +60,7 @@ public class CommitWizard {
         /* ─────────── Commit Type ─────────── */
         Map<String, String> types = this.config.getTypes().getValues();
         if (types == null || types.isEmpty()) {
-            throw new GitWitException(ExceptionMessage.COMMIT_TYPES_REQUIRED);
+            throw new GitWitException("commit.wizard.error.commit_types_required");
         }
         this.promptChoice(
             CommitPromptKeys.COMMIT_TYPE.getKey(),
@@ -85,7 +84,7 @@ public class CommitWizard {
 
         switch (this.config.getScope().getType().toLowerCase(Locale.ROOT)) {
             case "list" -> {
-                Map<String, String> scopes = this.validateAndCopy(this.config.getScope().getValues(), 12)
+                Map<String, String> scopes = this.validateAndCopy(this.config.getScope().getValues(), "commit.wizard.error.scope_values_required")
                     .keySet()
                     .stream()
                     .collect(Collectors.toMap(Function.identity(), Function.identity()));
@@ -103,8 +102,7 @@ public class CommitWizard {
                 scopePrompt,
                 builder
             );
-            default ->
-                throw new GitWitException(ExceptionMessage.COMMIT_TYPES_REQUIRED, this.config.getScope().getType());
+            default -> throw new GitWitException("commit.wizard.error.scope_invalid", this.config.getScope().getType());
         }
 
         /* ─────────── Commit Short Description ─────────── */
@@ -137,7 +135,7 @@ public class CommitWizard {
                 CommitPromptKeys.COMMIT_BREAKING_CHANGES.getKey(),
                 this.composePromptMessage(
                     I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_BREAKING_CHANGES.getValue()),
-                    I18nService.getInstance().resolve("commit.prompt.breaking_changes_label"),
+                    I18nService.getInstance().resolve("commit.wizard.prompt.breaking_changes_label"),
                     false
                 ),
                 builder
@@ -148,7 +146,7 @@ public class CommitWizard {
         try {
             results = console.prompt(builder.build());
         } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.COMMIT_WIZARD_CREATION_FAILED, e);
+            throw new GitWitException("commit.wizard.error.creation", e);
         }
 
         boolean breakingChanges = false;
@@ -166,7 +164,7 @@ public class CommitWizard {
             try {
                 results.putAll(console.prompt(breakingBuilder.build()));
             } catch (IOException e) {
-                throw new GitWitException(ExceptionMessage.COMMIT_WIZARD_CREATION_FAILED, e);
+                throw new GitWitException("commit.wizard.error.creation", e);
             }
         }
 
@@ -226,7 +224,7 @@ public class CommitWizard {
         if (optional) {
             listPrompt.newItem()
                 .name("")
-                .text(I18nService.getInstance().getMessage("commit.prompt.ignore"))
+                .text(I18nService.getInstance().getMessage("commit.wizard.prompt.ignore"))
                 .add();
         }
 
@@ -305,14 +303,14 @@ public class CommitWizard {
     /**
      * Safely copies a list of strings into a {@link Map} keyed by the same string, validating null/empty.
      *
-     * @param values    the list of strings.
-     * @param errorCode the error code to throw if values are null or empty.
+     * @param values the list of strings.
+     * @param error  the error message to throw if values are null or empty.
      * @return the map of strings.
-     * @throws GitWitException if values are null or empty (errorCode passed through)
+     * @throws GitWitException if values are null or empty (error message key provided)
      */
-    private Map<String, String> validateAndCopy(List<String> values, int errorCode) {
+    private Map<String, String> validateAndCopy(List<String> values, String error) {
         if (values == null || values.isEmpty()) {
-            throw new GitWitException(ExceptionMessage.fromCode(errorCode));
+            throw new GitWitException(error);
         }
         return values.stream().collect(Collectors.toMap(Function.identity(), Function.identity(), (a, b) -> a, HashMap::new));
     }
@@ -327,7 +325,7 @@ public class CommitWizard {
      */
     private String composePromptMessage(String name, String description, boolean optional) {
         StringBuilder message = new StringBuilder(name);
-        String optionalText = I18nService.getInstance().getMessage("commit.prompt.optional");
+        String optionalText = I18nService.getInstance().getMessage("commit.wizard.prompt.optional");
 
         if (!StringUtils.isNullOrBlank(description)) {
             message.append(" (").append(EmojiUtil.processEmojis(description));

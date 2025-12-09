@@ -3,7 +3,6 @@ package dev.rafandoo.gitwit.cli;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
 import dev.rafandoo.gitwit.entity.CommitMessage;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.service.I18nService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -97,7 +96,7 @@ class HookTest {
 
                 assertAll(
                     () -> assertEquals(1, exitCode.get()),
-                    () -> assertTrue(errText.contains(I18nService.getInstance().getMessage(ExceptionMessage.COMMIT_MSG_WRITE_FAILED.getMessage())))
+                    () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("commit.hook.error.commit_write")))
                 );
             }
         }
