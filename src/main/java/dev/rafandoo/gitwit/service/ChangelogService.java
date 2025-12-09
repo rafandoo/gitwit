@@ -125,7 +125,7 @@ public final class ChangelogService {
         String subtitle
     ) {
         if (groupedByType.isEmpty()) {
-            MessageService.getInstance().warn("warn.changelog_no_commits");
+            MessageService.getInstance().warn("changelog.warn.no_commits");
             return null;
         }
 
@@ -196,7 +196,7 @@ public final class ChangelogService {
                 ))
                 .toList();
             if (!others.isEmpty()) {
-                sb.append(new Heading(I18nService.getInstance().getMessage("changelog.other_changes"), 3))
+                sb.append(new Heading(I18nService.getInstance().getMessage("changelog.other"), 3))
                     .append(NEW_LINE);
                 sb.append(new UnorderedList<>(others));
             }

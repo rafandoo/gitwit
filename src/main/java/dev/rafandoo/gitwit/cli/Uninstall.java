@@ -36,7 +36,7 @@ public class Uninstall extends BaseCommand {
             throw new GitWitException(
                 ExceptionMessage.GENERAL,
                 MessageService.getInstance()
-                    .getErrorMessage("uninstall.conflict.hook_global")
+                    .getErrorMessage("uninstall.error.conflict")
                     .toAnsi()
             );
         }

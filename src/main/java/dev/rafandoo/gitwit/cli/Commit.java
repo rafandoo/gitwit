@@ -103,7 +103,7 @@ public class Commit extends BaseCommand {
 
         if (commit != null) {
             MessageService.getInstance().success(
-                "commit.execution.success",
+                "commit.success",
                 commit.getId().abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name()
             );
         } else {

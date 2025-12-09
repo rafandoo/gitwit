@@ -47,7 +47,7 @@ public class Hook extends BaseCommand {
         } catch (IOException e) {
             throw new GitWitException(ExceptionMessage.COMMIT_MSG_WRITE_FAILED, e);
         }
-        MessageService.getInstance().debug("commit.wizard.message_written", this.messageFile);
-        MessageService.getInstance().success("commit.wizard.message_success");
+        MessageService.getInstance().debug("commit.hook.written", this.messageFile);
+        MessageService.getInstance().success("commit.hook.success");
     }
 }

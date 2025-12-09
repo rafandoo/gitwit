@@ -118,7 +118,7 @@ class InstallTest extends AbstractGitMock {
 
         assertAll(
             () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("install.conflict.hook_global")))
+            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("install.error.conflict")))
         );
 
         verify(spyGitService, never()).configureGitAliasGlobal();
@@ -169,7 +169,7 @@ class InstallTest extends AbstractGitMock {
 
         assertAll(
             () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("error.not_a_git_repository")))
+            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("git.error.not_a_repo")))
         );
 
         verify(spyGitService).setupCommitWizardHook(false);

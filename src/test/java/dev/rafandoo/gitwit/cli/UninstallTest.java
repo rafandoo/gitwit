@@ -142,7 +142,7 @@ class UninstallTest extends AbstractGitMock {
 
         assertAll(
             () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("uninstall.conflict.hook_global")))
+            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("uninstall.error.conflict")))
         );
     }
 }

@@ -92,7 +92,7 @@ public class GitWitException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return message != null ? message : I18nService.getInstance().getMessage("error.not_specified");
+        return message != null ? message : I18nService.getInstance().getMessage("error.unspecified");
     }
 
     @Override

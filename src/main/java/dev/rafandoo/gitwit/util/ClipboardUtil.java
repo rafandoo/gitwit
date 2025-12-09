@@ -44,11 +44,11 @@ public final class ClipboardUtil {
                 } else if (isCommandAvailable("wl-copy")) {
                     return copyUsingProcess("wl-copy", text);
                 } else {
-                    MessageService.getInstance().warn("warn.clipboard.no_utility");
+                    MessageService.getInstance().warn("clipboard.warn.no_utility");
                     return false;
                 }
             } else {
-                MessageService.getInstance().warn("warn.clipboard.unsupported_os");
+                MessageService.getInstance().warn("clipboard.warn.unsupported_os");
                 return false;
             }
         } catch (Exception e) {

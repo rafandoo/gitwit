@@ -97,7 +97,7 @@ public final class GitService {
         try {
             if (!Files.exists(hooksDir)) {
                 Files.createDirectories(hooksDir);
-                MessageService.getInstance().debug("git.service.hooks.created", hooksDir);
+                MessageService.getInstance().debug("git.hooks.created", hooksDir);
             }
 
             // Migrate existing hooks (skip *.sample)
@@ -127,7 +127,7 @@ public final class GitService {
         try {
             Files.move(src, dest, StandardCopyOption.REPLACE_EXISTING);
             MessageService.getInstance().debug(
-                "git.service.hooks.moved",
+                "git.hooks.moved",
                 src,
                 dest
             );
@@ -148,7 +148,7 @@ public final class GitService {
 
         if (Files.exists(hookFile) && !forceInstall) {
             MessageService.getInstance().info(
-                "git.service.hooks.already_exists"
+                "git.hooks.exists"
             );
             return;
         }
@@ -191,7 +191,7 @@ public final class GitService {
             } catch (UnsupportedOperationException ignored) {
                 // Non‑POSIX FS (e.g. Windows) – Git will still attempt to execute .sh via sh.exe
             }
-            MessageService.getInstance().debug("git.service.hooks.script_written", hookFile.toString());
+            MessageService.getInstance().debug("git.hooks.written", hookFile.toString());
         } catch (IOException e) {
             throw new GitWitException(ExceptionMessage.PREPARE_HOOK_WRITE_FAILED, e);
         }
@@ -229,11 +229,11 @@ public final class GitService {
 
                 config.save();
                 MessageService.getInstance().info(
-                    "git.service.hooks.path_set",
+                    "git.hooks.path_set",
                     GitRepositoryParam.HOOKS_DIR_NAME.get().asString()
                 );
                 MessageService.getInstance().info(
-                    "git.service.hooks.editor_set",
+                    "git.hooks.editor_set",
                     GitRepositoryParam.CORE_EDITOR_CAT.get().asString()
                 );
             }
@@ -260,9 +260,9 @@ public final class GitService {
         try {
             if (Files.exists(hookFile)) {
                 Files.delete(hookFile);
-                MessageService.getInstance().info("git.service.hooks.removed", hookFile);
+                MessageService.getInstance().info("git.hooks.removed", hookFile);
             } else {
-                MessageService.getInstance().info("git.service.hooks.none_to_remove");
+                MessageService.getInstance().info("git.hooks.none_to_remove");
             }
 
             StoredConfig config = this.loadGitConfig(GitConfigScope.LOCAL);
@@ -273,9 +273,9 @@ public final class GitService {
                 config.unset(GIT_CONFIG_CORE, null, GIT_CONFIG_HOOKS_PATH);
                 config.unset(GIT_CONFIG_CORE, null, "editor");
                 config.save();
-                MessageService.getInstance().info("git.service.hooks.config_cleared");
+                MessageService.getInstance().info("git.hooks.config_cleared");
             } else {
-                MessageService.getInstance().info("git.service.hooks.not_configured");
+                MessageService.getInstance().info("git.hooks.not_configured");
             }
         } catch (IOException e) {
             throw new GitWitException(ExceptionMessage.INIT_REPOSITORY_FAILED, e);
@@ -330,17 +330,17 @@ public final class GitService {
                 if (existing == null) {
                     config.setString("alias", null, alias, this.getAliasCommand());
                     config.save();
-                    MessageService.getInstance().info("git.service.alias.configured", scope.name().toLowerCase(Locale.ROOT));
+                    MessageService.getInstance().info("git.alias.set", scope.name().toLowerCase(Locale.ROOT));
                 } else {
-                    MessageService.getInstance().info("git.service.alias.already_configured", scope.name().toLowerCase(Locale.ROOT));
+                    MessageService.getInstance().info("git.alias.exists", scope.name().toLowerCase(Locale.ROOT));
                 }
             } else {
                 if (existing != null) {
                     config.unset("alias", null, alias);
                     config.save();
-                    MessageService.getInstance().info("git.service.alias.removed", scope.name().toLowerCase(Locale.ROOT));
+                    MessageService.getInstance().info("git.alias.removed", scope.name().toLowerCase(Locale.ROOT));
                 } else {
-                    MessageService.getInstance().info("git.service.alias.not_configured", scope.name().toLowerCase(Locale.ROOT));
+                    MessageService.getInstance().info("git.alias.not_configured", scope.name().toLowerCase(Locale.ROOT));
                 }
             }
         } catch (IOException e) {
@@ -423,7 +423,7 @@ public final class GitService {
         RevCommit commit;
         try (Git git = Git.open(this.getGit().toFile())) {
             if (autoAdd) {
-                MessageService.getInstance().info("git.service.commit.adding_files");
+                MessageService.getInstance().info("git.commit.adding_files");
                 git.add().addFilepattern(".").setRenormalize(false).call();
             }
 

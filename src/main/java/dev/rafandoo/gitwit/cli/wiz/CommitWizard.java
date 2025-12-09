@@ -137,7 +137,7 @@ public class CommitWizard {
                 CommitPromptKeys.COMMIT_BREAKING_CHANGES.getKey(),
                 this.composePromptMessage(
                     I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_BREAKING_CHANGES.getValue()),
-                    I18nService.getInstance().resolve("commit.prompt.breaking_changes_label"),
+                    I18nService.getInstance().resolve("commit.wizard.prompt.breaking_changes_label"),
                     false
                 ),
                 builder
@@ -226,7 +226,7 @@ public class CommitWizard {
         if (optional) {
             listPrompt.newItem()
                 .name("")
-                .text(I18nService.getInstance().getMessage("commit.prompt.ignore"))
+                .text(I18nService.getInstance().getMessage("commit.wizard.prompt.ignore"))
                 .add();
         }
 
@@ -327,7 +327,7 @@ public class CommitWizard {
      */
     private String composePromptMessage(String name, String description, boolean optional) {
         StringBuilder message = new StringBuilder(name);
-        String optionalText = I18nService.getInstance().getMessage("commit.prompt.optional");
+        String optionalText = I18nService.getInstance().getMessage("commit.wizard.prompt.optional");
 
         if (!StringUtils.isNullOrBlank(description)) {
             message.append(" (").append(EmojiUtil.processEmojis(description));

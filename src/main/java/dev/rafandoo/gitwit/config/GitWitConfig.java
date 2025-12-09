@@ -255,7 +255,7 @@ public class GitWitConfig {
         Path configPath = repo.resolve(ConfigPaths.CONFIG_FILE.get().asString());
 
         if (Files.exists(configPath)) {
-            MessageService.getInstance().warn("error.config_already_exists");
+            MessageService.getInstance().warn("config.error.exists");
             return;
         }
 
@@ -277,7 +277,7 @@ public class GitWitConfig {
 
         try (InputStream stream = is) {
             Files.copy(stream, configPath, StandardCopyOption.REPLACE_EXISTING);
-            MessageService.getInstance().success("success.config_example_generated", configPath);
+            MessageService.getInstance().success("config.example_generated", configPath);
         } catch (IOException e) {
             throw new GitWitException(ExceptionMessage.CONFIG_EXAMPLE_COPY_FAILED, e);
         }

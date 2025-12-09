@@ -49,7 +49,7 @@ public class Install extends BaseCommand {
             throw new GitWitException(
                 ExceptionMessage.GENERAL,
                 MessageService.getInstance()
-                    .getErrorMessage("install.conflict.hook_global")
+                    .getErrorMessage("install.error.conflict")
                     .toAnsi()
             );
         }
