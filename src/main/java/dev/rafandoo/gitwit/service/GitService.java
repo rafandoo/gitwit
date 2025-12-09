@@ -4,7 +4,6 @@ import dev.rafandoo.gitwit.App;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.enums.GitConfigScope;
 import dev.rafandoo.gitwit.enums.GitRepositoryParam;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import lombok.Generated;
 import org.eclipse.jgit.api.Git;
@@ -80,7 +79,7 @@ public final class GitService {
     public Path getGit() {
         Path git = this.getRepo().resolve(Constants.DOT_GIT);
         if (!Files.isDirectory(git)) {
-            throw new GitWitException(ExceptionMessage.NOT_A_GIT_REPOSITORY);
+            throw new GitWitException("git.error.not_a_repo");
         }
         return git;
     }
@@ -111,7 +110,7 @@ public final class GitService {
             }
             return hooksDir;
         } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.DEFAULT_HOOKS_MOVE_FAILED, e);
+            throw new GitWitException("git.hook.error.move_default_hooks", e);
         }
     }
 
@@ -132,7 +131,7 @@ public final class GitService {
                 dest
             );
         } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.HOOK_MOVE_FAILED, e, src.toString());
+            throw new GitWitException("git.hook.error.move_failed", e, src.toString());
         }
     }
 
@@ -193,7 +192,7 @@ public final class GitService {
             }
             MessageService.getInstance().debug("git.hooks.written", hookFile.toString());
         } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.PREPARE_HOOK_WRITE_FAILED, e);
+            throw new GitWitException("git.hook.error.hook_write", e);
         }
     }
 
@@ -238,9 +237,9 @@ public final class GitService {
                 );
             }
         } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.CORE_HOOK_PATH_FAILED, e);
+            throw new GitWitException("git.hook.error.error.core_hook_path", e);
         } catch (ConfigInvalidException e) {
-            throw new GitWitException(ExceptionMessage.GIT_CONFIG_INVALID, e);
+            throw new GitWitException("git.error.config_invalid", e);
         }
     }
 
@@ -278,9 +277,9 @@ public final class GitService {
                 MessageService.getInstance().info("git.hooks.not_configured");
             }
         } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.INIT_REPOSITORY_FAILED, e);
+            throw new GitWitException("git.error.init_failed", e);
         } catch (ConfigInvalidException e) {
-            throw new GitWitException(ExceptionMessage.GIT_CONFIG_INVALID, e);
+            throw new GitWitException("git.error.config_invalid", e);
         }
     }
 
@@ -344,9 +343,9 @@ public final class GitService {
                 }
             }
         } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.INIT_REPOSITORY_FAILED, e);
+            throw new GitWitException("git.error.init_failed", e);
         } catch (ConfigInvalidException e) {
-            throw new GitWitException(ExceptionMessage.GIT_CONFIG_INVALID, e);
+            throw new GitWitException("git.error.config_invalid", e);
         }
     }
 
@@ -428,7 +427,7 @@ public final class GitService {
             }
 
             if (commitMessage == null) {
-                throw new GitWitException(ExceptionMessage.NO_COMMIT_MESSAGE);
+                throw new GitWitException("git.error.commit.no_message");
             }
 
             commit = git.commit()
@@ -438,25 +437,25 @@ public final class GitService {
                 .setAmend(amend)
                 .call();
         } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.INIT_REPOSITORY_FAILED, e);
+            throw new GitWitException("git.error.init_failed", e);
         } catch (NoHeadException e) {
-            throw new GitWitException(ExceptionMessage.NO_HEAD);
+            throw new GitWitException("git.repo.error.no_head");
         } catch (UnmergedPathsException e) {
-            throw new GitWitException(ExceptionMessage.UNMERGED_PATHS);
+            throw new GitWitException("git.repo.error.unmerged");
         } catch (WrongRepositoryStateException e) {
-            throw new GitWitException(ExceptionMessage.WRONG_REPOSITORY_STATE, e);
+            throw new GitWitException("git.repo.error.invalid_state", e);
         } catch (ServiceUnavailableException e) {
-            throw new GitWitException(ExceptionMessage.SERVICE_UNAVAILABLE, e);
+            throw new GitWitException("git.error.unavailable", e);
         } catch (ConcurrentRefUpdateException e) {
-            throw new GitWitException(ExceptionMessage.CONCURRENT_REF_UPDATE, e);
+            throw new GitWitException("git.repo.error.concurrent_update", e);
         } catch (AbortedByHookException e) {
-            throw new GitWitException(ExceptionMessage.ABORTED_BY_HOOK, e);
+            throw new GitWitException("git.repo.error.aborted_by_hook", e);
         } catch (NoMessageException e) {
-            throw new GitWitException(ExceptionMessage.NO_COMMIT_MESSAGE);
+            throw new GitWitException("git.error.commit.no_message");
         } catch (EmptyCommitException e) {
-            throw new GitWitException(ExceptionMessage.EMPTY_COMMIT);
+            throw new GitWitException("git.error.commit.empty");
         } catch (GitAPIException e) {
-            throw new GitWitException(ExceptionMessage.GIT_API_EXCEPTION, e);
+            throw new GitWitException("git.error.api_exception", e);
         }
         return commit;
     }
@@ -517,13 +516,13 @@ public final class GitService {
 
             return commitList;
         } catch (MissingObjectException e) {
-            throw new GitWitException(ExceptionMessage.MISSING_OBJECT, e);
+            throw new GitWitException("git.repo.error.missing_object", e);
         } catch (IOException e) {
-            throw new GitWitException(ExceptionMessage.INIT_REPOSITORY_FAILED, e);
+            throw new GitWitException("git.error.init_failed", e);
         } catch (NoHeadException e) {
-            throw new GitWitException(ExceptionMessage.NO_HEAD);
+            throw new GitWitException("git.repo.error.no_head");
         } catch (GitAPIException e) {
-            throw new GitWitException(ExceptionMessage.GIT_API_EXCEPTION, e);
+            throw new GitWitException("git.error.api_exception", e);
         } finally {
             if (walk != null) {
                 walk.close();
@@ -546,7 +545,7 @@ public final class GitService {
     private ObjectId resolveCommitId(Repository repo, RevWalk walk, String rev) throws IOException {
         ObjectId id = repo.resolve(rev);
         if (id == null) {
-            throw new GitWitException(ExceptionMessage.REV_SPEC_NOT_FOUND, rev);
+            throw new GitWitException("git.repo.error.rev_not_found", rev);
         }
         RevObject obj = walk.parseAny(id);
 
@@ -555,7 +554,7 @@ public final class GitService {
         } else if (obj instanceof RevCommit commit) {
             return commit.getId();
         } else {
-            throw new GitWitException(ExceptionMessage.UNSUPPORTED_OBJECT_TYPE, String.valueOf(obj.getType()));
+            throw new GitWitException("git.error.unsupported", String.valueOf(obj.getType()));
         }
     }
 

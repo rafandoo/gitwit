@@ -71,8 +71,7 @@ class CommitMessageServiceTest {
         String expected = I18nService.getInstance().getMessage(expectedKey);
         assertAll(
             () -> assertTrue(ex.getMessage().contains(id)),
-            () -> assertTrue(ex.getMessage().contains(expected)),
-            () -> assertEquals(1, ex.getCode())
+            () -> assertTrue(ex.getMessage().contains(expected))
         );
     }
 
@@ -100,8 +99,7 @@ class CommitMessageServiceTest {
         String expected = I18nService.getInstance().getMessage("commit.validation.scope_required");
         assertAll(
             () -> assertTrue(ex.getMessage().contains("noScope")),
-            () -> assertTrue(ex.getMessage().contains(expected)),
-            () -> assertEquals(1, ex.getCode())
+            () -> assertTrue(ex.getMessage().contains(expected))
         );
     }
 
@@ -121,8 +119,7 @@ class CommitMessageServiceTest {
         String expected = I18nService.getInstance().getMessage("commit.validation.long_description_required");
         assertAll(
             () -> assertTrue(ex.getMessage().contains("noLong")),
-            () -> assertTrue(ex.getMessage().contains(expected)),
-            () -> assertEquals(1, ex.getCode())
+            () -> assertTrue(ex.getMessage().contains(expected))
         );
     }
 
@@ -146,8 +143,7 @@ class CommitMessageServiceTest {
         );
         assertAll(
             () -> assertTrue(ex.getMessage().contains("shortLong")),
-            () -> assertTrue(ex.getMessage().contains(expected)),
-            () -> assertEquals(1, ex.getCode())
+            () -> assertTrue(ex.getMessage().contains(expected))
         );
     }
 
@@ -173,8 +169,7 @@ class CommitMessageServiceTest {
         );
         assertAll(
             () -> assertTrue(ex.getMessage().contains("longLong")),
-            () -> assertTrue(ex.getMessage().contains(expected)),
-            () -> assertEquals(1, ex.getCode())
+            () -> assertTrue(ex.getMessage().contains(expected))
         );
     }
 

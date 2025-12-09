@@ -1,6 +1,5 @@
 package dev.rafandoo.gitwit.cli;
 
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.GitService;
 import dev.rafandoo.gitwit.service.MessageService;
@@ -33,12 +32,7 @@ public class Uninstall extends BaseCommand {
     @Override
     public void run() {
         if (this.hook && this.global) {
-            throw new GitWitException(
-                ExceptionMessage.GENERAL,
-                MessageService.getInstance()
-                    .getErrorMessage("uninstall.error.conflict")
-                    .toAnsi()
-            );
+            throw new GitWitException("uninstall.error.conflict", true);
         }
 
         if (this.hook) {

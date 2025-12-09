@@ -3,7 +3,6 @@ package dev.rafandoo.gitwit.cli;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
 import dev.rafandoo.gitwit.entity.CommitMessage;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.mock.AbstractGitMock;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
 import dev.rafandoo.gitwit.service.I18nService;
@@ -73,7 +72,7 @@ class CommitTest extends AbstractGitMock {
 
         assertAll(
             () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage(ExceptionMessage.COMMIT_EXECUTION_FAILED.getMessage())))
+            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("commit.failure")))
         );
     }
 

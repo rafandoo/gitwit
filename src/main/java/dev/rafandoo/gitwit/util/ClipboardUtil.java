@@ -1,7 +1,6 @@
 package dev.rafandoo.gitwit.util;
 
 import dev.rafandoo.cup.os.OperatingSystem;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.MessageService;
 import lombok.experimental.UtilityClass;
@@ -52,7 +51,7 @@ public final class ClipboardUtil {
                 return false;
             }
         } catch (Exception e) {
-            throw new GitWitException(ExceptionMessage.CLIPBOARD_COPY_FAILURE, e);
+            throw new GitWitException("clipboard.error.copy", e);
         }
     }
 

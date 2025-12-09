@@ -1,6 +1,5 @@
 package dev.rafandoo.gitwit.cli;
 
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.enums.GitRepositoryParam;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.GitService;
@@ -46,12 +45,7 @@ public class Install extends BaseCommand {
     @Override
     public void run() {
         if (this.hook && this.global) {
-            throw new GitWitException(
-                ExceptionMessage.GENERAL,
-                MessageService.getInstance()
-                    .getErrorMessage("install.error.conflict")
-                    .toAnsi()
-            );
+            throw new GitWitException("install.error.conflict", true);
         }
 
         if (this.hook) {

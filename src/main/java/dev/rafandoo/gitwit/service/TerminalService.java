@@ -1,6 +1,5 @@
 package dev.rafandoo.gitwit.service;
 
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.util.EnvironmentUtil;
 import org.jline.terminal.Terminal;
@@ -71,7 +70,7 @@ public final class TerminalService {
                 MessageService.getInstance().debug("Encoding: %s", terminal.encoding().displayName());
                 MessageService.getInstance().debug("OS: %s", System.getProperty("os.name"));
             } catch (IOException e) {
-                throw new GitWitException(ExceptionMessage.TERMINAL_CREATION_ERROR, e);
+                throw new GitWitException("terminal.error.create", e);
             }
         }
         return terminal;
@@ -87,7 +86,7 @@ public final class TerminalService {
             try {
                 terminal.close();
             } catch (IOException e) {
-                throw new GitWitException(ExceptionMessage.TERMINAL_FINISH_ERROR, e);
+                throw new GitWitException("terminal.error.finish", e);
             }
         }
     }

@@ -1,7 +1,6 @@
 package dev.rafandoo.gitwit.cli;
 
 import dev.rafandoo.gitwit.config.GitWitConfig;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.ChangelogService;
 import dev.rafandoo.gitwit.service.MessageService;
@@ -78,7 +77,7 @@ public class Changelog extends BaseCommand {
                     Path changelogPath = ChangelogService.getInstance().writeChangeLog(changelogContent.toString(), this.append);
                     MessageService.getInstance().success("changelog.written", changelogPath);
                 } catch (IOException e) {
-                    throw new GitWitException(ExceptionMessage.CHANGELOG_FAILURE_WRITE, e);
+                    throw new GitWitException("changelog.error.write", e);
                 }
             }
         }

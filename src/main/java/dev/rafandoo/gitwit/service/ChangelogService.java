@@ -5,7 +5,6 @@ import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.enums.ChangelogScope;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.util.EmojiUtil;
 import net.steppschuh.markdowngenerator.list.UnorderedList;
@@ -85,7 +84,7 @@ public final class ChangelogService {
             ));
 
         if (types.isEmpty()) {
-            throw new GitWitException(ExceptionMessage.CHANGELOG_TYPES_REQUIRED);
+            throw new GitWitException("changelog.error.types_required");
         }
 
         List<String> ignored = Objects.requireNonNullElse(
@@ -245,7 +244,7 @@ public final class ChangelogService {
             if (!StringUtils.isNullOrBlank(defaultTemplate)) {
                 return defaultTemplate;
             }
-            throw new GitWitException(ExceptionMessage.CHANGELOG_NO_TEMPLATE_DEFINED);
+            throw new GitWitException("changelog.error.no_template");
         }
         return template;
     }

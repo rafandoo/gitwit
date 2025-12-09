@@ -5,7 +5,6 @@ import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.entity.Violation;
 import dev.rafandoo.gitwit.enums.CommitPromptKeys;
-import dev.rafandoo.gitwit.enums.ExceptionMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.util.EmojiUtil;
 
@@ -165,9 +164,8 @@ public final class CommitMessageService {
             }
 
             throw new GitWitException(
-                ExceptionMessage.GENERAL,
-                true,
-                MessageService.getInstance().getErrorMessage(sb.toString()).toAnsi()
+                MessageService.getInstance().getErrorMessage(sb.toString()).toAnsi(),
+                true
             );
         }
     }
@@ -199,9 +197,8 @@ public final class CommitMessageService {
                 violations.forEach(violation -> sb.append("    - ").append(violation).append("\n"));
             });
             throw new GitWitException(
-                ExceptionMessage.GENERAL,
-                true,
-                MessageService.getInstance().getErrorMessage(sb.toString()).toAnsi()
+                MessageService.getInstance().getErrorMessage(sb.toString()).toAnsi(),
+                true
             );
         }
     }

@@ -61,7 +61,6 @@ class ChangelogServiceTest extends AbstractGitMock {
 
         String expected = I18nService.getInstance().getMessage("changelog.error.types_required");
         assertAll(
-            () -> assertEquals(13, ex.getCode()),
             () -> assertTrue(ex.getMessage().contains(expected))
         );
     }
