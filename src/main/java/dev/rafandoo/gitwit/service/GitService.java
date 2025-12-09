@@ -237,7 +237,7 @@ public final class GitService {
                 );
             }
         } catch (IOException e) {
-            throw new GitWitException("git.hook.error.error.core_hook_path", e);
+            throw new GitWitException("git.hook.error.core_hook_path", e);
         } catch (ConfigInvalidException e) {
             throw new GitWitException("git.error.config_invalid", e);
         }

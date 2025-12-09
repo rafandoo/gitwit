@@ -306,7 +306,7 @@ public class CommitWizard {
      * @param values the list of strings.
      * @param error  the error message to throw if values are null or empty.
      * @return the map of strings.
-     * @throws GitWitException if values are null or empty (errorCode passed through)
+     * @throws GitWitException if values are null or empty (error message key provided)
      */
     private Map<String, String> validateAndCopy(List<String> values, String error) {
         if (values == null || values.isEmpty()) {
