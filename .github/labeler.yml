@@ -16,3 +16,6 @@ enhancement:
 
 fix:
   - head-branch: [ '^fix', 'fix' ]
+
+refactor:
+  - head-branch: [ '^refactor', 'refactor' ]

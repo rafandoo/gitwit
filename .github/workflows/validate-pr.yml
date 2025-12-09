@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   validate-backend:
-    name: 🧪 Build & Test Backend
+    name: Build & Test Backend
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +25,7 @@ jobs:
         run: ./gradlew clean build --no-daemon
 
   validate-docs:
-    name: 📚 Build Documentation
+    name: Build Documentation
     runs-on: ubuntu-latest
 
     steps:

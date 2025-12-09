@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   build-and-test:
-    name: 🧪 Build & Test Project
+    name: Build & Test Project
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -31,7 +31,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   package-linux:
-    name: 📦 Package Linux Installers
+    name: Package Linux Installers
     runs-on: ubuntu-latest
     needs: build-and-test
     permissions:
@@ -56,7 +56,7 @@ jobs:
             build/packager/*.rpm
 
   package-windows:
-    name: 📦 Package Windows Installer
+    name: Package Windows Installer
     runs-on: windows-latest
     needs: build-and-test
     permissions:
@@ -82,7 +82,7 @@ jobs:
           path: build/packager/*.exe
 
   release:
-    name: 🚀 Publish Release Artifacts
+    name: Publish Release Artifacts
     runs-on: ubuntu-latest
     needs: [ package-linux, package-windows ]
     permissions:
