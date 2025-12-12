@@ -119,7 +119,8 @@ gitwit commit [-ahV] [-am] [-d=<shortDescription>] [-l=<longDescription>] [-s=<s
 | Option                                     | Description                                             |
 |--------------------------------------------|---------------------------------------------------------|
 | `-a, --add`                                | Automatically adds all modified and untracked files.    |
-| `-am, --amend`                             | Modifies the last commit instead of creating a new one. |
+| `-m, --amend`                              | Modifies the last commit instead of creating a new one. |
+| `-e, --allow-empty`                        | Allows creating empty commits.                          |
 | `-t, --type=<type>`                        | Commit type (`feat`, `fix`, `chore`, etc.).             |
 | `-s, --scope=<scope>`                      | Commit scope (`core`, `ui`, `auth`, etc.).              |
 | `-d, --description=<shortDescription>`     | Brief description of the commit.                        |
