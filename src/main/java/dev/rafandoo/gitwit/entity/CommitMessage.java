@@ -6,6 +6,7 @@ import dev.rafandoo.gitwit.enums.ChangelogScope;
 import dev.rafandoo.gitwit.service.ChangelogService;
 import dev.rafandoo.gitwit.service.CommitMessageService;
 import dev.rafandoo.cup.utils.StringUtils;
+import dev.rafandoo.gitwit.util.EmojiUtil;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -14,6 +15,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Immutable value object representing a Conventional Commit.
@@ -53,9 +56,12 @@ public record CommitMessage(
      * @return formatted commit message ready to be written to <code>commit-msg</code>.
      */
     public String format() {
-        StringBuilder sb = new StringBuilder(type);
+        StringBuilder sb = new StringBuilder(type.trim());
         if (!StringUtils.isNullOrBlank(scope)) {
-            sb.append(" (").append(scope).append(")");
+            if (EmojiUtil.containsAnyEmojiAlias(type)) {
+                sb.append(" ");
+            }
+            sb.append("(").append(scope.trim()).append(")");
         }
         if (breakingChanges) {
             sb.append("!");
@@ -131,34 +137,27 @@ public record CommitMessage(
         }
 
         String[] parts = commit.getFullMessage().split("\n\n", 2);
+
+        // header = "type(scope): subject"  OR  "type: subject"
         String header = parts[0];
         String body = parts.length > 1 ? parts[1] : null;
 
-        // header = "type(scope): subject"  OR  "type: subject"
-        String type = "";
+        String type = null;
         String scope = null;
         boolean breakingChange = false;
-        String subject;
+        String subject = null;
 
         int colon = header.lastIndexOf(':');
         if (colon < 0) {                            // malformed, keep everything as subject
             subject = header.trim();
         } else {
-            String headLeft = header.substring(0, colon).trim();   // type or type(scope)
-            subject = header.substring(colon + 1).trim();
+            Pattern pattern = Pattern.compile("^(?<type>\\w+|:\\w+:)\\s?(?:\\((?<scope>[^)]+)\\))?:?\\s+(?<desc>.*)$");
+            Matcher matcher = pattern.matcher(header);
 
-            breakingChange = headLeft.endsWith("!");
-            if (breakingChange) {
-                headLeft = header.substring(0, headLeft.length() - 1);
-            }
-
-            int open = headLeft.indexOf('(');
-            int close = headLeft.indexOf(')');
-            if (open > 0 && close > open) {
-                type = headLeft.substring(0, open);
-                scope = headLeft.substring(open + 1, close);
-            } else {
-                type = headLeft;
+            if (matcher.matches()) {
+                type = matcher.group("type");
+                scope = matcher.group("scope");
+                subject = matcher.group("desc");
             }
         }
 
@@ -175,7 +174,7 @@ public record CommitMessage(
         }
 
         return new CommitMessage(
-            type.trim(),
+            type,
             scope,
             subject,
             description,
