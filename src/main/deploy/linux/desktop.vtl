@@ -1,0 +1,15 @@
+#set ($categories = $StringUtils.join($info.linuxConfig.categories, ";"))
+[Desktop Entry]
+Name=${info.displayName}
+GenericName=${info.displayName}
+Comment=${info.description}
+Exec=${info.linuxConfig.installationPath}/${info.name}/${info.executable.name} %U
+Icon=${info.linuxConfig.installationPath}/${info.name}/${info.name}.png
+Terminal=true
+Type=Application
+StartupNotify=false
+#if ($info.isThereFileAssociations())
+MimeType=${info.getMimeTypesListAsString(";")}
+#end
+Categories=${categories}
+NoDisplay=true
