@@ -414,11 +414,12 @@ public final class GitService {
      * @param commitMessage the commit message to be used for the commit.
      * @param autoAdd       if true, automatically stages all files in the repository before committing.
      * @param amend         if true, amends the last commit instead of creating a new one.
+     * @param allowEmpty    if true, allows creating an empty commit.
      * @return the created {@link RevCommit} representing the new commit.
      * @throws GitWitException if any Git-related errors occur during the commit process.
      */
     @Generated
-    public RevCommit commit(CommitMessage commitMessage, boolean autoAdd, boolean amend) {
+    public RevCommit commit(CommitMessage commitMessage, boolean autoAdd, boolean amend, boolean allowEmpty) {
         RevCommit commit;
         try (Git git = Git.open(this.getGit().toFile())) {
             if (autoAdd) {
@@ -433,7 +434,7 @@ public final class GitService {
             commit = git.commit()
                 .setMessage(commitMessage.format())
                 .setSign(false)
-                .setAllowEmpty(amend)
+                .setAllowEmpty(amend || allowEmpty)
                 .setAmend(amend)
                 .call();
         } catch (IOException e) {
