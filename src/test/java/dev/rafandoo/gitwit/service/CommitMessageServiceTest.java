@@ -58,7 +58,7 @@ class CommitMessageServiceTest {
 
     @ParameterizedTest
     @MethodSource("invalidCommitProvider")
-    void shouldThrowExceptionForInvalidCommits(String id, String message, String expectedKey) {
+    void shouldThrowExceptionForInvalidCommits(String id, String message, String expectedKey, Object param) {
         GitWitConfig config = this.loadDefaultConfig();
         Map<String, CommitMessage> messages = this.mapCommits(this.commits);
         this.putCommit(messages, id, message);
@@ -68,7 +68,7 @@ class CommitMessageServiceTest {
             () -> CommitMessageService.getInstance().validate(messages, config)
         );
 
-        String expected = I18nService.getInstance().getMessage(expectedKey);
+        String expected = I18nService.getInstance().resolve(expectedKey, param);
         assertAll(
             () -> assertTrue(ex.getMessage().contains(id)),
             () -> assertTrue(ex.getMessage().contains(expected))
@@ -77,9 +77,9 @@ class CommitMessageServiceTest {
 
     private static Stream<Arguments> invalidCommitProvider() {
         return Stream.of(
-            Arguments.of("invalid", "invalid commit message", "commit.validation.violations"),
-            Arguments.of("type", "abc: Not allowed", "commit.validation.type_not_allowed"),
-            Arguments.of("noShort", "feat:", "commit.validation.short_description_required")
+            Arguments.of("invalid", "invalid commit message", "commit.validation.violations", null),
+            Arguments.of("type", "abc: Not allowed", "commit.validation.type_not_allowed", "abc"),
+            Arguments.of("noShort", "feat:", "commit.validation.short_description_required", null)
         );
     }
 
