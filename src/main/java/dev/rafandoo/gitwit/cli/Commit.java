@@ -45,10 +45,16 @@ public class Commit extends BaseCommand {
     private boolean add;
 
     @CommandLine.Option(
-        names = {"-am", "--amend"},
+        names = {"-m", "--amend"},
         descriptionKey = "commit.option.amend"
     )
     private boolean amend;
+
+    @CommandLine.Option(
+        names = {"-e", "--allow-empty"},
+        descriptionKey = "commit.option.allow-empty"
+    )
+    private boolean allowEmpty;
 
     @CommandLine.Option(
         names = {"-t", "--type"},
@@ -98,7 +104,7 @@ public class Commit extends BaseCommand {
         }
 
         // Perform the commit
-        RevCommit commit = GitService.getInstance().commit(message, this.add, this.amend);
+        RevCommit commit = GitService.getInstance().commit(message, this.add, this.amend, this.allowEmpty);
 
         if (commit != null) {
             MessageService.getInstance().success(

@@ -34,7 +34,7 @@ class CommitTest extends AbstractGitMock {
         setupGitServiceMock();
 
         RevCommit commit = CommitMockFactory.mockCommit("abc123", "feat (core): Add new feature Z");
-        doReturn(commit).when(spyGitService).commit(any(CommitMessage.class), anyBoolean(), anyBoolean());
+        doReturn(commit).when(spyGitService).commit(any(CommitMessage.class), anyBoolean(), anyBoolean(), anyBoolean());
 
         String[] args = {
             "commit",
@@ -58,7 +58,7 @@ class CommitTest extends AbstractGitMock {
         TestUtils.setupConfig(".general.gitwit");
         setupGitServiceMock();
 
-        doReturn(null).when(spyGitService).commit(any(CommitMessage.class), anyBoolean(), anyBoolean());
+        doReturn(null).when(spyGitService).commit(any(CommitMessage.class), anyBoolean(), anyBoolean(), anyBoolean());
 
         String[] args = {
             "commit",
@@ -120,7 +120,7 @@ class CommitTest extends AbstractGitMock {
             (wizardMock, context) -> when(wizardMock.run()).thenReturn(message)
         )) {
             RevCommit commit = CommitMockFactory.mockCommit("abc123", "feat (core): Add new feature Z");
-            doReturn(commit).when(spyGitService).commit(any(CommitMessage.class), anyBoolean(), anyBoolean());
+            doReturn(commit).when(spyGitService).commit(any(CommitMessage.class), anyBoolean(), anyBoolean(), anyBoolean());
 
             String[] args = {
                 "commit",
