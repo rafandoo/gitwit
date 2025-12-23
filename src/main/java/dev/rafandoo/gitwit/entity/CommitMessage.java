@@ -151,13 +151,14 @@ public record CommitMessage(
         if (colon < 0) {                            // malformed, keep everything as subject
             subject = header.trim();
         } else {
-            Pattern pattern = Pattern.compile("^(?<type>\\w+|:\\w+:)\\s?(?:\\((?<scope>[^)]+)\\))?:?\\s+(?<desc>.*)$");
+            Pattern pattern = Pattern.compile("^(?<type>\\w+|:\\w+:)(?<breaking>!)?\\s?(?:\\((?<scope>[^)]+)\\))?:?\\s+(?<desc>.*)$");
             Matcher matcher = pattern.matcher(header);
 
             if (matcher.matches()) {
                 type = matcher.group("type");
                 scope = matcher.group("scope");
                 subject = matcher.group("desc");
+                breakingChange = matcher.group("breaking") != null;
             }
         }
 
