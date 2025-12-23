@@ -90,13 +90,13 @@ jobs:
 
     steps:
       - name: Download Linux Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: linux-installers
           path: dist/linux
 
       - name: Download Windows Artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: windows-installer
           path: dist/windows
