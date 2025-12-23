@@ -46,7 +46,7 @@ dependencies {
     implementation 'org.jline:jline-console-ui:3.30.6'
     implementation 'org.jline:jline-terminal-jni:3.30.6'
 
-    implementation 'org.eclipse.jgit:org.eclipse.jgit:7.4.0.202509020913-r'
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:7.5.0.202512021534-r'
 
     implementation 'org.slf4j:slf4j-nop:2.0.17'
 
@@ -56,8 +56,8 @@ dependencies {
     // Testing
     testImplementation platform('org.junit:junit-bom:6.0.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'org.mockito:mockito-core:5.20.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.20.0'
+    testImplementation 'org.mockito:mockito-core:5.21.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.21.0'
     testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

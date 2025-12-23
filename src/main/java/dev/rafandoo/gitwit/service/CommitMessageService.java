@@ -82,7 +82,8 @@ public final class CommitMessageService {
         this.ensure(
             !StringUtils.isNullOrBlank(message.type()),
             1,
-            CommitPromptKeys.COMMIT_TYPE
+            CommitPromptKeys.COMMIT_TYPE,
+            message.type()
         );
         this.ensure(
             config.getTypes()
@@ -93,7 +94,8 @@ public final class CommitMessageService {
                 .toList()
                 .contains(message.type()),
             2,
-            CommitPromptKeys.COMMIT_TYPE
+            CommitPromptKeys.COMMIT_TYPE,
+            message.type()
         );
 
         /* ─────────── Commit Scope ─────────── */
