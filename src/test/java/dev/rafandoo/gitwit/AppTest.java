@@ -10,7 +10,7 @@ import java.nio.file.Path;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemOut;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 
 @DisplayName("App Command Tests")
 class AppTest extends AbstractGitMock {
@@ -49,7 +49,9 @@ class AppTest extends AbstractGitMock {
         try {
             setupGitServiceMock();
 
-            when(spyGitService.getRepo()).thenReturn(tempDir);
+            doReturn(tempDir)
+                .when(spyGitService)
+                .getRepo();
 
             String[] args = {
                 "--config-example"
