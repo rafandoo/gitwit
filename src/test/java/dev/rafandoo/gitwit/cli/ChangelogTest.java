@@ -65,8 +65,13 @@ class ChangelogTest extends AbstractGitMock {
             CommitMockFactory.mockCommit("5678", "fix: fix bug")
         );
 
-        when(spyGitService.getCommits(any(), any())).thenReturn(mockCommits);
-        when(spyGitService.getRepo()).thenReturn(tempDir);
+        doReturn(mockCommits)
+            .when(spyGitService)
+            .getCommits(any(), any());
+
+        doReturn(tempDir)
+            .when(spyGitService)
+            .getRepo();
 
         String[] args = {
             "changelog",
@@ -94,7 +99,9 @@ class ChangelogTest extends AbstractGitMock {
             CommitMockFactory.mockCommit("5678", "fix: fix bug")
         );
 
-        when(spyGitService.getCommits(any(), any())).thenReturn(mockCommits);
+        doReturn(mockCommits)
+            .when(spyGitService)
+            .getCommits(any(), any());
 
         String[] args = {
             "changelog",
