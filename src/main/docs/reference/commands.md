@@ -40,16 +40,14 @@ Installs GitWit in the current repository or globally for all repositories.
 #### Usage:
 
 ```bash
-gitwit install [-fghV] [-hk]
+gitwit install [-fg] [-hk]
 ```
 
-| Option          | Description                                                        |
-|-----------------|--------------------------------------------------------------------|
-| `-hk, --hook`   | Installs as a `prepare-commit-msg` hook in the current repository. |
-| `-g, --global`  | Installs as a global Git alias, available in all repositories.     |
-| `-f, --force`   | Forces the installation, overwriting an existing hook.             |
-| `-h, --help`    | Shows command help.                                                |
-| `-V, --version` | Shows the version.                                                 |
+| Option         | Description                                                        |
+|----------------|--------------------------------------------------------------------|
+| `-hk, --hook`  | Installs as a `prepare-commit-msg` hook in the current repository. |
+| `-g, --global` | Installs as a global Git alias, available in all repositories.     |
+| `-f, --force`  | Forces the installation, overwriting an existing hook.             |
 
 <br>
 
@@ -77,15 +75,13 @@ Removes the GitWit installation from the current repository or globally.
 #### Usage:
 
 ```bash
-gitwit uninstall [-ghV] [-hk]
+gitwit uninstall [-g] [-hk]
 ```
 
-| Option          | Description                                                        |
-|-----------------|--------------------------------------------------------------------|
-| `-hk, --hook`   | Removes the `prepare-commit-msg` hook from the current repository. |
-| `-g, --global`  | Removes the global GitWit alias.                                   |
-| `-h, --help`    | Shows command help.                                                |
-| `-V, --version` | Shows the version.                                                 |
+| Option         | Description                                                        |
+|----------------|--------------------------------------------------------------------|
+| `-hk, --hook`  | Removes the `prepare-commit-msg` hook from the current repository. |
+| `-g, --global` | Removes the global GitWit alias.                                   |
 
 <br>
 
@@ -113,7 +109,7 @@ Launches the interactive commit wizard or allows you to pass data directly via p
 #### Usage:
 
 ```bash
-gitwit commit [-ahV] [-am] [-d=<shortDescription>] [-l=<longDescription>] [-s=<scope>] [-t=<type>]
+gitwit commit [-aem] [-t=<type>] [-s=<scope>] [-d=<shortDescription>] [-l=<longDescription>]
 ```
 
 | Option                                     | Description                                             |
@@ -125,8 +121,6 @@ gitwit commit [-ahV] [-am] [-d=<shortDescription>] [-l=<longDescription>] [-s=<s
 | `-s, --scope=<scope>`                      | Commit scope (`core`, `ui`, `auth`, etc.).              |
 | `-d, --description=<shortDescription>`     | Brief description of the commit.                        |
 | `-l, --long-description=<longDescription>` | Detailed description of the commit.                     |
-| `-h, --help`                               | Show help.                                              |
-| `-V, --version`                            | Show the version.                                       |
 
 #### Examples:
 
@@ -145,27 +139,40 @@ gitwit commit --amend --add -t fix -s api -d "fixes JWT authentication"
 
 Validates commit messages based on the rules defined in `.gitwit`.
 
+The command can validate:
+
+- a specific commit
+- a range of commits
+- or, by default, the most recent commit (HEAD)
+
 #### Usage:
 
 ```bash
-gitwit lint [-hV] [-f=<from>] [-t=<to>]
+gitwit lint [<rev-spec>]
 ```
 
-| Option              | Description                                  |
-|---------------------|----------------------------------------------|
-| `-f, --from=<from>` | Initial commit (inclusive). Default: `HEAD`. |
-| `-t, --to=<to>`     | Final commit (inclusive).                    |
-| `-h, --help`        | Show help.                                   |
-| `-V, --version`     | Show the version.                            |
+| Parameter    | Description                                                                              |
+|--------------|------------------------------------------------------------------------------------------|
+| `<rev-spec>` | Git revision specification. It can be a commit, branch, tag or range in the format from. 
 
 #### Examples:
 
-```bash
-# Lint the last commit
-gitwit lint
+Validate only the most recent commit (default):
 
-# Lint a range of commits
-gitwit lint --from v1.0.0 --to v1.1.0
+```bash
+gitwit lint
+```
+
+Validate a specific commit:
+
+```bash
+gitwit lint 105564ac5c6ca88bee5f3f4978287f5c8f87c07b
+```
+
+Validate a range of commits (including):
+
+```bash
+gitwit lint 8d2094..105564a
 ```
 
 ## 📜 `changelog`
@@ -175,7 +182,7 @@ Generates a formatted changelog from commit messages.
 #### Usage:
 
 ```bash
-gitwit changelog [-achV] -f=<from> [-t=<to>] [-s=<subtitle>]
+gitwit changelog [-ac] -f=<from> [-t=<to>] [-s=<subtitle>]
 ```
 
 | Option              | Description                                                      |
@@ -185,8 +192,6 @@ gitwit changelog [-achV] -f=<from> [-t=<to>] [-s=<subtitle>]
 | `-s, --subtitle`    | Subtitle to be displayed in the changelog.                       |
 | `-a, --append`      | Indicates whether the changelog will be appended or overwritten. |
 | `-c, --copy`        | Copies the generated changelog to the clipboard.                 |
-| `-h, --help`        | Show help.                                                       |
-| `-V, --version`     | Show the version.                                                |
 
 #### Examples:
 
