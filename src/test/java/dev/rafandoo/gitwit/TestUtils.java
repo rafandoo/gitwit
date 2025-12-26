@@ -24,8 +24,6 @@ public final class TestUtils {
     }
 
     public static int executeCommand(String[] args) {
-        App app = new App();
-        CommandLine cmd = new CommandLine(app);
-        return cmd.execute(args);
+        return App.execute(args);
     }
 }
