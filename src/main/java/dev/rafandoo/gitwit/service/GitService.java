@@ -1,5 +1,6 @@
 package dev.rafandoo.gitwit.service;
 
+import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.App;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.enums.GitConfigScope;
@@ -25,9 +26,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -428,7 +427,7 @@ public final class GitService {
             }
 
             if (commitMessage == null) {
-                throw new GitWitException("git.error.commit.no_message");
+                throw new GitWitException("git.commit.error.no_message");
             }
 
             commit = git.commit()
@@ -452,9 +451,9 @@ public final class GitService {
         } catch (AbortedByHookException e) {
             throw new GitWitException("git.repo.error.aborted_by_hook", e);
         } catch (NoMessageException e) {
-            throw new GitWitException("git.error.commit.no_message");
+            throw new GitWitException("git.commit.error.no_message");
         } catch (EmptyCommitException e) {
-            throw new GitWitException("git.error.commit.empty");
+            throw new GitWitException("git.commit.error.empty");
         } catch (GitAPIException e) {
             throw new GitWitException("git.error.api_exception", e);
         }
@@ -467,39 +466,27 @@ public final class GitService {
      * @param from any rev‑spec accepted by Git (tag, branch, hash).
      * @param to   any rev‑spec accepted by Git (tag, branch, hash).
      * @return list of {@link RevCommit}, inclusive from and to (if reachable).
+     * @deprecated use {@link #listCommitsBetween(String, String)} instead.
      */
     public List<RevCommit> getCommits(String from, String to) {
-        RevWalk walk = null;
-        Repository repo = null;
-        try (Git git = Git.open(this.getGit().toFile())) {
-            repo = git.getRepository();
-            walk = new RevWalk(repo);
+        return this.listCommitsBetween(from, to);
+    }
+
+    /**
+     * Returns the list of commits between two references (inclusive).
+     *
+     * @param from any rev‑spec accepted by Git (tag, branch, hash).
+     * @param to   any rev‑spec accepted by Git (tag, branch, hash).
+     * @return list of {@link RevCommit}, inclusive from and to (if reachable).
+     */
+    public List<RevCommit> listCommitsBetween(String from, String to) {
+        try (
+            Git git = Git.open(this.getGit().toFile());
+            Repository repo = git.getRepository();
+            RevWalk walk = new RevWalk(repo)
+        ) {
             walk.setRetainBody(true);
-
-            List<RevCommit> commitList = new ArrayList<>();
-
-            if (from == null && to == null) {
-                // Only the latest commit
-                ObjectId headId = repo.resolve(Constants.HEAD);
-                if (headId != null) {
-                    commitList.add(walk.parseCommit(headId));
-                }
-                return commitList;
-            }
-
-            if (from != null && to == null) {
-                // All commits reachable from `from`
-                ObjectId fromId = this.resolveCommitId(repo, walk, from);
-                git.log().add(fromId).call().forEach(commitList::add);
-                return commitList;
-            }
-
-            if (from == null) {
-                // Only the `to` commit
-                ObjectId toId = this.resolveCommitId(repo, walk, to);
-                commitList.add(walk.parseCommit(toId));
-                return commitList;
-            }
+            List<RevCommit> commits = new ArrayList<>();
 
             // Range between `from` and `to`, inclusive
             ObjectId fromId = this.resolveCommitId(repo, walk, from);
@@ -507,15 +494,15 @@ public final class GitService {
 
             // Add intermediate commits (excluding from)
             for (RevCommit commit : git.log().addRange(fromId, toId).call()) {
-                commitList.add(commit);
+                commits.add(commit);
             }
 
             // Add 'from' explicitly (inclusive)
             if (!this.isTag(repo, walk, from)) {
-                commitList.add(walk.parseCommit(fromId));
+                commits.add(walk.parseCommit(fromId));
             }
 
-            return commitList;
+            return commits;
         } catch (MissingObjectException e) {
             throw new GitWitException("git.repo.error.missing_object", e);
         } catch (IOException e) {
@@ -524,13 +511,30 @@ public final class GitService {
             throw new GitWitException("git.repo.error.no_head");
         } catch (GitAPIException e) {
             throw new GitWitException("git.error.api_exception", e);
-        } finally {
-            if (walk != null) {
-                walk.close();
-            }
-            if (repo != null) {
-                repo.close();
-            }
+        }
+    }
+
+    /**
+     * Resolves a rev-spec (branch, tag, commit hash) to a {@link RevCommit}.
+     *
+     * @param revSpec the rev-spec to resolve.
+     * @return an {@link Optional} containing the resolved {@link RevCommit}, or empty if the rev-spec is null or blank.
+     * @throws GitWitException if there is an error resolving the rev-spec or parsing the commit.
+     */
+    public Optional<RevCommit> resolveCommit(String revSpec) {
+        if (StringUtils.isNullOrBlank(revSpec)) {
+            return Optional.empty();
+        }
+        try (
+            Git git = Git.open(this.getGit().toFile());
+            RevWalk walk = new RevWalk(git.getRepository())
+        ) {
+            ObjectId id = resolveCommitId(git.getRepository(), walk, revSpec);
+            return Optional.ofNullable(walk.parseCommit(id));
+        } catch (MissingObjectException e) {
+            throw new GitWitException("git.repo.error.missing_object", e);
+        } catch (IOException e) {
+            throw new GitWitException("git.error.init_failed", e);
         }
     }
 
@@ -538,15 +542,18 @@ public final class GitService {
      * Resolves a rev-spec (branch, tag, commit hash) to a {@link ObjectId} of a commit.
      * Supports annotated tags by dereferencing them to the commit they point to.
      *
-     * @param repo the Git repository.
-     * @param walk the {@link RevWalk} instance for parsing commits.
-     * @param rev  the rev-spec to resolve.
+     * @param repo    the Git repository.
+     * @param walk    the {@link RevWalk} instance for parsing commits.
+     * @param revSpec the rev-spec to resolve.
      * @return the resolved {@link ObjectId} of the commit.
      */
-    private ObjectId resolveCommitId(Repository repo, RevWalk walk, String rev) throws IOException {
-        ObjectId id = repo.resolve(rev);
+    private ObjectId resolveCommitId(Repository repo, RevWalk walk, String revSpec) throws IOException {
+        if (StringUtils.isNullOrBlank(revSpec)) {
+            throw new GitWitException("git.repo.error.invalid_object", revSpec);
+        }
+        ObjectId id = repo.resolve(revSpec);
         if (id == null) {
-            throw new GitWitException("git.repo.error.rev_not_found", rev);
+            throw new GitWitException("git.repo.error.rev_not_found", revSpec);
         }
         RevObject obj = walk.parseAny(id);
 
@@ -562,14 +569,14 @@ public final class GitService {
     /**
      * Checks if the given rev-spec resolves to a tag in the repository.
      *
-     * @param repository the Git repository.
-     * @param walk       the {@link RevWalk} instance for parsing objects.
-     * @param rev        the rev-spec to check.
+     * @param repo    the Git repository.
+     * @param walk    the {@link RevWalk} instance for parsing objects.
+     * @param revSpec the rev-spec to check.
      * @return {@code true} if the rev-spec is a tag, {@code false} otherwise.
      * @throws IOException if there is an error resolving the rev-spec or parsing the object.
      */
-    private boolean isTag(Repository repository, RevWalk walk, String rev) throws IOException {
-        ObjectId id = repository.resolve(rev);
+    private boolean isTag(Repository repo, RevWalk walk, String revSpec) throws IOException {
+        ObjectId id = repo.resolve(revSpec);
         if (id == null) {
             return false;
         }

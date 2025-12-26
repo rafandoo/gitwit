@@ -2,6 +2,7 @@ package dev.rafandoo.gitwit.exception;
 
 import dev.rafandoo.gitwit.App;
 import dev.rafandoo.gitwit.service.I18nService;
+import dev.rafandoo.gitwit.util.EnvironmentUtil;
 
 import java.io.Serial;
 
@@ -52,7 +53,7 @@ public class GitWitException extends RuntimeException {
      */
     public GitWitException(String error, boolean suppressClassName, String... params) {
         super(null, null);
-        if (!App.isDebug()) {
+        if (!App.isDebug() && !EnvironmentUtil.isTesting()) {
             setStackTrace(new StackTraceElement[0]);
         }
         this.message = I18nService.getInstance().resolve(error, (Object[]) params);
