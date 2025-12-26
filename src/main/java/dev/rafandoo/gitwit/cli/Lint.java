@@ -34,14 +34,14 @@ public class Lint extends BaseCommand {
 
     @CommandLine.Option(
         names = {"-f", "--from"},
-        descriptionKey = "lint.option.from"
+        hidden = true
     )
     @Deprecated(forRemoval = true, since = "1.1.0")
     private String from;
 
     @CommandLine.Option(
         names = {"-t", "--to"},
-        descriptionKey = "lint.option.to"
+        hidden = true
     )
     @Deprecated(forRemoval = true, since = "1.1.0")
     private String to;
