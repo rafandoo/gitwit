@@ -19,6 +19,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @DisplayName("ChangelogService Tests")
@@ -35,7 +36,9 @@ class ChangelogServiceTest extends AbstractGitMock {
         TestUtils.setupConfig(".changelog.gitwit");
         GitWitConfig config = GitWitConfig.load();
 
-        when(spyGitService.getCommits(any(), any())).thenReturn(List.of());
+        doReturn(List.of())
+            .when(spyGitService)
+            .getCommits(any(), any());
 
         StringBuilder changelog = ChangelogService.getInstance().generateChangelog(
             "from",
@@ -78,7 +81,9 @@ class ChangelogServiceTest extends AbstractGitMock {
             CommitMockFactory.mockCommit("mnop3456", "fix!: breaking change fix")
         );
 
-        when(spyGitService.getCommits(any(), any())).thenReturn(commits);
+        doReturn(commits)
+            .when(spyGitService)
+            .getCommits(any(), any());
 
         StringBuilder changelog = ChangelogService.getInstance().generateChangelog(
             "from",
@@ -100,7 +105,9 @@ class ChangelogServiceTest extends AbstractGitMock {
         Path repoPath = tempDir.resolve("repo");
         Files.createDirectories(repoPath);
 
-        when(spyGitService.getRepo()).thenReturn(repoPath);
+        doReturn(repoPath)
+            .when(spyGitService)
+            .getRepo();
 
         Path result = ChangelogService.getInstance().writeChangeLog("content", false);
 

@@ -30,7 +30,9 @@ class InstallTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
-        when(spyGitService.getRepo()).thenReturn(tempDir);
+        doReturn(tempDir)
+            .when(spyGitService)
+            .getRepo();
 
         String[] args = {"install"};
 
@@ -53,7 +55,9 @@ class InstallTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
-        when(spyGitService.getRepo()).thenReturn(tempDir);
+        doReturn(tempDir)
+            .when(spyGitService)
+            .getRepo();
 
         String[] args = {
             "install",
@@ -79,7 +83,9 @@ class InstallTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
-        when(spyGitService.getRepo()).thenReturn(tempDir);
+        doReturn(tempDir)
+            .when(spyGitService)
+            .getRepo();
 
         String[] args = {
             "install",
@@ -105,7 +111,9 @@ class InstallTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
-        when(spyGitService.getRepo()).thenReturn(tempDir);
+        doReturn(tempDir)
+            .when(spyGitService)
+            .getRepo();
 
         String[] args = {
             "install",
@@ -132,7 +140,9 @@ class InstallTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
-        when(spyGitService.getRepo()).thenReturn(tempDir);
+        doReturn(tempDir)
+            .when(spyGitService)
+            .getRepo();
 
         String[] args = {
             "install",
@@ -157,7 +167,10 @@ class InstallTest extends AbstractGitMock {
     @Tag("integration")
     void shouldFailWhenNoGitRepositoryFound(@TempDir Path tempDir) throws Exception {
         setupGitServiceMock();
-        when(spyGitService.getRepo()).thenReturn(tempDir);
+        
+        doReturn(tempDir)
+            .when(spyGitService)
+            .getRepo();
 
         String[] args = {
             "install",

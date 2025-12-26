@@ -30,7 +30,9 @@ class UninstallTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
-        when(spyGitService.getRepo()).thenReturn(tempDir);
+        doReturn(tempDir)
+            .when(spyGitService)
+            .getRepo();
 
         String[] installArgs = {"install"};
 
@@ -58,7 +60,9 @@ class UninstallTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
-        when(spyGitService.getRepo()).thenReturn(tempDir);
+        doReturn(tempDir)
+            .when(spyGitService)
+            .getRepo();
 
         String[] installArgs = {
             "install",
@@ -92,7 +96,9 @@ class UninstallTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
-        when(spyGitService.getRepo()).thenReturn(tempDir);
+        doReturn(tempDir)
+            .when(spyGitService)
+            .getRepo();
 
         String[] installArgs = {
             "install",
@@ -129,7 +135,9 @@ class UninstallTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
-        when(spyGitService.getRepo()).thenReturn(tempDir);
+        doReturn(tempDir)
+            .when(spyGitService)
+            .getRepo();
 
         String[] args = {
             "uninstall",
