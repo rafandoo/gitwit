@@ -153,7 +153,7 @@ gitwit lint [<rev-spec>]
 
 | Parameter    | Description                                                                              |
 |--------------|------------------------------------------------------------------------------------------|
-| `<rev-spec>` | Git revision specification. It can be a commit, branch, tag or range in the format from. 
+| `<rev-spec>` | Git revision specification. It can be a commit, branch, tag or range in the format from. |
 
 #### Examples:
 
