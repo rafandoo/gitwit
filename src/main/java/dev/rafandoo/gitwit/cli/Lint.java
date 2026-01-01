@@ -48,13 +48,14 @@ public class Lint extends BaseCommand {
 
     @CommandLine.Option(
         names = {"-m", "--message"},
+        arity = "1..*",
         descriptionKey = "lint.option.message"
     )
-    private String message;
+    private String[] messageParts;
 
     @CommandLine.Parameters(
         index = "0",
-        arity = "0",
+        arity = "0..1",
         descriptionKey = "lint.parameter.rev-spec"
     )
     private String revSpec;
@@ -65,8 +66,9 @@ public class Lint extends BaseCommand {
 
         MessageService.getInstance().info("lint.start");
 
-        if (!StringUtils.isNullOrBlank(message)) {
-            CommitMessage commitMessage = CommitMessage.of(message);
+        if (this.messageParts != null) {
+            String rawMessage = String.join(" ", this.messageParts);
+            CommitMessage commitMessage = CommitMessage.of(rawMessage);
             CommitMessageService.getInstance().validate(commitMessage, config);
             MessageService.getInstance().success("lint.success");
             return;
