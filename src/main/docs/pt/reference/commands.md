@@ -148,12 +148,13 @@ O comando pode validar:
 #### Uso:
 
 ```bash
-gitwit lint [<rev-spec>]
+gitwit lint [<rev-spec>] [-m=<message>]
 ```
 
-| Parâmetro    | Descrição                                                                                             |
-|--------------|-------------------------------------------------------------------------------------------------------|
-| `<rev-spec>` | Especificação de revisão do Git. Pode ser um commit, branch, tag ou um intervalo no formato from..to. |
+| Opção                     | Descrição                                                                                             |
+|---------------------------|-------------------------------------------------------------------------------------------------------|
+| `-m, --message=<message>` | Mensagem a ser validada.                                                                              |
+| `<rev-spec>`              | Especificação de revisão do Git. Pode ser um commit, branch, tag ou um intervalo no formato from..to. |
 
 #### Exemplos:
 
@@ -173,6 +174,12 @@ Validar um intervalo de commits (inclusive):
 
 ```bash
 gitwit lint 8d2094..105564a
+```
+
+Validar uma mensagem sem referência a um commit:
+
+```bash
+gitwit lint -m 'feat(ui): Adicionar tema escuro'
 ```
 
 ## 📜 `changelog`
