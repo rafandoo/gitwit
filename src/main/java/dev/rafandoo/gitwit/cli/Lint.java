@@ -1,18 +1,9 @@
 package dev.rafandoo.gitwit.cli;
 
-import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.config.GitWitConfig;
-import dev.rafandoo.gitwit.entity.CommitMessage;
-import dev.rafandoo.gitwit.service.CommitMessageService;
-import dev.rafandoo.gitwit.service.GitService;
+import dev.rafandoo.gitwit.service.LintService;
 import dev.rafandoo.gitwit.service.MessageService;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.revwalk.RevCommit;
 import picocli.CommandLine;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * <h2>lint</h2>
@@ -63,49 +54,14 @@ public class Lint extends BaseCommand {
     @Override
     public void run() {
         GitWitConfig config = loadConfig();
-
         MessageService.getInstance().info("lint.start");
-
-        if (this.messageParts != null) {
-            String rawMessage = String.join(" ", this.messageParts);
-            CommitMessage commitMessage = CommitMessage.of(rawMessage);
-            CommitMessageService.getInstance().validate(commitMessage, config);
-            MessageService.getInstance().success("lint.success");
-            return;
-        }
-
-        List<RevCommit> commits = this.resolveCommits();
-        Map<String, CommitMessage> messages = commits.stream()
-            .collect(Collectors.toMap(
-                commit -> commit.getId().getName(),
-                CommitMessage::of
-            ));
-
-        MessageService.getInstance().debug("lint.total", messages.size());
-        CommitMessageService.getInstance().validate(messages, config);
+        LintService.getInstance().lint(
+            this.revSpec,
+            this.from,
+            this.to,
+            this.messageParts,
+            config
+        );
         MessageService.getInstance().success("lint.success");
     }
-
-    /**
-     * Resolves the commits to be linted based on the provided revision specification.
-     *
-     * @return list of {@link RevCommit} objects to be linted.
-     */
-    private List<RevCommit> resolveCommits() {
-        GitService git = GitService.getInstance();
-
-        if (!StringUtils.isNullOrBlank(revSpec)) {
-            if (revSpec.contains("..")) {
-                String[] parts = revSpec.split("\\.\\.", 2);
-                return git.listCommitsBetween(parts[0], parts[1]);
-            }
-            return git.resolveCommit(revSpec).stream().toList();
-        } else if (!StringUtils.isNullOrBlank(from) || !StringUtils.isNullOrBlank(to)) {
-            MessageService.getInstance().warn("lint.deprecated-range-options");
-            return git.listCommitsBetween(from, to);
-        }
-
-        return git.resolveCommit(Constants.HEAD).stream().toList();
-    }
-
 }

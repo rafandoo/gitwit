@@ -32,7 +32,7 @@ class LintTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.setupConfig(".lint.repo.gitwit");
 
-        List<RevCommit> mockCommits = List.of(
+        List<RevCommit> mockCommits = Arrays.asList(
             CommitMockFactory.mockCommit("f337727030873b96ead6b5ce75d13fffae931bc6", ":sparkles:: Add new feature"),
             CommitMockFactory.mockCommit("eb2b9188883d29508a818129ac7e6ce5584db0c0", ":bug:: Fix bug in feature")
         );
