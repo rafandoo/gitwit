@@ -79,23 +79,27 @@ public record CommitMessage(
     }
 
     /**
-     * Formats the commit message for a changelog entry.
-     * <p>
-     * This method uses a template based on the provided format and scope,
-     * replacing placeholders with the commit's details.
+     * Formats this commit message as an entry in a changelog.
      *
-     * @param format the configuration for the changelog format.
-     * @param scope  the scope of the changelog entry, which determines the template used.
-     * @return a formatted string suitable for changelog entries.
+     * <p>
+     * A template is selected based on the provided changelog format and scope,
+     * and placeholders are replaced with commit-specific values.
+     * </p>
+     *
+     * @param format changelog format configuration
+     * @param scope  scope used to select the appropriate changelog template
+     * @return formatted changelog entry
      */
     public String formatForChangelog(GitWitConfig.ChangelogConfig.ChangelogFormat format, ChangelogScope scope) {
         String template = ChangelogService.getInstance().getChangelogCommitTemplateByScope(format, scope);
 
         String formattedDate = "";
-        if (authorIdent != null && authorIdent.getWhenAsInstant() != null) {
+        if (template.contains("{date}") && authorIdent != null) {
             Instant instant = authorIdent.getWhenAsInstant();
-            LocalDateTime dateTime = LocalDateTime.ofInstant(instant, authorIdent.getZoneId());
-            formattedDate = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            if (instant != null) {
+                LocalDateTime dateTime = LocalDateTime.ofInstant(instant, authorIdent.getZoneId());
+                formattedDate = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            }
         }
 
         return template
@@ -113,14 +117,85 @@ public record CommitMessage(
     }
 
     /**
-     * Creates a {@link CommitMessage} from a {@link RevCommit} by parsing its full message.
+     * Internal representation of a parsed commit message.
      * <p>
-     * Parses the commit message into type, optional scope, subject, and optional body
-     * according to the Conventional Commits specification. Handles various message formats,
-     * including malformed messages.
+     * This record exists solely to decouple parsing logic from
+     * {@link CommitMessage} construction.
+     * </p>
+     */
+    private record ParsedCommit(
+        String type,
+        String scope,
+        String subject,
+        String description,
+        boolean breaking,
+        String breakingDesc
+    ) {
+    }
+
+    /**
+     * Parses a raw commit message into structured components.
      *
-     * @param commit thw commit to parse.
-     * @return a new CommitMessage instance, or a null-filled CommitMessage if the input is invalid.
+     * @param fullMessage raw commit message
+     * @return parsed commit data
+     */
+    private static ParsedCommit parse(String fullMessage) {
+        if (StringUtils.isNullOrBlank(fullMessage)) {
+            return new ParsedCommit(null, null, null, null, false, null);
+        }
+
+        String[] parts = fullMessage.split("\n\n", 2);
+        String header = parts[0];
+        String body = parts.length > 1 ? parts[1] : null;
+
+        String type = null;
+        String scope = null;
+        boolean breaking = false;
+        String subject;
+
+        Pattern pattern = Pattern.compile(
+            "^(?<type>\\w+|:\\w+:)(?<breaking>!)?\\s?(?:\\((?<scope>[^)]+)\\))?:?\\s*(?<desc>.*)$"
+        );
+
+        Matcher matcher = pattern.matcher(header);
+
+        if (matcher.matches()) {
+            type = matcher.group("type");
+            scope = matcher.group("scope");
+            subject = matcher.group("desc");
+            breaking = matcher.group("breaking") != null;
+        } else {
+            subject = header.trim();
+        }
+
+        String description = body;
+        String breakingDesc = null;
+
+        if (body != null && body.contains("BREAKING CHANGE:")) {
+            String[] bodyParts = body.split("(?m)^BREAKING CHANGE:\\s*", 2);
+            description = bodyParts[0].trim();
+            if (bodyParts.length > 1) {
+                breakingDesc = bodyParts[1].trim();
+                breaking = true;
+            }
+        }
+
+        return new ParsedCommit(
+            type,
+            scope,
+            subject,
+            description,
+            breaking,
+            breakingDesc
+        );
+    }
+
+
+    /**
+     * Creates a {@link CommitMessage} from a {@link RevCommit}.
+     *
+     * @param commit Git commit to parse
+     * @return parsed commit message representation
      */
     public static CommitMessage of(RevCommit commit) {
         if (commit == null || StringUtils.isNullOrBlank(commit.getFullMessage())) {
@@ -136,53 +211,38 @@ public record CommitMessage(
             );
         }
 
-        String[] parts = commit.getFullMessage().split("\n\n", 2);
-
-        // header = "type(scope): subject"  OR  "type: subject"
-        String header = parts[0];
-        String body = parts.length > 1 ? parts[1] : null;
-
-        String type = null;
-        String scope = null;
-        boolean breakingChange = false;
-        String subject = null;
-
-        int colon = header.lastIndexOf(':');
-        if (colon < 0) {                            // malformed, keep everything as subject
-            subject = header.trim();
-        } else {
-            Pattern pattern = Pattern.compile("^(?<type>\\w+|:\\w+:)(?<breaking>!)?\\s?(?:\\((?<scope>[^)]+)\\))?:?\\s+(?<desc>.*)$");
-            Matcher matcher = pattern.matcher(header);
-
-            if (matcher.matches()) {
-                type = matcher.group("type");
-                scope = matcher.group("scope");
-                subject = matcher.group("desc");
-                breakingChange = matcher.group("breaking") != null;
-            }
-        }
-
-        String description = body;
-        String breakingChangeDesc = null;
-
-        if (body != null && body.contains("BREAKING CHANGE:")) {
-            String[] bodyParts = body.split("(?m)^BREAKING CHANGE:\\s*", 2);
-            description = bodyParts[0].trim();
-            if (bodyParts.length > 1) {
-                breakingChangeDesc = bodyParts[1].trim();
-                breakingChange = true;
-            }
-        }
+        ParsedCommit parsed = parse(commit.getFullMessage());
 
         return new CommitMessage(
-            type,
-            scope,
-            subject,
-            description,
-            breakingChange,
-            breakingChangeDesc,
+            parsed.type(),
+            parsed.scope(),
+            parsed.subject(),
+            parsed.description(),
+            parsed.breaking(),
+            parsed.breakingDesc(),
             commit.getId(),
             commit.getAuthorIdent()
+        );
+    }
+
+    /**
+     * Creates a {@link CommitMessage} from a raw commit message string.
+     *
+     * @param rawMessage commit message text
+     * @return parsed commit message representation
+     */
+    public static CommitMessage of(String rawMessage) {
+        ParsedCommit parsed = parse(rawMessage);
+
+        return new CommitMessage(
+            parsed.type(),
+            parsed.scope(),
+            parsed.subject(),
+            parsed.description(),
+            parsed.breaking(),
+            parsed.breakingDesc(),
+            null,
+            null
         );
     }
 }

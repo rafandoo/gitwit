@@ -46,6 +46,12 @@ public class Lint extends BaseCommand {
     @Deprecated(forRemoval = true, since = "1.1.0")
     private String to;
 
+    @CommandLine.Option(
+        names = {"-m", "--message"},
+        descriptionKey = "lint.option.message"
+    )
+    private String message;
+
     @CommandLine.Parameters(
         index = "0",
         arity = "0",
@@ -58,6 +64,13 @@ public class Lint extends BaseCommand {
         GitWitConfig config = loadConfig();
 
         MessageService.getInstance().info("lint.start");
+
+        if (!StringUtils.isNullOrBlank(message)) {
+            CommitMessage commitMessage = CommitMessage.of(message);
+            CommitMessageService.getInstance().validate(commitMessage, config);
+            MessageService.getInstance().success("lint.success");
+            return;
+        }
 
         List<RevCommit> commits = this.resolveCommits();
         Map<String, CommitMessage> messages = commits.stream()
