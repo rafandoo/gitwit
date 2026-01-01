@@ -6,9 +6,13 @@ import dev.rafandoo.gitwit.mock.CommitMockFactory;
 import dev.rafandoo.gitwit.service.I18nService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
 import static org.junit.jupiter.api.Assertions.*;
@@ -113,13 +117,42 @@ class LintTest extends AbstractGitMock {
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
         String expectedMessage = I18nService.getInstance().getMessage(
-                "git.repo.error.rev_not_found",
+            "git.repo.error.rev_not_found",
             "invalidSHA"
         );
 
         assertAll(
             () -> assertEquals(1, exitCode.get()),
             () -> assertTrue(errText.contains(expectedMessage))
+        );
+    }
+
+    @ParameterizedTest
+    @Tag("integration")
+    @MethodSource("messageProvider")
+    void shouldLintMessageSuccessfully(String message) throws Exception {
+        TestUtils.setupConfig(".general.gitwit");
+
+        String[] args = {
+            "lint",
+            "-m", message
+        };
+
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
+
+        assertAll(
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
+    }
+
+    private static Stream<Arguments> messageProvider() {
+        return Stream.of(
+            Arguments.of("feat: Add new feature"),
+            Arguments.of("fix(api): Fix bug in API"),
+            Arguments.of("docs: Update README with new instructions"),
+            Arguments.of("fix!: Correct critical security vulnerability")
         );
     }
 }
