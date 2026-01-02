@@ -91,11 +91,13 @@ public final class LintService {
             commits = git.resolveCommit(Constants.HEAD).stream().collect(Collectors.toList());
         }
 
-        commits.removeIf(commit -> config.getLint()
-            .getIgnored()
-            .stream()
-            .anyMatch(ignored -> commit.getFullMessage().startsWith(ignored))
-        );
+        if (config.getLint().getIgnored() != null) {
+            commits.removeIf(commit -> config.getLint()
+                .getIgnored()
+                .stream()
+                .anyMatch(ignored -> commit.getFullMessage().matches(ignored))
+            );
+        }
 
         return commits;
     }
