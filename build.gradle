@@ -81,10 +81,12 @@ compileJava {
 }
 
 def jacocoExclusions = [
+    '**/dev/rafandoo/gitwit/enums/**',
     '**/dev/rafandoo/gitwit/exception/**',
     '**/dev/rafandoo/gitwit/util/**',
     '**/dev/rafandoo/gitwit/cli/wiz/**',
     '**/dev/rafandoo/gitwit/service/TerminalService.class',
+    '**/dev/rafandoo/gitwit/service/GitService.class',
     '**/dev/rafandoo/gitwit/provider/ManifestVersionProvider.class',
 ]
 

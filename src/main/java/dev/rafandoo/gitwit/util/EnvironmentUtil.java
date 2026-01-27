@@ -12,9 +12,6 @@ public class EnvironmentUtil {
 
     /**
      * Checks if the current environment is set to testing.
-     * <p>
-     * This method checks the "GITWIT_ENV" environment variable to determine
-     * if the application is running in a testing environment.
      *
      * @return {@code true} if in testing environment, {@code false} otherwise.
      */
@@ -22,17 +19,25 @@ public class EnvironmentUtil {
         return Optional.ofNullable(System.getenv("GITWIT_ENV"))
             .map(env -> env.equalsIgnoreCase("TEST"))
             .orElse(false);
+    }
 
+    /**
+     * Checks if the current environment is set to development.
+     *
+     * @return {@code true} if in development environment, {@code false} otherwise.
+     */
+    public static boolean isDevelopment() {
+        return Optional.ofNullable(System.getenv("GITWIT_ENV"))
+            .map(env -> env.equalsIgnoreCase("DEV"))
+            .orElse(false);
     }
 
     /**
      * Checks if the current environment is set to production.
-     * <p>
-     * This method returns the inverse of {@link #isTesting()}.
      *
      * @return {@code true} if in production environment, {@code false} otherwise.
      */
     public static boolean isProd() {
-        return !isTesting();
+        return !isTesting() && !isDevelopment();
     }
 }

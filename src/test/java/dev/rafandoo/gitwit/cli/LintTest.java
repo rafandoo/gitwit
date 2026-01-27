@@ -6,9 +6,13 @@ import dev.rafandoo.gitwit.mock.CommitMockFactory;
 import dev.rafandoo.gitwit.service.I18nService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,17 +32,18 @@ class LintTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.setupConfig(".lint.repo.gitwit");
 
-        List<RevCommit> mockCommits = List.of(
+        List<RevCommit> mockCommits = Arrays.asList(
             CommitMockFactory.mockCommit("f337727030873b96ead6b5ce75d13fffae931bc6", ":sparkles:: Add new feature"),
             CommitMockFactory.mockCommit("eb2b9188883d29508a818129ac7e6ce5584db0c0", ":bug:: Fix bug in feature")
         );
 
-        when(spyGitService.getCommits(any(), any())).thenReturn(mockCommits);
+        doReturn(mockCommits)
+            .when(spyGitService)
+            .listCommitsBetween(any(), any());
 
         String[] args = {
             "lint",
-            "--from", "f337727030873b96ead6b5ce75d13fffae931bc6",
-            "--to", "eb2b9188883d29508a818129ac7e6ce5584db0c0"
+            "f337727030873b96ead6b5ce75d13fffae931bc6..eb2b9188883d29508a818129ac7e6ce5584db0c0"
         };
 
         AtomicInteger exitCode = new AtomicInteger();
@@ -57,9 +62,38 @@ class LintTest extends AbstractGitMock {
         TestUtils.setupConfig(".lint.repo.gitwit");
 
         RevCommit commit = CommitMockFactory.mockCommit("HEAD", ":sparkles:: Latest commit");
-        when(spyGitService.getCommits(null, null)).thenReturn(List.of(commit));
+        doReturn(Optional.of(commit))
+            .when(spyGitService)
+            .resolveCommit(any());
 
-        String[] args = {"lint"};
+        String[] args = {
+            "lint",
+        };
+
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
+
+        assertAll(
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
+    }
+
+    @Test
+    @Tag("integration")
+    void shouldLintSpecificCommitSuccessfully() throws Exception {
+        setupGitServiceMock();
+        TestUtils.setupConfig(".lint.repo.gitwit");
+
+        RevCommit commit = CommitMockFactory.mockCommit("f337727030873b96ead6b5ce75d13fffae931bc6", ":sparkles:: Specific commit");
+        doReturn(Optional.of(commit))
+            .when(spyGitService)
+            .resolveCommit(any());
+
+        String[] args = {
+            "lint",
+            "f337727030873b96ead6b5ce75d13fffae931bc6"
+        };
 
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
@@ -74,19 +108,51 @@ class LintTest extends AbstractGitMock {
     @Tag("integration")
     void shouldFailWhenFromCommitNotFound() throws Exception {
         TestUtils.setupConfig(".lint.repo.gitwit");
-        String[] args = {"lint", "--from", "invalidSHA"};
+        String[] args = {
+            "lint",
+            "invalidSHA"
+        };
 
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
         String expectedMessage = I18nService.getInstance().getMessage(
-                "git.repo.error.rev_not_found",
+            "git.repo.error.rev_not_found",
             "invalidSHA"
         );
 
         assertAll(
             () -> assertEquals(1, exitCode.get()),
             () -> assertTrue(errText.contains(expectedMessage))
+        );
+    }
+
+    @ParameterizedTest
+    @Tag("integration")
+    @MethodSource("messageProvider")
+    void shouldLintMessageSuccessfully(String message) throws Exception {
+        TestUtils.setupConfig(".general.gitwit");
+
+        String[] args = {
+            "lint",
+            "-m", message
+        };
+
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
+
+        assertAll(
+            () -> assertEquals(0, exitCode.get()),
+            () -> assertTrue(errText.isBlank())
+        );
+    }
+
+    private static Stream<Arguments> messageProvider() {
+        return Stream.of(
+            Arguments.of("feat: Add new feature"),
+            Arguments.of("fix(api): Fix bug in API"),
+            Arguments.of("docs: Update README with new instructions"),
+            Arguments.of("fix!: Correct critical security vulnerability")
         );
     }
 }

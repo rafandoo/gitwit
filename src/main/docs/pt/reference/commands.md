@@ -40,16 +40,14 @@ Instala o GitWit no repositório atual ou globalmente para todos os repositório
 #### Uso:
 
 ```bash
-gitwit install [-fghV] [-hk]
+gitwit install [-fg] [-hk]
 ```
 
-| Opção           | Descrição                                                              |
-|-----------------|------------------------------------------------------------------------|
-| `-hk, --hook`   | Instala como hook `prepare-commit-msg` no repositório atual.           |
-| `-g, --global`  | Instala como alias global do Git, disponível em todos os repositórios. |
-| `-f, --force`   | Força a instalação, sobrescrevendo um hook existente.                  |
-| `-h, --help`    | Mostra a ajuda do comando.                                             |
-| `-V, --version` | Mostra a versão.                                                       |
+| Opção          | Descrição                                                              |
+|----------------|------------------------------------------------------------------------|
+| `-hk, --hook`  | Instala como hook `prepare-commit-msg` no repositório atual.           |
+| `-g, --global` | Instala como alias global do Git, disponível em todos os repositórios. |
+| `-f, --force`  | Força a instalação, sobrescrevendo um hook existente.                  |
 
 <br>
 
@@ -77,15 +75,13 @@ Remove a instalação do GitWit do repositório atual ou globalmente.
 #### Uso:
 
 ```bash
-gitwit uninstall [-ghV] [-hk]
+gitwit uninstall [-g] [-hk]
 ```
 
-| Opção           | Descrição                                                |
-|-----------------|----------------------------------------------------------|
-| `-hk, --hook`   | Remove o hook `prepare-commit-msg` do repositório atual. |
-| `-g, --global`  | Remove o alias global do GitWit.                         |
-| `-h, --help`    | Mostra a ajuda do comando.                               |
-| `-V, --version` | Mostra a versão.                                         |
+| Opção          | Descrição                                                |
+|----------------|----------------------------------------------------------|
+| `-hk, --hook`  | Remove o hook `prepare-commit-msg` do repositório atual. |
+| `-g, --global` | Remove o alias global do GitWit.                         |
 
 <br>
 
@@ -113,7 +109,7 @@ Inicia o assistente interativo de commits ou permite passar dados diretamente po
 #### Uso:
 
 ```bash
-gitwit commit [-ahV] [-am] [-d=<shortDescription>] [-l=<longDescription>] [-s=<scope>] [-t=<type>]
+gitwit commit [-aem] [-t=<type>] [-s=<scope>] [-d=<shortDescription>] [-l=<longDescription>] 
 ```
 
 | Opção                                      | Descrição                                                                |
@@ -125,8 +121,6 @@ gitwit commit [-ahV] [-am] [-d=<shortDescription>] [-l=<longDescription>] [-s=<s
 | `-s, --scope=<scope>`                      | Escopo do commit (`core`, `ui`, `auth` etc.).                            |
 | `-d, --description=<shortDescription>`     | Descrição breve do commit.                                               |
 | `-l, --long-description=<longDescription>` | Descrição detalhada do commit.                                           |
-| `-h, --help`                               | Mostra a ajuda.                                                          |
-| `-V, --version`                            | Mostra a versão.                                                         |
 
 #### Exemplos:
 
@@ -145,27 +139,47 @@ gitwit commit --amend --add -t fix -s api -d "corrige autenticação JWT"
 
 Valida mensagens de commit com base nas regras definidas no `.gitwit`.
 
+O comando pode validar:
+
+- um commit específico
+- um intervalo de commits
+- ou, por padrão, o commit mais recente (HEAD)
+
 #### Uso:
 
 ```bash
-gitwit lint [-hV] [-f=<from>] [-t=<to>]
+gitwit lint [<rev-spec>] [-m=<message>]
 ```
 
-| Opção               | Descrição                                   |
-|---------------------|---------------------------------------------|
-| `-f, --from=<from>` | Commit inicial (inclusivo). Padrão: `HEAD`. |
-| `-t, --to=<to>`     | Commit final (inclusivo).                   |
-| `-h, --help`        | Mostra a ajuda.                             |
-| `-V, --version`     | Mostra a versão.                            |
+| Opção                     | Descrição                                                                                             |
+|---------------------------|-------------------------------------------------------------------------------------------------------|
+| `-m, --message=<message>` | Mensagem a ser validada.                                                                              |
+| `<rev-spec>`              | Especificação de revisão do Git. Pode ser um commit, branch, tag ou um intervalo no formato from..to. |
 
 #### Exemplos:
 
-```bash
-# Lint no último commit
-gitwit lint
+Validar apenas o commit mais recente (padrão):
 
-# Lint de um intervalo de commits
-gitwit lint --from v1.0.0 --to v1.1.0
+```bash
+gitwit lint
+```
+
+Validar um commit específico:
+
+```bash
+gitwit lint 105564ac5c6ca88bee5f3f4978287f5c8f87c07b
+```
+
+Validar um intervalo de commits (inclusive):
+
+```bash
+gitwit lint 8d2094..105564a
+```
+
+Validar uma mensagem sem referência a um commit:
+
+```bash
+gitwit lint -m 'feat(ui): Adicionar tema escuro'
 ```
 
 ## 📜 `changelog`
@@ -175,7 +189,7 @@ Gera um changelog formatado a partir das mensagens de commit.
 #### Uso:
 
 ```bash
-gitwit changelog [-achV] -f=<from> [-t=<to>] [-s=<subtitle>] 
+gitwit changelog [-ac] -f=<from> [-t=<to>] [-s=<subtitle>] 
 ```
 
 | Opção               | Descrição                                                               |
@@ -185,8 +199,6 @@ gitwit changelog [-achV] -f=<from> [-t=<to>] [-s=<subtitle>]
 | `-s, --subtitle`    | Subtítulo a ser exibido no changelog.                                   |
 | `-a, --append`      | Indica se o changelog será anexado ao arquivo existente ou sobrescrito. |                 
 | `-c, --copy`        | Copia o changelog gerado para a área de transferência.                  |
-| `-h, --help`        | Mostra a ajuda.                                                         |
-| `-V, --version`     | Mostra a versão.                                                        |
 
 #### Exemplos:
 

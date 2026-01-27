@@ -95,12 +95,26 @@ public class App extends BaseCommand {
 
     /**
      * Main entry point for the GitWit CLI application.
-     * Initializes the application, executes the command line interface,
-     * closes the terminal service, and exits with the command's exit code.
      *
      * @param args command-line arguments passed to the application.
      */
     public static void main(String[] args) {
+        int ec = execute(args);
+        if (EnvironmentUtil.isTesting()) {
+            return;
+        }
+        System.exit(ec);
+    }
+
+    /**
+     * Executes the GitWit application with the provided command-line arguments.
+     * Configures debug logging if the debug option is enabled and sets the system encoding
+     * based on the operating system.
+     *
+     * @param args command-line arguments to be processed.
+     * @return the exit code of the command execution.
+     */
+    public static int execute(String[] args) {
         App app = new App();
         if (App.isDebug()) {
             configureDebugLogging();
@@ -119,11 +133,7 @@ public class App extends BaseCommand {
         } finally {
             TerminalService.getInstance().close();
         }
-
-        if (EnvironmentUtil.isTesting()) {
-            return;
-        }
-        System.exit(ec);
+        return ec;
     }
 
     /**

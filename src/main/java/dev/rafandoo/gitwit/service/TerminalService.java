@@ -52,6 +52,11 @@ public final class TerminalService {
                         .name("GitWit Test Terminal")
                         .dumb(true)
                         .build();
+                } else if (EnvironmentUtil.isDevelopment()) {
+                    terminal = TerminalBuilder.builder()
+                        .name("GitWit Dev Terminal")
+                        .dumb(true)
+                        .build();
                 } else {
                     terminal = TerminalBuilder.builder()
                         .name("GitWit Terminal")

@@ -218,6 +218,21 @@ Supported template variables:
 - `{author}`: Commit author
 - `{date}`: Date and time of the commit
 
+## 8. `lint` - Linting Rules
+
+Defines rules for validating commit messages.
+
+```yaml
+lint:
+  ignored:
+    - Merge
+    - Pull request
+```
+
+| Field     | Required | Type | Default                                                | Description                            |
+|-----------|----------|------|--------------------------------------------------------|----------------------------------------|
+| `ignored` | No       | List | "Merge", "Revert", "Pull request", "fixup!", "squash!" | List of message patterns to be ignored |
+
 ## Configuration examples
 
 Below you will find two ready-to-use templates, each with its own style:

@@ -30,10 +30,8 @@ public class GitWitConfig {
     private LongDescriptionConfig longDescription = new LongDescriptionConfig();
     private BreakingChangesConfig breakingChanges = new BreakingChangesConfig();
     private ChangelogConfig changelog = new ChangelogConfig();
+    private LintConfig lint = new LintConfig();
 
-    /**
-     * Configuration for commit types.
-     */
     @Data
     public static class TypesConfig {
 
@@ -48,9 +46,6 @@ public class GitWitConfig {
         private Map<String, String> values = new HashMap<>();
     }
 
-    /**
-     * Configuration for the scope field.
-     */
     @Data
     public static class ScopeConfig {
 
@@ -76,9 +71,6 @@ public class GitWitConfig {
         private List<String> values = new ArrayList<>();
     }
 
-    /**
-     * Configuration for the short description field.
-     */
     @Data
     public static class ShortDescriptionConfig {
 
@@ -98,9 +90,6 @@ public class GitWitConfig {
         private int maxLength = 72;
     }
 
-    /**
-     * Configuration for the long description field.
-     */
     @Data
     public static class LongDescriptionConfig {
 
@@ -130,9 +119,6 @@ public class GitWitConfig {
         private int maxLength = 100;
     }
 
-    /**
-     * Configuration the changelog.
-     */
     @Data
     public static class ChangelogConfig {
 
@@ -196,9 +182,6 @@ public class GitWitConfig {
         }
     }
 
-    /**
-     * Configuration for breaking changes.
-     */
     @Data
     public static class BreakingChangesConfig {
 
@@ -211,6 +194,15 @@ public class GitWitConfig {
          * Optional description to explain what counts as a breaking change.
          */
         private String description;
+    }
+
+    @Data
+    public static class LintConfig {
+
+        /**
+         * List of commit messages to ignore during linting.
+         */
+        private List<String> ignored = List.of("Merge", "Revert", "Pull request", "fixup!", "squash!");
     }
 
     /**

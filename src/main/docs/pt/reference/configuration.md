@@ -17,7 +17,6 @@ Esta página documenta todas as chaves disponíveis e como usá-las, com exemplo
 A configuração é organizada em seções, cada uma com um propósito específico.
 O arquivo de configuração utiliza o formato YAML para definição das propriedades
 
-
 ::: details 📃 Gerar exemplo de configuração
 Você pode gerar automaticamente um arquivo de exemplo executando:
 
@@ -25,8 +24,8 @@ Você pode gerar automaticamente um arquivo de exemplo executando:
 gitwit --config-example
 ```
 
-Esse comando criará no diretório atual um `.gitwit` pré-preenchido com valores padrão, 
-pronto para ser ajustado conforme suas necessidades.
+Esse comando criará no diretório atual um `.gitwit` pré-preenchido com valores padrão,
+pronto para ser ajustado conforme as suas necessidades.
 :::
 
 Exemplo básico:
@@ -218,6 +217,21 @@ Variáveis suportadas nos templates:
 - `{breakingChanges}`: tag de breaking change
 - `{author}`: autor do commit
 - `{date}`: data e hora do commit
+
+## 8. `lint` - Regras de linting
+
+Define regras adicionais para validação dos commits.
+
+```yaml
+lint:
+  ignored:
+    - Merge
+    - Pull request
+```
+
+| Campo     | Obrigatório | Tipo | Padrão                                                 | Descrição                                       |
+|-----------|-------------|------|--------------------------------------------------------|-------------------------------------------------|
+| `ignored` | Não         | List | "Merge", "Revert", "Pull request", "fixup!", "squash!" | Lista de padrões de mensagens a serem ignorados |
 
 ## Exemplos de configuração
 

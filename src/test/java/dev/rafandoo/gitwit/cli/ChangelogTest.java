@@ -13,6 +13,7 @@ import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -60,13 +61,18 @@ class ChangelogTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.setupConfig(".changelog.gitwit");
 
-        List<RevCommit> mockCommits = List.of(
+        List<RevCommit> mockCommits = Arrays.asList(
             CommitMockFactory.mockCommit("1234", "feat: add new feature"),
             CommitMockFactory.mockCommit("5678", "fix: fix bug")
         );
 
-        when(spyGitService.getCommits(any(), any())).thenReturn(mockCommits);
-        when(spyGitService.getRepo()).thenReturn(tempDir);
+        doReturn(mockCommits)
+            .when(spyGitService)
+            .listCommitsBetween(any(), any());
+
+        doReturn(tempDir)
+            .when(spyGitService)
+            .getRepo();
 
         String[] args = {
             "changelog",
@@ -89,12 +95,14 @@ class ChangelogTest extends AbstractGitMock {
         setupGitServiceMock();
         TestUtils.setupConfig(".changelog.gitwit");
 
-        List<RevCommit> mockCommits = List.of(
+        List<RevCommit> mockCommits = Arrays.asList(
             CommitMockFactory.mockCommit("1234", "feat: add new feature"),
             CommitMockFactory.mockCommit("5678", "fix: fix bug")
         );
 
-        when(spyGitService.getCommits(any(), any())).thenReturn(mockCommits);
+        doReturn(mockCommits)
+            .when(spyGitService)
+            .listCommitsBetween(any(), any());
 
         String[] args = {
             "changelog",
