@@ -151,7 +151,7 @@ public class App extends BaseCommand {
         CommandLine cmd = new CommandLine(App.class, factory);
 
         cmd.setExecutionStrategy(parseResult -> {
-            // força a criação do comando root para que as options (ex: --debug) sejam aplicadas
+            // Force creation of the root command so that options (e.g., --debug) are applied
             parseResult.commandSpec()
                 .root()
                 .userObject();
