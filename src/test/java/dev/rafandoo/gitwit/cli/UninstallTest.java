@@ -1,12 +1,15 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
-import dev.rafandoo.gitwit.mock.AbstractGitMock;
+import dev.rafandoo.gitwit.di.GuiceExtension;
+import dev.rafandoo.gitwit.service.GitService;
 import dev.rafandoo.gitwit.service.I18nService;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
@@ -16,22 +19,29 @@ import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(GuiceExtension.class)
 @DisplayName("Uninstall Command Tests")
-class UninstallTest extends AbstractGitMock {
+class UninstallTest {
 
-    @AfterEach
-    void tearDown() {
-        closeGitServiceMock();
+    @Inject
+    GitService gitService;
+
+    @Inject
+    I18nService i18nService;
+
+    @BeforeEach
+    void resetMocks() {
+        reset(this.gitService);
+        clearInvocations(this.gitService);
     }
 
     @Test
     @Tag("integration")
     void shouldUninstallGitAliasLocal(@TempDir Path tempDir) throws Exception {
-        setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
         doReturn(tempDir)
-            .when(spyGitService)
+            .when(this.gitService)
             .getRepo();
 
         String[] installArgs = {"install"};
@@ -51,17 +61,16 @@ class UninstallTest extends AbstractGitMock {
             () -> assertTrue(errText.isBlank())
         );
 
-        verify(spyGitService).removeGitAliasLocal();
+        verify(this.gitService).removeGitAliasLocal();
     }
 
     @Test
     @Tag("integration")
     void shouldUninstallGitAliasGlobal(@TempDir Path tempDir) throws Exception {
-        setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
         doReturn(tempDir)
-            .when(spyGitService)
+            .when(this.gitService)
             .getRepo();
 
         String[] installArgs = {
@@ -87,17 +96,16 @@ class UninstallTest extends AbstractGitMock {
             () -> assertTrue(errText.isBlank())
         );
 
-        verify(spyGitService).removeGitAliasGlobal();
+        verify(this.gitService).removeGitAliasGlobal();
     }
 
     @Test
     @Tag("integration")
     void shouldUninstallCommitWizardHook(@TempDir Path tempDir) throws Exception {
-        setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
         doReturn(tempDir)
-            .when(spyGitService)
+            .when(this.gitService)
             .getRepo();
 
         String[] installArgs = {
@@ -123,20 +131,19 @@ class UninstallTest extends AbstractGitMock {
             () -> assertTrue(errText.isBlank())
         );
 
-        verify(spyGitService, never()).configureGitAliasLocal();
-        verify(spyGitService, never()).configureGitAliasGlobal();
-        verify(spyGitService).setupCommitWizardHook(false);
-        verify(spyGitService).uninstallCommitWizardHook();
+        verify(this.gitService, never()).configureGitAliasLocal();
+        verify(this.gitService, never()).configureGitAliasGlobal();
+        verify(this.gitService).setupCommitWizardHook(false);
+        verify(this.gitService).uninstallCommitWizardHook();
     }
 
     @Test
     @Tag("integration")
     void shouldFailWhenHookAndGlobalOptionsAreUsedTogether(@TempDir Path tempDir) throws Exception {
-        setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
         doReturn(tempDir)
-            .when(spyGitService)
+            .when(this.gitService)
             .getRepo();
 
         String[] args = {
@@ -150,7 +157,7 @@ class UninstallTest extends AbstractGitMock {
 
         assertAll(
             () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("uninstall.error.conflict")))
+            () -> assertTrue(errText.contains(this.i18nService.getMessage("uninstall.error.conflict")))
         );
     }
 }

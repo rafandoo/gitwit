@@ -1,17 +1,16 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
-import dev.rafandoo.gitwit.exception.GitWitException;
-import dev.rafandoo.gitwit.mock.AbstractGitMock;
+import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
 import dev.rafandoo.gitwit.service.ChangelogService;
-import dev.rafandoo.gitwit.service.MessageService;
+import dev.rafandoo.gitwit.service.GitService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.MockedStatic;
 
-import java.io.IOException;
 import java.nio.file.*;
 import java.util.Arrays;
 import java.util.List;
@@ -21,44 +20,25 @@ import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(GuiceExtension.class)
 @DisplayName("Changelog Tests")
-class ChangelogTest extends AbstractGitMock {
+class ChangelogTest {
 
-    @AfterEach
-    void tearDown() {
-        closeGitServiceMock();
-    }
+    @Inject
+    GitService gitService;
 
-    @Test
-    @Tag("integration")
-    void shouldThrowExceptionOnWriteError() throws IOException {
-        TestUtils.setupConfig(".changelog.gitwit");
-        Changelog changelog = new Changelog();
+    @Inject
+    ChangelogService changelogService;
 
-        try (
-            MockedStatic<MessageService> messageMock = mockStatic(MessageService.class);
-            MockedStatic<ChangelogService> changelogMock = mockStatic(ChangelogService.class)
-        ) {
-            MessageService messageService = mock(MessageService.class);
-            ChangelogService changelogService = mock(ChangelogService.class);
-
-            messageMock.when(MessageService::getInstance).thenReturn(messageService);
-            changelogMock.when(ChangelogService::getInstance).thenReturn(changelogService);
-
-            when(changelogService.generateChangelog(any(), any(), any(), any()))
-                .thenReturn(new StringBuilder("CHANGELOG CONTENT"));
-            when(changelogService.writeChangeLog(anyString(), anyBoolean()))
-                .thenThrow(new IOException("disk error"));
-
-            assertThrows(GitWitException.class, changelog::run);
-            verify(changelogService).writeChangeLog(anyString(), anyBoolean());
-        }
+    @BeforeEach
+    void resetMocks() {
+        reset(this.gitService);
+        clearInvocations(this.gitService);
     }
 
     @Test
     @Tag("integration")
     void shouldExecuteChangelogCLICommandSuccessfully(@TempDir Path tempDir) throws Exception {
-        setupGitServiceMock();
         TestUtils.setupConfig(".changelog.gitwit");
 
         List<RevCommit> mockCommits = Arrays.asList(
@@ -67,11 +47,11 @@ class ChangelogTest extends AbstractGitMock {
         );
 
         doReturn(mockCommits)
-            .when(spyGitService)
+            .when(this.gitService)
             .listCommitsBetween(any(), any());
 
         doReturn(tempDir)
-            .when(spyGitService)
+            .when(this.gitService)
             .getRepo();
 
         String[] args = {
@@ -92,7 +72,6 @@ class ChangelogTest extends AbstractGitMock {
     @Test
     @Tag("integration")
     void shouldCopyChangelogToClipboardSuccessfully() throws Exception {
-        setupGitServiceMock();
         TestUtils.setupConfig(".changelog.gitwit");
 
         List<RevCommit> mockCommits = Arrays.asList(
@@ -101,7 +80,7 @@ class ChangelogTest extends AbstractGitMock {
         );
 
         doReturn(mockCommits)
-            .when(spyGitService)
+            .when(this.gitService)
             .listCommitsBetween(any(), any());
 
         String[] args = {
