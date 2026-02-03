@@ -1,12 +1,16 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
-import dev.rafandoo.gitwit.mock.AbstractGitMock;
+import dev.rafandoo.gitwit.di.GuiceExtension;
+import dev.rafandoo.gitwit.exception.GitWitException;
+import dev.rafandoo.gitwit.service.GitService;
 import dev.rafandoo.gitwit.service.I18nService;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
@@ -16,22 +20,29 @@ import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(GuiceExtension.class)
 @DisplayName("Install Command Tests")
-class InstallTest extends AbstractGitMock {
+class InstallTest {
 
-    @AfterEach
-    void tearDown() {
-        closeGitServiceMock();
+    @Inject
+    GitService gitService;
+
+    @Inject
+    I18nService i18nService;
+
+    @BeforeEach
+    void resetMocks() {
+        reset(this.gitService);
+        clearInvocations(this.gitService);
     }
 
     @Test
     @Tag("integration")
     void shouldInstallGitAliasLocal(@TempDir Path tempDir) throws Exception {
-        setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
         doReturn(tempDir)
-            .when(spyGitService)
+            .when(this.gitService)
             .getRepo();
 
         String[] args = {"install"};
@@ -44,19 +55,18 @@ class InstallTest extends AbstractGitMock {
             () -> assertTrue(errText.isBlank())
         );
 
-        verify(spyGitService).configureGitAliasLocal();
-        verify(spyGitService, never()).configureGitAliasGlobal();
-        verify(spyGitService, never()).setupCommitWizardHook(anyBoolean());
+        verify(this.gitService).configureGitAliasLocal();
+        verify(this.gitService, never()).configureGitAliasGlobal();
+        verify(this.gitService, never()).setupCommitWizardHook(anyBoolean());
     }
 
     @Test
     @Tag("integration")
     void shouldInstallGitAliasGlobal(@TempDir Path tempDir) throws Exception {
-        setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
         doReturn(tempDir)
-            .when(spyGitService)
+            .when(this.gitService)
             .getRepo();
 
         String[] args = {
@@ -72,19 +82,18 @@ class InstallTest extends AbstractGitMock {
             () -> assertTrue(errText.isBlank())
         );
 
-        verify(spyGitService).configureGitAliasGlobal();
-        verify(spyGitService, never()).configureGitAliasLocal();
-        verify(spyGitService, never()).setupCommitWizardHook(anyBoolean());
+        verify(this.gitService).configureGitAliasGlobal();
+        verify(this.gitService, never()).configureGitAliasLocal();
+        verify(this.gitService, never()).setupCommitWizardHook(anyBoolean());
     }
 
     @Test
     @Tag("integration")
     void shouldInstallCommitWizardHook(@TempDir Path tempDir) throws Exception {
-        setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
         doReturn(tempDir)
-            .when(spyGitService)
+            .when(this.gitService)
             .getRepo();
 
         String[] args = {
@@ -100,19 +109,18 @@ class InstallTest extends AbstractGitMock {
             () -> assertTrue(errText.isBlank())
         );
 
-        verify(spyGitService).setupCommitWizardHook(false);
-        verify(spyGitService, never()).configureGitAliasLocal();
-        verify(spyGitService, never()).configureGitAliasGlobal();
+        verify(this.gitService).setupCommitWizardHook(false);
+        verify(this.gitService, never()).configureGitAliasLocal();
+        verify(this.gitService, never()).configureGitAliasGlobal();
     }
 
     @Test
     @Tag("integration")
     void shouldFailWhenHookAndGlobalOptionsAreUsedTogether(@TempDir Path tempDir) throws Exception {
-        setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
         doReturn(tempDir)
-            .when(spyGitService)
+            .when(this.gitService)
             .getRepo();
 
         String[] args = {
@@ -126,22 +134,21 @@ class InstallTest extends AbstractGitMock {
 
         assertAll(
             () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("install.error.conflict")))
+            () -> assertTrue(errText.contains(this.i18nService.getMessage("install.error.conflict")))
         );
 
-        verify(spyGitService, never()).configureGitAliasGlobal();
-        verify(spyGitService, never()).configureGitAliasLocal();
-        verify(spyGitService, never()).setupCommitWizardHook(anyBoolean());
+        verify(this.gitService, never()).configureGitAliasGlobal();
+        verify(this.gitService, never()).configureGitAliasLocal();
+        verify(this.gitService, never()).setupCommitWizardHook(anyBoolean());
     }
 
     @Test
     @Tag("integration")
     void shouldForceInstallCommitWizardHook(@TempDir Path tempDir) throws Exception {
-        setupGitServiceMock();
         TestUtils.initTempGitRepo(tempDir);
 
         doReturn(tempDir)
-            .when(spyGitService)
+            .when(this.gitService)
             .getRepo();
 
         String[] args = {
@@ -158,19 +165,23 @@ class InstallTest extends AbstractGitMock {
             () -> assertTrue(errText.isBlank())
         );
 
-        verify(spyGitService).setupCommitWizardHook(true);
-        verify(spyGitService, never()).configureGitAliasLocal();
-        verify(spyGitService, never()).configureGitAliasGlobal();
+        verify(this.gitService).setupCommitWizardHook(true);
+        verify(this.gitService, never()).configureGitAliasLocal();
+        verify(this.gitService, never()).configureGitAliasGlobal();
     }
 
     @Test
     @Tag("integration")
     void shouldFailWhenNoGitRepositoryFound(@TempDir Path tempDir) throws Exception {
-        setupGitServiceMock();
-        
         doReturn(tempDir)
-            .when(spyGitService)
+            .when(this.gitService)
             .getRepo();
+
+        doThrow(new GitWitException(
+            "git.error.not_a_repo"
+        ))
+            .when(this.gitService)
+            .setupCommitWizardHook(anyBoolean());
 
         String[] args = {
             "install",
@@ -182,11 +193,11 @@ class InstallTest extends AbstractGitMock {
 
         assertAll(
             () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("git.error.not_a_repo")))
+            () -> assertTrue(errText.contains(this.i18nService.getMessage("git.error.not_a_repo")))
         );
 
-        verify(spyGitService).setupCommitWizardHook(false);
-        verify(spyGitService, never()).configureGitAliasLocal();
-        verify(spyGitService, never()).configureGitAliasGlobal();
+        verify(this.gitService).setupCommitWizardHook(false);
+        verify(this.gitService, never()).configureGitAliasLocal();
+        verify(this.gitService, never()).configureGitAliasGlobal();
     }
 }

@@ -1,15 +1,16 @@
 package dev.rafandoo.gitwit.service;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.config.GitWitConfig;
+import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.enums.ChangelogScope;
 import dev.rafandoo.gitwit.exception.GitWitException;
-import dev.rafandoo.gitwit.mock.AbstractGitMock;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
@@ -20,27 +21,30 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
 
+@ExtendWith(GuiceExtension.class)
 @DisplayName("ChangelogService Tests")
-class ChangelogServiceTest extends AbstractGitMock {
+class ChangelogServiceTest {
 
-    @AfterEach
-    void tearDown() {
-        closeGitServiceMock();
-    }
+    @Inject
+    GitService gitService;
+
+    @Inject
+    ChangelogService changelogService;
+
+    @Inject
+    I18nService i18nService;
 
     @Test
     void shouldReturnNullWhenNoCommitsFound() {
-        setupGitServiceMock();
         TestUtils.setupConfig(".changelog.gitwit");
         GitWitConfig config = GitWitConfig.load();
 
         doReturn(List.of())
-            .when(spyGitService)
+            .when(this.gitService)
             .getCommits(any(), any());
 
-        StringBuilder changelog = ChangelogService.getInstance().generateChangelog(
+        StringBuilder changelog = this.changelogService.generateChangelog(
             "from",
             "to",
             config,
@@ -52,17 +56,16 @@ class ChangelogServiceTest extends AbstractGitMock {
 
     @Test
     void shouldThrowExceptionWhenNoTypesConfigured() {
-        setupGitServiceMock();
         TestUtils.setupConfig(".changelog.gitwit");
         GitWitConfig config = GitWitConfig.load();
         config.getChangelog().getTypes().clear();
 
         GitWitException ex = assertThrows(
             GitWitException.class,
-            () -> ChangelogService.getInstance().generateChangelog("from", "to", config, "subtitle")
+            () -> this.changelogService.generateChangelog("from", "to", config, "subtitle")
         );
 
-        String expected = I18nService.getInstance().getMessage("changelog.error.types_required");
+        String expected = this.i18nService.getMessage("changelog.error.types_required");
         assertAll(
             () -> assertTrue(ex.getMessage().contains(expected))
         );
@@ -70,7 +73,6 @@ class ChangelogServiceTest extends AbstractGitMock {
 
     @Test
     void shouldGenerateMarkdownChangelogSuccessfully() {
-        setupGitServiceMock();
         TestUtils.setupConfig(".changelog.gitwit");
         GitWitConfig config = GitWitConfig.load();
 
@@ -82,10 +84,10 @@ class ChangelogServiceTest extends AbstractGitMock {
         );
 
         doReturn(commits)
-            .when(spyGitService)
+            .when(this.gitService)
             .getCommits(any(), any());
 
-        StringBuilder changelog = ChangelogService.getInstance().generateChangelog(
+        StringBuilder changelog = this.changelogService.generateChangelog(
             "from",
             "to",
             config,
@@ -101,15 +103,14 @@ class ChangelogServiceTest extends AbstractGitMock {
 
     @Test
     void shouldWriteChangelogFileSuccessfully(@TempDir Path tempDir) throws IOException {
-        setupGitServiceMock();
         Path repoPath = tempDir.resolve("repo");
         Files.createDirectories(repoPath);
 
         doReturn(repoPath)
-            .when(spyGitService)
+            .when(this.gitService)
             .getRepo();
 
-        Path result = ChangelogService.getInstance().writeChangeLog("content", false);
+        Path result = this.changelogService.writeChangeLog("content", false);
 
         assertAll(
             () -> assertTrue(Files.exists(result)),
@@ -122,7 +123,7 @@ class ChangelogServiceTest extends AbstractGitMock {
         GitWitConfig.ChangelogConfig.ChangelogFormat format = new GitWitConfig.ChangelogConfig.ChangelogFormat();
         format.setDefaultTemplate("- %s");
 
-        String result = ChangelogService.getInstance().getChangelogCommitTemplateByScope(format, ChangelogScope.SECTION);
+        String result = this.changelogService.getChangelogCommitTemplateByScope(format, ChangelogScope.SECTION);
         assertEquals("- %s", result);
     }
 
@@ -133,7 +134,7 @@ class ChangelogServiceTest extends AbstractGitMock {
 
         assertThrows(
             GitWitException.class,
-            () -> ChangelogService.getInstance().getChangelogCommitTemplateByScope(format, ChangelogScope.SECTION)
+            () -> this.changelogService.getChangelogCommitTemplateByScope(format, ChangelogScope.SECTION)
         );
     }
 

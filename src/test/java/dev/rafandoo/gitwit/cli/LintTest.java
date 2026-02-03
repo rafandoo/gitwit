@@ -1,11 +1,15 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
-import dev.rafandoo.gitwit.mock.AbstractGitMock;
+import dev.rafandoo.gitwit.di.GuiceExtension;
+import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
+import dev.rafandoo.gitwit.service.GitService;
 import dev.rafandoo.gitwit.service.I18nService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -18,18 +22,25 @@ import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(GuiceExtension.class)
 @DisplayName("Lint Command Tests")
-class LintTest extends AbstractGitMock {
+class LintTest {
 
-    @AfterEach
-    void tearDown() {
-        closeGitServiceMock();
+    @Inject
+    GitService gitService;
+
+    @Inject
+    I18nService i18nService;
+
+    @BeforeEach
+    void resetMocks() {
+        reset(this.gitService);
+        clearInvocations(this.gitService);
     }
 
     @Test
     @Tag("integration")
     void shouldLintCommitsInRangeSuccessfully() throws Exception {
-        setupGitServiceMock();
         TestUtils.setupConfig(".lint.repo.gitwit");
 
         List<RevCommit> mockCommits = Arrays.asList(
@@ -38,7 +49,7 @@ class LintTest extends AbstractGitMock {
         );
 
         doReturn(mockCommits)
-            .when(spyGitService)
+            .when(this.gitService)
             .listCommitsBetween(any(), any());
 
         String[] args = {
@@ -58,12 +69,11 @@ class LintTest extends AbstractGitMock {
     @Test
     @Tag("integration")
     void shouldLintLastCommitSuccessfully() throws Exception {
-        setupGitServiceMock();
         TestUtils.setupConfig(".lint.repo.gitwit");
 
         RevCommit commit = CommitMockFactory.mockCommit("HEAD", ":sparkles:: Latest commit");
         doReturn(Optional.of(commit))
-            .when(spyGitService)
+            .when(this.gitService)
             .resolveCommit(any());
 
         String[] args = {
@@ -82,12 +92,11 @@ class LintTest extends AbstractGitMock {
     @Test
     @Tag("integration")
     void shouldLintSpecificCommitSuccessfully() throws Exception {
-        setupGitServiceMock();
         TestUtils.setupConfig(".lint.repo.gitwit");
 
         RevCommit commit = CommitMockFactory.mockCommit("f337727030873b96ead6b5ce75d13fffae931bc6", ":sparkles:: Specific commit");
         doReturn(Optional.of(commit))
-            .when(spyGitService)
+            .when(this.gitService)
             .resolveCommit(any());
 
         String[] args = {
@@ -113,10 +122,18 @@ class LintTest extends AbstractGitMock {
             "invalidSHA"
         };
 
+        doThrow(new GitWitException(
+            "git.repo.error.rev_not_found",
+            "invalidSHA"
+        ))
+            .when(this.gitService)
+            .resolveCommit("invalidSHA");
+
+
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        String expectedMessage = I18nService.getInstance().getMessage(
+        String expectedMessage = this.i18nService.getMessage(
             "git.repo.error.rev_not_found",
             "invalidSHA"
         );
