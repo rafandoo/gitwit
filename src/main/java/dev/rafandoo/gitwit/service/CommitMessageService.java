@@ -9,12 +9,9 @@ import dev.rafandoo.gitwit.entity.Violation;
 import dev.rafandoo.gitwit.enums.CommitPromptKeys;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.util.EmojiUtil;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class responsible for validating a {@link CommitMessage} against the rules
@@ -22,7 +19,7 @@ import java.util.Map;
  * {@link GitWitException}s with specific error codes so they can be handled by the CLI.
  */
 @Singleton
-@RequiredArgsConstructor(onConstructor = @__({@Inject}))
+@AllArgsConstructor(onConstructor = @__({@Inject}))
 public final class CommitMessageService {
 
     private final MessageService messageService;
@@ -42,29 +39,16 @@ public final class CommitMessageService {
         put(8, "commit.validation.long_description_too_short");
         put(9, "commit.validation.long_description_too_long");
     }};
-    private List<Violation> violations;
 
     /**
      * Performs all validation rules and throws {@link GitWitException} on failures.
      *
      * @param message the message to validate.
      * @param config  the configuration to use.
-     * @throws GitWitException if any validation fails.
+     * @return list of {@link Violation}s found during validation.
      */
-    public void validate(CommitMessage message, GitWitConfig config) {
-        this.validate(message, config, true);
-    }
-
-    /**
-     * Performs all validation rules and throws {@link GitWitException} on failures.
-     *
-     * @param message        the message to validate.
-     * @param config         the configuration to use.
-     * @param throwOnFailure if true, throws {@link GitWitException} on failure.
-     * @throws GitWitException if any validation fails.
-     */
-    public void validate(CommitMessage message, GitWitConfig config, boolean throwOnFailure) {
-        this.violations = new ArrayList<>();
+    public List<Violation> collectViolations(CommitMessage message, GitWitConfig config) {
+        List<Violation> violations = new ArrayList<>();
 
         /* ─────────── Commit Type ─────────── */
         this.ensure(
@@ -72,7 +56,7 @@ public final class CommitMessageService {
             1,
             CommitPromptKeys.COMMIT_TYPE,
             message.type()
-        );
+        ).ifPresent(violations::add);
         this.ensure(
             config.getTypes()
                 .getValues()
@@ -84,21 +68,21 @@ public final class CommitMessageService {
             2,
             CommitPromptKeys.COMMIT_TYPE,
             message.type()
-        );
+        ).ifPresent(violations::add);
 
         /* ─────────── Commit Scope ─────────── */
         this.ensure(
             !(config.getScope().isRequired() && StringUtils.isNullOrBlank(message.scope())),
             3,
             CommitPromptKeys.COMMIT_SCOPE
-        );
+        ).ifPresent(violations::add);
 
         /* ─────────── Commit Short Description ─────────── */
         this.ensure(
             !StringUtils.isNullOrBlank(message.shortDescription()),
             4,
             CommitPromptKeys.COMMIT_SHORT_DESC
-        );
+        ).ifPresent(violations::add);
 
         if (message.shortDescription() != null) {
             int shortMin = config.getShortDescription().getMinLength();
@@ -109,13 +93,13 @@ public final class CommitMessageService {
                 5,
                 CommitPromptKeys.COMMIT_SHORT_DESC,
                 shortMin
-            );
+            ).ifPresent(violations::add);
             this.ensure(
                 message.shortDescription().length() <= shortMax,
                 6,
                 CommitPromptKeys.COMMIT_SHORT_DESC,
                 shortMax
-            );
+            ).ifPresent(violations::add);
         }
 
         /* ─────────── Commit Long Description ─────────── */
@@ -124,7 +108,7 @@ public final class CommitMessageService {
                 !StringUtils.isNullOrBlank(message.longDescription()),
                 7,
                 CommitPromptKeys.COMMIT_LONG_DESC
-            );
+            ).ifPresent(violations::add);
 
             if (message.longDescription() != null) {
                 int longMin = config.getLongDescription().getMinLength();
@@ -135,21 +119,33 @@ public final class CommitMessageService {
                     8,
                     CommitPromptKeys.COMMIT_LONG_DESC,
                     longMin
-                );
+                ).ifPresent(violations::add);
                 this.ensure(
                     message.longDescription().length() <= longMax,
                     9,
                     CommitPromptKeys.COMMIT_LONG_DESC,
                     longMax
-                );
+                ).ifPresent(violations::add);
             }
         }
+        return violations;
+    }
 
-        if (!this.violations.isEmpty() && throwOnFailure) {
+    /**
+     * Performs all validation rules and throws {@link GitWitException} on failures.
+     *
+     * @param message the message to validate.
+     * @param config  the configuration to use.
+     * @throws GitWitException if any validation fails.
+     */
+    public void validate(CommitMessage message, GitWitConfig config) {
+        List<Violation> violations = this.collectViolations(message, config);
+
+        if (!violations.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             sb.append(this.i18nService.getMessage("commit.validation.violations"))
                 .append(":\n");
-            for (Violation violation : this.violations) {
+            for (Violation violation : violations) {
                 sb.append(" - ").append(violation).append("\n");
             }
 
@@ -165,16 +161,15 @@ public final class CommitMessageService {
      *
      * @param messages list of commit messages to validate.
      * @param config   the configuration to use.
+     * @throws GitWitException if any validation fails.
      */
     public void validate(Map<String, CommitMessage> messages, GitWitConfig config) {
         Map<String, List<Violation>> allViolations = new HashMap<>();
 
         messages.forEach((key, message) -> {
-            this.violations = new ArrayList<>();
-
-            this.validate(message, config, false);
-            if (!this.violations.isEmpty()) {
-                allViolations.put(key, new ArrayList<>(this.violations));
+            List<Violation> violations = this.collectViolations(message, config);
+            if (!violations.isEmpty()) {
+                allViolations.put(key, new ArrayList<>(violations));
             }
         });
 
@@ -195,19 +190,23 @@ public final class CommitMessageService {
 
     /**
      * Ensures a specific condition is met for a commit message validation.
-     * If the condition is not met, a violation is added to the {@link #violations} list.
      *
      * @param condition the validation condition to check.
      * @param code      the error code or identifier for the validation rule.
      * @param scope     the scope of the validation.
      * @param params    optional parameters to include in the violation message.
+     * @return an {@link Optional} containing the {@link Violation} if the condition is not met,
+     * or an empty {@link Optional} if the condition is met.
      */
-    private void ensure(boolean condition, int code, CommitPromptKeys scope, Object... params) {
+    private Optional<Violation> ensure(boolean condition, int code, CommitPromptKeys scope, Object... params) {
         if (!condition) {
-            this.violations.add(Violation.of(
-                this.i18nService.resolve(scope.getValue()),
-                this.i18nService.resolve(MESSAGES.get(code), params)
-            ));
+            return Optional.of(
+                Violation.of(
+                    this.i18nService.resolve(scope.getValue()),
+                    this.i18nService.resolve(MESSAGES.get(code), params)
+                )
+            );
         }
+        return Optional.empty();
     }
 }
