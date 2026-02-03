@@ -1,6 +1,7 @@
 package dev.rafandoo.gitwit.util;
 
 import dev.rafandoo.cup.os.OperatingSystem;
+import dev.rafandoo.gitwit.di.InjectorFactory;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.MessageService;
 import lombok.experimental.UtilityClass;
@@ -19,6 +20,8 @@ import java.util.Arrays;
  */
 @UtilityClass
 public final class ClipboardUtil {
+
+    private static final MessageService messageService = InjectorFactory.get().getInstance(MessageService.class);
 
     /**
      * Copies the given text to the system clipboard.
@@ -43,11 +46,11 @@ public final class ClipboardUtil {
                 } else if (isCommandAvailable("wl-copy")) {
                     return copyUsingProcess("wl-copy", text);
                 } else {
-                    MessageService.getInstance().warn("clipboard.warn.no_utility");
+                    messageService.warn("clipboard.warn.no_utility");
                     return false;
                 }
             } else {
-                MessageService.getInstance().warn("clipboard.warn.unsupported_os");
+                messageService.warn("clipboard.warn.unsupported_os");
                 return false;
             }
         } catch (Exception e) {

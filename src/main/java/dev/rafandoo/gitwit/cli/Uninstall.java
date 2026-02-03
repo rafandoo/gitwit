@@ -1,8 +1,8 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.GitService;
-import dev.rafandoo.gitwit.service.MessageService;
 import picocli.CommandLine;
 
 /**
@@ -29,6 +29,9 @@ public class Uninstall extends BaseCommand {
     )
     private boolean global;
 
+    @Inject
+    private GitService gitService;
+
     @Override
     public void run() {
         if (this.hook && this.global) {
@@ -36,19 +39,19 @@ public class Uninstall extends BaseCommand {
         }
 
         if (this.hook) {
-            MessageService.getInstance().info("uninstall.hook.start");
-            GitService.getInstance().uninstallCommitWizardHook();
-            MessageService.getInstance().success("uninstall.hook.success");
+            messageService.info("uninstall.hook.start");
+            this.gitService.uninstallCommitWizardHook();
+            messageService.success("uninstall.hook.success");
             return;
         }
 
         if (this.global) {
-            MessageService.getInstance().info("uninstall.alias.global");
-            GitService.getInstance().removeGitAliasGlobal();
+            messageService.info("uninstall.alias.global");
+            this.gitService.removeGitAliasGlobal();
         } else {
-            MessageService.getInstance().info("uninstall.alias.local");
-            GitService.getInstance().removeGitAliasLocal();
+            messageService.info("uninstall.alias.local");
+            this.gitService.removeGitAliasLocal();
         }
-        MessageService.getInstance().success("uninstall.success");
+        messageService.success("uninstall.success");
     }
 }

@@ -1,5 +1,6 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.cup.utils.StringUtils;
@@ -7,7 +8,6 @@ import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.CommitMessageService;
 import dev.rafandoo.gitwit.service.GitService;
-import dev.rafandoo.gitwit.service.MessageService;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.revwalk.RevCommit;
 import picocli.CommandLine;
@@ -80,6 +80,15 @@ public class Commit extends BaseCommand {
     )
     private String longDescription;
 
+    @Inject
+    private GitService gitService;
+
+    @Inject
+    private CommitMessageService commitMessageService;
+
+    @Inject
+    private CommitWizard commitWizard;
+
     @Override
     public void run() {
         GitWitConfig config = loadConfig();
@@ -97,17 +106,17 @@ public class Commit extends BaseCommand {
                 null,
                 null
             );
-            CommitMessageService.getInstance().validate(message, config);
+            this.commitMessageService.validate(message, config);
         } else {
             // Start interactive wizard
-            message = new CommitWizard(config).run();
+            message = this.commitWizard.run(config);
         }
 
         // Perform the commit
-        RevCommit commit = GitService.getInstance().commit(message, this.add, this.amend, this.allowEmpty);
+        RevCommit commit = this.gitService.commit(message, this.add, this.amend, this.allowEmpty);
 
         if (commit != null) {
-            MessageService.getInstance().success(
+            messageService.success(
                 "commit.success",
                 commit.getId().abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name()
             );

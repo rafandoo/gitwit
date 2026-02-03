@@ -1,9 +1,9 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.enums.GitRepositoryParam;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.GitService;
-import dev.rafandoo.gitwit.service.MessageService;
 import picocli.CommandLine;
 
 /**
@@ -42,6 +42,9 @@ public class Install extends BaseCommand {
     )
     private boolean global;
 
+    @Inject
+    private GitService gitService;
+
     @Override
     public void run() {
         if (this.hook && this.global) {
@@ -49,20 +52,20 @@ public class Install extends BaseCommand {
         }
 
         if (this.hook) {
-            MessageService.getInstance().info("install.hook.start");
-            GitService.getInstance().setupCommitWizardHook(this.force);
-            MessageService.getInstance().success("install.hook.success");
+            messageService.info("install.hook.start");
+            this.gitService.setupCommitWizardHook(this.force);
+            messageService.success("install.hook.success");
             return;
         }
 
         if (this.global) {
-            MessageService.getInstance().info("install.alias.global");
-            GitService.getInstance().configureGitAliasGlobal();
+            messageService.info("install.alias.global");
+            this.gitService.configureGitAliasGlobal();
         } else {
-            MessageService.getInstance().info("install.alias.local");
-            GitService.getInstance().configureGitAliasLocal();
+            messageService.info("install.alias.local");
+            this.gitService.configureGitAliasLocal();
         }
-        MessageService.getInstance().success(
+        messageService.success(
             "install.success",
             GitRepositoryParam.GITWIT_ALIAS.get().asString()
         );

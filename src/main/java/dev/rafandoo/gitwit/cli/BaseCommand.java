@@ -1,5 +1,6 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.provider.ManifestVersionProvider;
 import dev.rafandoo.gitwit.service.MessageService;
@@ -17,6 +18,9 @@ import picocli.CommandLine;
 )
 public abstract class BaseCommand implements Runnable {
 
+    @Inject
+    protected MessageService messageService;
+
     /**
      * Loads the GitWit configuration from the default configuration source.
      *
@@ -24,7 +28,7 @@ public abstract class BaseCommand implements Runnable {
      */
     protected GitWitConfig loadConfig() {
         GitWitConfig config = GitWitConfig.load();
-        MessageService.getInstance().debug("config.loaded", config);
+        this.messageService.debug("config.loaded", config);
         return config;
     }
 
