@@ -1,6 +1,7 @@
 package dev.rafandoo.gitwit.exception;
 
 import dev.rafandoo.gitwit.App;
+import dev.rafandoo.gitwit.di.InjectorFactory;
 import dev.rafandoo.gitwit.service.I18nService;
 import dev.rafandoo.gitwit.util.EnvironmentUtil;
 
@@ -13,6 +14,8 @@ public class GitWitException extends RuntimeException {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    private final I18nService i18nService = InjectorFactory.get().getInstance(I18nService.class);
 
     /**
      * Stores the localized error message for this exception.
@@ -56,7 +59,7 @@ public class GitWitException extends RuntimeException {
         if (!App.isDebug() && !EnvironmentUtil.isTesting()) {
             setStackTrace(new StackTraceElement[0]);
         }
-        this.message = I18nService.getInstance().resolve(error, (Object[]) params);
+        this.message = this.i18nService.resolve(error, (Object[]) params);
         this.suppressClassName = !App.isDebug() && suppressClassName;
     }
 
@@ -81,13 +84,13 @@ public class GitWitException extends RuntimeException {
      */
     public GitWitException(String error, Throwable cause, boolean suppressClassName, String... params) {
         super(cause);
-        this.message = I18nService.getInstance().resolve(error, (Object[]) params);
+        this.message = this.i18nService.resolve(error, (Object[]) params);
         this.suppressClassName = suppressClassName;
     }
 
     @Override
     public String getMessage() {
-        return message != null ? message : I18nService.getInstance().getMessage("error.unspecified");
+        return message != null ? message : this.i18nService.getMessage("error.unspecified");
     }
 
     @Override

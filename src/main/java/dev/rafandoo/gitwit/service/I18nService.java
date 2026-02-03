@@ -1,5 +1,6 @@
 package dev.rafandoo.gitwit.service;
 
+import com.google.inject.Singleton;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
 import lombok.Getter;
 import dev.rafandoo.gitwit.util.EmojiUtil;
@@ -11,33 +12,17 @@ import java.util.ResourceBundle;
 /**
  * Internationalization (I18n) service that provides localized message retrieval.
  */
+@Singleton
 public final class I18nService {
-
-    private static I18nService instance;
 
     @Getter
     private final ResourceBundle messages;
 
-    /**
-     * Private constructor to prevent instantiation.
-     */
-    private I18nService() {
+    public I18nService() {
         this.messages = ResourceBundle.getBundle(
             ConfigPaths.MESSAGES_FILE.get().asString(),
             Locale.getDefault()
         );
-    }
-
-    /**
-     * Returns the singleton instance, instantiating it on first use.
-     *
-     * @return {@link I18nService} instance.
-     */
-    public static synchronized I18nService getInstance() {
-        if (instance == null) {
-            instance = new I18nService();
-        }
-        return instance;
     }
 
     /**

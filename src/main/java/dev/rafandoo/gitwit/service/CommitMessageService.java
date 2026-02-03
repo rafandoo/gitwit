@@ -1,5 +1,7 @@
 package dev.rafandoo.gitwit.service;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
@@ -7,6 +9,7 @@ import dev.rafandoo.gitwit.entity.Violation;
 import dev.rafandoo.gitwit.enums.CommitPromptKeys;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.util.EmojiUtil;
+import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,9 +21,12 @@ import java.util.Map;
  * declared in {@link GitWitConfig}. All validation errors are mapped to
  * {@link GitWitException}s with specific error codes so they can be handled by the CLI.
  */
+@Singleton
+@RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public final class CommitMessageService {
 
-    private static CommitMessageService instance;
+    private final MessageService messageService;
+    private final I18nService i18nService;
 
     /**
      * Map of error messages for each error code.
@@ -37,24 +43,6 @@ public final class CommitMessageService {
         put(9, "commit.validation.long_description_too_long");
     }};
     private List<Violation> violations;
-
-    /**
-     * Private constructor to prevent instantiation.
-     */
-    private CommitMessageService() {
-    }
-
-    /**
-     * Returns the singleton instance, instantiating it on first use.
-     *
-     * @return {@link CommitMessageService} instance.
-     */
-    public static synchronized CommitMessageService getInstance() {
-        if (instance == null) {
-            instance = new CommitMessageService();
-        }
-        return instance;
-    }
 
     /**
      * Performs all validation rules and throws {@link GitWitException} on failures.
@@ -159,14 +147,14 @@ public final class CommitMessageService {
 
         if (!this.violations.isEmpty() && throwOnFailure) {
             StringBuilder sb = new StringBuilder();
-            sb.append(I18nService.getInstance().getMessage("commit.validation.violations"))
+            sb.append(this.i18nService.getMessage("commit.validation.violations"))
                 .append(":\n");
             for (Violation violation : this.violations) {
                 sb.append(" - ").append(violation).append("\n");
             }
 
             throw new GitWitException(
-                MessageService.getInstance().getErrorMessage(sb.toString()).toAnsi(),
+                this.messageService.getErrorMessage(sb.toString()).toAnsi(),
                 true
             );
         }
@@ -192,14 +180,14 @@ public final class CommitMessageService {
 
         if (!allViolations.isEmpty()) {
             StringBuilder sb = new StringBuilder();
-            sb.append(I18nService.getInstance().getMessage("commit.validation.violations"))
+            sb.append(this.i18nService.getMessage("commit.validation.violations"))
                 .append(":\n");
             allViolations.forEach((key, violations) -> {
                 sb.append(" - ").append(key).append(":\n");
                 violations.forEach(violation -> sb.append("    - ").append(violation).append("\n"));
             });
             throw new GitWitException(
-                MessageService.getInstance().getErrorMessage(sb.toString()).toAnsi(),
+                this.messageService.getErrorMessage(sb.toString()).toAnsi(),
                 true
             );
         }
@@ -217,8 +205,8 @@ public final class CommitMessageService {
     private void ensure(boolean condition, int code, CommitPromptKeys scope, Object... params) {
         if (!condition) {
             this.violations.add(Violation.of(
-                I18nService.getInstance().resolve(scope.getValue()),
-                I18nService.getInstance().resolve(MESSAGES.get(code), params)
+                this.i18nService.resolve(scope.getValue()),
+                this.i18nService.resolve(MESSAGES.get(code), params)
             ));
         }
     }

@@ -1,8 +1,8 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.service.LintService;
-import dev.rafandoo.gitwit.service.MessageService;
 import picocli.CommandLine;
 
 /**
@@ -51,17 +51,20 @@ public class Lint extends BaseCommand {
     )
     private String revSpec;
 
+    @Inject
+    private LintService lintService;
+
     @Override
     public void run() {
         GitWitConfig config = loadConfig();
-        MessageService.getInstance().info("lint.start");
-        LintService.getInstance().lint(
+        messageService.info("lint.start");
+        this.lintService.lint(
             this.revSpec,
             this.from,
             this.to,
             this.messageParts,
             config
         );
-        MessageService.getInstance().success("lint.success");
+        messageService.success("lint.success");
     }
 }

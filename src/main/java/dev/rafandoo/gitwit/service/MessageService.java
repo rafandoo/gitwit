@@ -1,8 +1,10 @@
 package dev.rafandoo.gitwit.service;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import dev.rafandoo.gitwit.App;
 import dev.rafandoo.gitwit.enums.TerminalStyle;
-import org.jline.terminal.Terminal;
+import lombok.AllArgsConstructor;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
@@ -12,27 +14,12 @@ import org.jline.utils.AttributedStyle;
  * Provides methods for printing and formatting messages with
  * different styles and levels (error, warn, info, debug, success).
  */
+@Singleton
+@AllArgsConstructor(onConstructor = @__({@Inject}))
 public final class MessageService {
 
-    private static MessageService instance;
-
-    /**
-     * Private constructor to prevent instantiation.
-     */
-    private MessageService() {
-    }
-
-    /**
-     * Returns the singleton instance, instantiating it on first use.
-     *
-     * @return {@link MessageService} instance.
-     */
-    public static synchronized MessageService getInstance() {
-        if (instance == null) {
-            instance = new MessageService();
-        }
-        return instance;
-    }
+    private final TerminalService terminalService;
+    private final I18nService i18nService;
 
     /**
      * Creates and returns a new {@link AttributedStringBuilder} instance.
@@ -49,9 +36,8 @@ public final class MessageService {
      * @param message the attributed string message to be printed.
      */
     private void print(AttributedString message) {
-        Terminal terminal = TerminalService.getInstance().getTerminal();
-        terminal.writer().println(message.toAnsi());
-        terminal.flush();
+        this.terminalService.getTerminal().writer().println(message.toAnsi());
+        this.terminalService.getTerminal().flush();
     }
 
     /**
@@ -177,6 +163,6 @@ public final class MessageService {
      * @return the localized and formatted message.
      */
     private String getMessage(String message, Object... params) {
-        return I18nService.getInstance().resolve(message, params);
+        return this.i18nService.resolve(message, params);
     }
 }
