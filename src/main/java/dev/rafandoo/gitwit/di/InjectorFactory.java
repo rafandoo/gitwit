@@ -2,6 +2,7 @@ package dev.rafandoo.gitwit.di;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import lombok.Setter;
 import dev.rafandoo.gitwit.util.EnvironmentUtil;
 
 /**
@@ -9,6 +10,7 @@ import dev.rafandoo.gitwit.util.EnvironmentUtil;
  */
 public final class InjectorFactory {
 
+    @Setter
     private static volatile Injector injector;
 
     /**
