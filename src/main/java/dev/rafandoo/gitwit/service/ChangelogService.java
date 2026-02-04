@@ -8,6 +8,7 @@ import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.enums.ChangelogScope;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
 import dev.rafandoo.gitwit.exception.GitWitException;
+import dev.rafandoo.gitwit.util.ClipboardUtil;
 import dev.rafandoo.gitwit.util.EmojiUtil;
 import lombok.AllArgsConstructor;
 import net.steppschuh.markdowngenerator.list.UnorderedList;
@@ -38,6 +39,7 @@ public final class ChangelogService {
     private final MessageService messageService;
     private final GitService gitService;
     private final I18nService i18nService;
+
     private static final String NEW_LINE = "\n\n";
 
     /**
@@ -50,6 +52,41 @@ public final class ChangelogService {
             .resolve(ConfigPaths.CHANGELOG_FILE.get().asString());
     }
 
+    public void generate(
+        String revSpec,
+        String from,
+        String to,
+        GitWitConfig config,
+        String subtitle,
+        boolean copyToClipboard,
+        boolean append
+    ) {
+        StringBuilder changelogContent = this.generateChangelog(
+            revSpec,
+            from,
+            to,
+            config,
+            subtitle,
+            append
+        );
+
+        if (changelogContent != null) {
+            messageService.info("changelog.generated");
+            if (copyToClipboard) {
+                if (ClipboardUtil.copyToClipboard(changelogContent.toString())) {
+                    messageService.success("changelog.copied");
+                }
+            } else {
+                try {
+                    Path changelogPath = this.writeChangeLog(changelogContent.toString(), append);
+                    messageService.success("changelog.written", changelogPath);
+                } catch (IOException e) {
+                    throw new GitWitException("changelog.error.write", e);
+                }
+            }
+        }
+    }
+
     /**
      * Generates a changelog based on Git commits between two references.
      *
@@ -60,7 +97,7 @@ public final class ChangelogService {
      * @return a {@link StringBuilder} containing the generated changelog.
      * @throws GitWitException if changelog generation fails due to configuration or I/O errors.
      */
-    public StringBuilder generateChangelog(String from, String to, GitWitConfig config, String subtitle) {
+    public StringBuilder generateChangelog(String revSpec, String from, String to, GitWitConfig config, String subtitle, boolean append) {
         Map<String, String> types = config.getChangelog()
             .getTypes()
             .entrySet()
@@ -74,7 +111,7 @@ public final class ChangelogService {
             throw new GitWitException("changelog.error.types_required");
         }
 
-        List<String> ignored = Objects.requireNonNullElse(
+        List<String> ignoredList = Objects.requireNonNullElse(
                 config.getChangelog().getIgnored(),
                 new ArrayList<String>()
             )
@@ -82,19 +119,26 @@ public final class ChangelogService {
             .map(EmojiUtil::replaceEmojiWithAlias)
             .toList();
 
-        List<RevCommit> commits = this.gitService.getCommits(
+        List<RevCommit> commits = this.resolveCommits(
+            revSpec,
             from,
-            Objects.requireNonNullElse(to, Constants.HEAD)
+            to,
+            config
+        );
+
+        commits.removeIf(commit -> ignoredList.stream()
+            .anyMatch(ignored -> commit.getFullMessage().matches(ignored))
         );
 
         List<CommitMessage> commitMessages = new ArrayList<>();
-        commits.forEach(commit -> commitMessages.add(CommitMessage.of(commit)));
+        commits.stream()
+            .map(CommitMessage::of)
+            .forEach(commitMessages::add);
 
         Map<String, List<CommitMessage>> groupedByType = commitMessages.stream()
-            .filter(commitMessage -> !ignored.contains(commitMessage.type()))
             .filter(commitMessage -> {
                 if (commitMessage.type() == null) {
-                    MessageService.getInstance().warn(
+                    this.messageService.warn(
                         "changelog.warn.commit_no_type",
                         commitMessage.hash().abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name()
                     );
@@ -104,7 +148,7 @@ public final class ChangelogService {
             })
             .collect(Collectors.groupingBy(CommitMessage::type));
 
-        return this.generateMarkdown(config, groupedByType, types, subtitle);
+        return this.generateMarkdown(config, groupedByType, types, subtitle, append);
     }
 
     /**
@@ -120,7 +164,8 @@ public final class ChangelogService {
         GitWitConfig config,
         Map<String, List<CommitMessage>> groupedByType,
         Map<String, String> types,
-        String subtitle
+        String subtitle,
+        boolean append
     ) {
         if (groupedByType.isEmpty()) {
             this.messageService.warn("changelog.warn.no_commits");
@@ -128,7 +173,7 @@ public final class ChangelogService {
         }
 
         StringBuilder sb = new StringBuilder();
-        if (!StringUtils.isNullOrBlank(config.getChangelog().getTitle())) {
+        if (!StringUtils.isNullOrBlank(config.getChangelog().getTitle()) && !append) {
             Heading heading = new Heading(
                 EmojiUtil.processEmojis(config.getChangelog().getTitle()),
                 1
@@ -256,5 +301,32 @@ public final class ChangelogService {
             throw new GitWitException("changelog.error.no_template");
         }
         return template;
+    }
+
+    private List<RevCommit> resolveCommits(String revSpec, String from, String to, GitWitConfig config) {
+        List<RevCommit> commits;
+
+        if (!StringUtils.isNullOrBlank(revSpec)) {
+            commits = this.gitService.resolveCommits(revSpec);
+        } else {
+            this.messageService.warn("changelog.deprecated-range-options");
+            String revSpecRange = String.format(
+                "%s..%s",
+                StringUtils.isNullOrBlank(from) ? Constants.HEAD : from,
+                StringUtils.isNullOrBlank(to) ? Constants.HEAD : to
+            );
+            commits = this.gitService.resolveCommits(revSpecRange);
+        }
+
+        // ver
+        if (config.getLint().getIgnored() != null) {
+            commits.removeIf(commit -> config.getLint()
+                .getIgnored()
+                .stream()
+                .anyMatch(ignored -> commit.getFullMessage().matches(ignored))
+            );
+        }
+
+        return commits;
     }
 }

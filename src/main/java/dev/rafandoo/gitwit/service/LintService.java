@@ -66,12 +66,7 @@ public final class LintService {
         List<RevCommit> commits;
 
         if (!StringUtils.isNullOrBlank(revSpec)) {
-            if (revSpec.contains("..")) {
-                String[] parts = revSpec.split("\\.\\.", 2);
-                commits = this.gitService.listCommitsBetween(parts[0], parts[1]);
-            } else {
-                commits = this.gitService.resolveCommit(revSpec).stream().collect(Collectors.toList());
-            }
+            commits = this.gitService.resolveCommits(revSpec);
         } else if (!StringUtils.isNullOrBlank(from) || !StringUtils.isNullOrBlank(to)) {
             this.messageService.warn("lint.deprecated-range-options");
             commits = this.gitService.listCommitsBetween(from, to);
@@ -79,7 +74,7 @@ public final class LintService {
             commits = this.gitService.resolveCommit(Constants.HEAD).stream().collect(Collectors.toList());
         }
 
-        if (config.getLint().getIgnored() != null) {
+        if (config.getLint() != null && config.getLint().getIgnored() != null) {
             commits.removeIf(commit -> config.getLint()
                 .getIgnored()
                 .stream()

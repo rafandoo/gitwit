@@ -13,11 +13,11 @@ import java.nio.file.Path;
 /**
  * <h2>changelog</h2>
  * <p>
- * Generates a changelog between two commits.
+ * Generates a changelog based on the commit history of the Git repository.
  * </p>
+ *
  * <p>
- * If no range is provided, the most recent commit (HEAD) is checked. If a range is provided
- * using {@code --from} and {@code --to}, all commits in the interval will be validated.
+ * The changelog is generated based on the commit messages and the configuration provided in the GitWit config file.
  * </p>
  */
 @CommandLine.Command(
@@ -29,15 +29,16 @@ public class Changelog extends BaseCommand {
 
     @CommandLine.Option(
         names = {"-f", "--from"},
-        descriptionKey = "changelog.option.from",
-        required = true
+        hidden = true
     )
+    @Deprecated(forRemoval = true, since = "1.1.0")
     private String from;
 
     @CommandLine.Option(
         names = {"-t", "--to"},
-        descriptionKey = "changelog.option.to"
+        hidden = true
     )
+    @Deprecated(forRemoval = true, since = "1.1.0")
     private String to;
 
     @CommandLine.Option(
@@ -58,15 +59,23 @@ public class Changelog extends BaseCommand {
     )
     private boolean append = false;
 
+    @CommandLine.Parameters(
+        index = "0",
+        arity = "0..1",
+        descriptionKey = "changelog.parameter.rev-spec"
+    )
+    private String revSpec;
+
     @Inject
     private ChangelogService changelogService;
 
     @Override
     public void run() {
-        messageService.info("changelog.start");
         GitWitConfig config = loadConfig();
+        messageService.info("changelog.start");
 
         StringBuilder changelogContent = this.changelogService.generateChangelog(
+            this.revSpec,
             this.from,
             this.to,
             config,
