@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -522,6 +523,27 @@ public final class GitService {
             throw new GitWitException("git.repo.error.missing_object", e);
         } catch (IOException e) {
             throw new GitWitException("git.error.init_failed", e);
+        }
+    }
+
+    /**
+     * Resolves a rev-spec to a list of commits. If the rev-spec contains a range (e.g., "HEAD~5..HEAD"), it returns all commits in that range.
+     * Otherwise, it resolves the rev-spec to a single commit.
+     *
+     * @param revSpec the rev-spec to resolve.
+     * @return a list of {@link RevCommit} objects corresponding to the resolved rev-spec.
+     * @throws GitWitException if there is an error resolving the rev-spec or parsing the commits.
+     */
+    public List<RevCommit> resolveCommits(String revSpec) {
+        if (StringUtils.isNullOrBlank(revSpec)) {
+            throw new GitWitException("git.repo.error.rev_not_found", revSpec);
+        }
+
+        if (revSpec.contains("..")) {
+            String[] parts = revSpec.split("\\.\\.", 2);
+            return this.listCommitsBetween(parts[0], parts[1]);
+        } else {
+            return this.resolveCommit(revSpec).stream().collect(Collectors.toList());
         }
     }
 
