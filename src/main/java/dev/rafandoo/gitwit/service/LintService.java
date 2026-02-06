@@ -1,8 +1,11 @@
 package dev.rafandoo.gitwit.service;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.entity.CommitMessage;
+import lombok.AllArgsConstructor;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -13,27 +16,13 @@ import java.util.stream.Collectors;
 /**
  * Service responsible for linting commit messages.
  */
+@Singleton
+@AllArgsConstructor(onConstructor = @__({@Inject}))
 public final class LintService {
 
-    private static LintService instance;
-
-    /**
-     * Private constructor to prevent instantiation.
-     */
-    private LintService() {
-    }
-
-    /**
-     * Returns the singleton instance, instantiating it on first use.
-     *
-     * @return {@link LintService} instance.
-     */
-    public static synchronized LintService getInstance() {
-        if (instance == null) {
-            instance = new LintService();
-        }
-        return instance;
-    }
+    private final MessageService messageService;
+    private final CommitMessageService commitMessageService;
+    private final GitService gitService;
 
     /**
      * Lints commit messages based on the provided revision specification or message parts.
@@ -48,8 +37,8 @@ public final class LintService {
         if (messageParts != null) {
             String rawMessage = String.join(" ", messageParts);
             CommitMessage commitMessage = CommitMessage.of(rawMessage);
-            CommitMessageService.getInstance().validate(commitMessage, config);
-            MessageService.getInstance().success("lint.success");
+            this.commitMessageService.validate(commitMessage, config);
+            this.messageService.success("lint.success");
             return;
         }
 
@@ -60,8 +49,8 @@ public final class LintService {
                 CommitMessage::of
             ));
 
-        MessageService.getInstance().debug("lint.total", messages.size());
-        CommitMessageService.getInstance().validate(messages, config);
+        this.messageService.debug("lint.total", messages.size());
+        this.commitMessageService.validate(messages, config);
     }
 
     /**
@@ -74,21 +63,20 @@ public final class LintService {
      * @return list of {@link RevCommit} objects to be linted.
      */
     private List<RevCommit> resolveCommits(String revSpec, String from, String to, GitWitConfig config) {
-        GitService git = GitService.getInstance();
         List<RevCommit> commits;
 
         if (!StringUtils.isNullOrBlank(revSpec)) {
             if (revSpec.contains("..")) {
                 String[] parts = revSpec.split("\\.\\.", 2);
-                commits = git.listCommitsBetween(parts[0], parts[1]);
+                commits = this.gitService.listCommitsBetween(parts[0], parts[1]);
             } else {
-                commits = git.resolveCommit(revSpec).stream().collect(Collectors.toList());
+                commits = this.gitService.resolveCommit(revSpec).stream().collect(Collectors.toList());
             }
         } else if (!StringUtils.isNullOrBlank(from) || !StringUtils.isNullOrBlank(to)) {
-            MessageService.getInstance().warn("lint.deprecated-range-options");
-            commits = git.listCommitsBetween(from, to);
+            this.messageService.warn("lint.deprecated-range-options");
+            commits = this.gitService.listCommitsBetween(from, to);
         } else {
-            commits = git.resolveCommit(Constants.HEAD).stream().collect(Collectors.toList());
+            commits = this.gitService.resolveCommit(Constants.HEAD).stream().collect(Collectors.toList());
         }
 
         if (config.getLint().getIgnored() != null) {

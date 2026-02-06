@@ -1,7 +1,9 @@
 package dev.rafandoo.gitwit.service;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.config.GitWitConfig;
+import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
@@ -9,6 +11,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -20,8 +23,15 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(GuiceExtension.class)
 @DisplayName("CommitMessageService Tests")
 class CommitMessageServiceTest {
+
+    @Inject
+    private CommitMessageService commitMessageService;
+
+    @Inject
+    private I18nService i18nService;
 
     private List<RevCommit> commits;
 
@@ -53,7 +63,7 @@ class CommitMessageServiceTest {
     void shouldPassValidationForValidCommits() {
         GitWitConfig config = this.loadDefaultConfig();
         Map<String, CommitMessage> messages = this.mapCommits(this.commits);
-        assertDoesNotThrow(() -> CommitMessageService.getInstance().validate(messages, config));
+        assertDoesNotThrow(() -> this.commitMessageService.validate(messages, config));
     }
 
     @ParameterizedTest
@@ -65,10 +75,10 @@ class CommitMessageServiceTest {
 
         GitWitException ex = assertThrows(
             GitWitException.class,
-            () -> CommitMessageService.getInstance().validate(messages, config)
+            () -> this.commitMessageService.validate(messages, config)
         );
 
-        String expected = I18nService.getInstance().resolve(expectedKey, param);
+        String expected = this.i18nService.resolve(expectedKey, param);
         assertAll(
             () -> assertTrue(ex.getMessage().contains(id)),
             () -> assertTrue(ex.getMessage().contains(expected))
@@ -93,10 +103,10 @@ class CommitMessageServiceTest {
 
         GitWitException ex = assertThrows(
             GitWitException.class,
-            () -> CommitMessageService.getInstance().validate(messages, config)
+            () -> this.commitMessageService.validate(messages, config)
         );
 
-        String expected = I18nService.getInstance().getMessage("commit.validation.scope_required");
+        String expected = this.i18nService.getMessage("commit.validation.scope_required");
         assertAll(
             () -> assertTrue(ex.getMessage().contains("noScope")),
             () -> assertTrue(ex.getMessage().contains(expected))
@@ -113,10 +123,10 @@ class CommitMessageServiceTest {
 
         GitWitException ex = assertThrows(
             GitWitException.class,
-            () -> CommitMessageService.getInstance().validate(messages, config)
+            () -> this.commitMessageService.validate(messages, config)
         );
 
-        String expected = I18nService.getInstance().getMessage("commit.validation.long_description_required");
+        String expected = this.i18nService.getMessage("commit.validation.long_description_required");
         assertAll(
             () -> assertTrue(ex.getMessage().contains("noLong")),
             () -> assertTrue(ex.getMessage().contains(expected))
@@ -134,10 +144,10 @@ class CommitMessageServiceTest {
 
         GitWitException ex = assertThrows(
             GitWitException.class,
-            () -> CommitMessageService.getInstance().validate(messages, config)
+            () -> this.commitMessageService.validate(messages, config)
         );
 
-        String expected = I18nService.getInstance().getMessage(
+        String expected = this.i18nService.getMessage(
             "commit.validation.long_description_too_short",
             config.getLongDescription().getMinLength()
         );
@@ -160,10 +170,10 @@ class CommitMessageServiceTest {
 
         GitWitException ex = assertThrows(
             GitWitException.class,
-            () -> CommitMessageService.getInstance().validate(messages, config)
+            () -> this.commitMessageService.validate(messages, config)
         );
 
-        String expected = I18nService.getInstance().getMessage(
+        String expected = this.i18nService.getMessage(
             "commit.validation.long_description_too_long",
             config.getLongDescription().getMaxLength()
         );

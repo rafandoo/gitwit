@@ -1,16 +1,19 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
+import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.entity.CommitMessage;
-import dev.rafandoo.gitwit.mock.AbstractGitMock;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
+import dev.rafandoo.gitwit.service.GitService;
 import dev.rafandoo.gitwit.service.I18nService;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedConstruction;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,23 +22,30 @@ import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(GuiceExtension.class)
 @DisplayName("Commit Command Tests")
-class CommitTest extends AbstractGitMock {
+class CommitTest {
 
-    @AfterEach
-    void tearDown() {
-        closeGitServiceMock();
+    @Inject
+    GitService gitService;
+
+    @Inject
+    I18nService i18nService;
+
+    @BeforeEach
+    void resetMocks() {
+        reset(this.gitService);
+        clearInvocations(this.gitService);
     }
 
     @Test
     @Tag("integration")
     void shouldExecuteCommitSuccessfully() throws Exception {
         TestUtils.setupConfig(".general.gitwit");
-        setupGitServiceMock();
 
         RevCommit commit = CommitMockFactory.mockCommit("abc123", "feat (core): Add new feature Z");
         doReturn(commit)
-            .when(spyGitService)
+            .when(this.gitService)
             .commit(any(CommitMessage.class), anyBoolean(), anyBoolean(), anyBoolean());
 
         String[] args = {
@@ -58,10 +68,9 @@ class CommitTest extends AbstractGitMock {
     @Tag("integration")
     void shouldFailWhenCommitIsNull() throws Exception {
         TestUtils.setupConfig(".general.gitwit");
-        setupGitServiceMock();
 
         doReturn(null)
-            .when(spyGitService)
+            .when(this.gitService)
             .commit(any(CommitMessage.class), anyBoolean(), anyBoolean(), anyBoolean());
 
         String[] args = {
@@ -76,7 +85,7 @@ class CommitTest extends AbstractGitMock {
 
         assertAll(
             () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("commit.failure")))
+            () -> assertTrue(errText.contains(this.i18nService.getMessage("commit.failure")))
         );
     }
 
@@ -84,7 +93,6 @@ class CommitTest extends AbstractGitMock {
     @Tag("integration")
     void shouldFailWhenCommitIsInvalid() throws Exception {
         TestUtils.setupConfig(".general.gitwit");
-        setupGitServiceMock();
 
         String[] args = {
             "commit",
@@ -98,7 +106,7 @@ class CommitTest extends AbstractGitMock {
 
         assertAll(
             () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("commit.validation.violations")))
+            () -> assertTrue(errText.contains(this.i18nService.getMessage("commit.validation.violations")))
         );
     }
 
@@ -106,7 +114,6 @@ class CommitTest extends AbstractGitMock {
     @Tag("integration")
     void shouldExecuteCommitWhenUseWizard() throws Exception {
         TestUtils.setupConfig(".general.gitwit");
-        setupGitServiceMock();
 
         CommitMessage message = new CommitMessage(
             "feat",
@@ -121,11 +128,11 @@ class CommitTest extends AbstractGitMock {
 
         try (MockedConstruction<CommitWizard> mockWizard = mockConstruction(
             CommitWizard.class,
-            (wizardMock, context) -> when(wizardMock.run()).thenReturn(message)
+            (wizardMock, context) -> when(wizardMock.run(any())).thenReturn(message)
         )) {
             RevCommit commit = CommitMockFactory.mockCommit("abc123", "feat (core): Add new feature Z");
             doReturn(commit)
-                .when(spyGitService)
+                .when(this.gitService)
                 .commit(any(CommitMessage.class), anyBoolean(), anyBoolean(), anyBoolean());
 
             String[] args = {

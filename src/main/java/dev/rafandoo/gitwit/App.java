@@ -1,9 +1,13 @@
 package dev.rafandoo.gitwit;
 
+import com.google.inject.Injector;
 import dev.rafandoo.gitwit.cli.*;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.cup.os.OperatingSystem;
+import dev.rafandoo.gitwit.di.InjectorFactory;
+import dev.rafandoo.gitwit.di.GuiceFactory;
 import dev.rafandoo.gitwit.exception.GitWitException;
+import dev.rafandoo.gitwit.service.MessageService;
 import dev.rafandoo.gitwit.service.TerminalService;
 import dev.rafandoo.gitwit.util.EncodingUtil;
 import dev.rafandoo.gitwit.util.EnvironmentUtil;
@@ -115,10 +119,8 @@ public class App extends BaseCommand {
      * @return the exit code of the command execution.
      */
     public static int execute(String[] args) {
-        App app = new App();
-        if (App.isDebug()) {
-            configureDebugLogging();
-        }
+        Injector injector = InjectorFactory.get();
+        CommandLine.IFactory factory = new GuiceFactory(injector);
 
         if (OperatingSystem.isWindows()) {
             EncodingUtil.setSystemEncoding(EncodingUtil.getWindowsEncoding());
@@ -128,12 +130,44 @@ public class App extends BaseCommand {
 
         int ec;
         try {
-            CommandLine cmd = new CommandLine(app);
+            CommandLine cmd = getCommandLine(factory, injector);
             ec = cmd.execute(args);
         } finally {
-            TerminalService.getInstance().close();
+            injector.getInstance(TerminalService.class).close();
         }
         return ec;
+    }
+
+    /**
+     * Creates and configures the CommandLine instance for the application.
+     * Sets up an execution strategy that initializes the root command and
+     * configures debug logging if the debug option is enabled.
+     *
+     * @param factory  the {@link CommandLine.IFactory} to create command instances.
+     * @param injector the Guice {@link Injector} for dependency injection.
+     * @return a configured {@link CommandLine} instance.
+     */
+    private static CommandLine getCommandLine(CommandLine.IFactory factory, Injector injector) {
+        CommandLine cmd = new CommandLine(App.class, factory);
+
+        cmd.setExecutionStrategy(parseResult -> {
+            // Force creation of the root command so that options (e.g., --debug) are applied
+            parseResult.commandSpec()
+                .root()
+                .userObject();
+
+            if (App.isDebug()) {
+                configureDebugLogging();
+
+                TerminalService terminalService = injector.getInstance(TerminalService.class);
+                MessageService messageService = injector.getInstance(MessageService.class);
+
+                messageService.debug(terminalService.getTerminalInfo());
+            }
+
+            return new CommandLine.RunLast().execute(parseResult);
+        });
+        return cmd;
     }
 
     /**

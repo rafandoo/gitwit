@@ -3,6 +3,7 @@ package dev.rafandoo.gitwit.config;
 import dev.rafandoo.cup.config.Config;
 import dev.rafandoo.cup.config.ConfigLoader;
 import dev.rafandoo.cup.config.source.YamlConfigSource;
+import dev.rafandoo.gitwit.di.InjectorFactory;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.GitService;
@@ -211,18 +212,21 @@ public class GitWitConfig {
      * @return {@link GitWitConfig} instance.
      */
     public static GitWitConfig load() {
+        MessageService messageService = InjectorFactory.get().getInstance(MessageService.class);
+        GitService gitService = InjectorFactory.get().getInstance(GitService.class);
+
         if (EnvironmentUtil.isTesting()) {
             String testConfigPath = System.getProperty("gitwit.config");
             if (testConfigPath != null) {
                 Path path = Path.of(testConfigPath);
-                MessageService.getInstance().debug("config.loading", path);
+                messageService.debug("config.loading", path);
 
                 Config config = ConfigLoader.from(path, new YamlConfigSource());
                 return config.as(GitWitConfig.class);
             }
         }
-        Path repo = GitService.getInstance().getRepo();
-        MessageService.getInstance().debug("config.loading", repo);
+        Path repo = gitService.getRepo();
+        messageService.debug("config.loading", repo);
         Path configPath = repo.resolve(ConfigPaths.CONFIG_FILE.get().asString());
 
         if (!Files.exists(configPath)) {
@@ -239,14 +243,17 @@ public class GitWitConfig {
      * Warns if a configuration file already exists and skips generation.
      */
     public static void generateExample() {
+        MessageService messageService = InjectorFactory.get().getInstance(MessageService.class);
+        GitService gitService = InjectorFactory.get().getInstance(GitService.class);
+
         String lang = Locale.getDefault().toString();
         String fallback = "en_US";
 
-        Path repo = GitService.getInstance().getRepo();
+        Path repo = gitService.getRepo();
         Path configPath = repo.resolve(ConfigPaths.CONFIG_FILE.get().asString());
 
         if (Files.exists(configPath)) {
-            MessageService.getInstance().warn("config.error.exists");
+            messageService.warn("config.error.exists");
             return;
         }
 
@@ -268,7 +275,7 @@ public class GitWitConfig {
 
         try (InputStream stream = is) {
             Files.copy(stream, configPath, StandardCopyOption.REPLACE_EXISTING);
-            MessageService.getInstance().success("config.example_generated", configPath);
+            messageService.success("config.example_generated", configPath);
         } catch (IOException e) {
             throw new GitWitException("config.error.copy_example", e);
         }

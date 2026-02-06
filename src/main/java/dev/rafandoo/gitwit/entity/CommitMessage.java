@@ -1,9 +1,6 @@
 package dev.rafandoo.gitwit.entity;
 
 import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
-import dev.rafandoo.gitwit.config.GitWitConfig;
-import dev.rafandoo.gitwit.enums.ChangelogScope;
-import dev.rafandoo.gitwit.service.ChangelogService;
 import dev.rafandoo.gitwit.service.CommitMessageService;
 import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.util.EmojiUtil;
@@ -86,13 +83,10 @@ public record CommitMessage(
      * and placeholders are replaced with commit-specific values.
      * </p>
      *
-     * @param format changelog format configuration
-     * @param scope  scope used to select the appropriate changelog template
-     * @return formatted changelog entry
+     * @param template changelog entry template.
+     * @return formatted changelog entry.
      */
-    public String formatForChangelog(GitWitConfig.ChangelogConfig.ChangelogFormat format, ChangelogScope scope) {
-        String template = ChangelogService.getInstance().getChangelogCommitTemplateByScope(format, scope);
-
+    public String formatForChangelog(String template) {
         String formattedDate = "";
         if (template.contains("{date}") && authorIdent != null) {
             Instant instant = authorIdent.getWhenAsInstant();
@@ -136,8 +130,8 @@ public record CommitMessage(
     /**
      * Parses a raw commit message into structured components.
      *
-     * @param fullMessage raw commit message
-     * @return parsed commit data
+     * @param fullMessage raw commit message.
+     * @return parsed commit data.
      */
     private static ParsedCommit parse(String fullMessage) {
         if (StringUtils.isNullOrBlank(fullMessage)) {
@@ -194,8 +188,8 @@ public record CommitMessage(
     /**
      * Creates a {@link CommitMessage} from a {@link RevCommit}.
      *
-     * @param commit Git commit to parse
-     * @return parsed commit message representation
+     * @param commit Git commit to parse.
+     * @return parsed commit message representation.
      */
     public static CommitMessage of(RevCommit commit) {
         if (commit == null || StringUtils.isNullOrBlank(commit.getFullMessage())) {
@@ -228,8 +222,8 @@ public record CommitMessage(
     /**
      * Creates a {@link CommitMessage} from a raw commit message string.
      *
-     * @param rawMessage commit message text
-     * @return parsed commit message representation
+     * @param rawMessage commit message text.
+     * @return parsed commit message representation.
      */
     public static CommitMessage of(String rawMessage) {
         ParsedCommit parsed = parse(rawMessage);

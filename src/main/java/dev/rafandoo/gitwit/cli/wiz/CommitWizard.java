@@ -1,5 +1,6 @@
 package dev.rafandoo.gitwit.cli.wiz;
 
+import com.google.inject.Inject;
 import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.config.GitWitConfig;
@@ -9,6 +10,7 @@ import dev.rafandoo.gitwit.service.CommitMessageService;
 import dev.rafandoo.gitwit.service.I18nService;
 import dev.rafandoo.gitwit.service.TerminalService;
 import dev.rafandoo.gitwit.util.EmojiUtil;
+import lombok.AllArgsConstructor;
 import org.jline.consoleui.elements.ConfirmChoice;
 import org.jline.consoleui.prompt.ConsolePrompt;
 import org.jline.consoleui.prompt.PromptResultItemIF;
@@ -29,44 +31,38 @@ import java.util.stream.Collectors;
  * a {@link GitWitConfig}. The wizard honours all validation constraints (required fields,
  * allowed values, min/max lengths, etc.) before returning the message.
  */
+@AllArgsConstructor(onConstructor = @__({@Inject}))
 public class CommitWizard {
 
-    private final GitWitConfig config;
-
-    /**
-     * Constructs a {@link CommitWizard} with the specified configuration.
-     *
-     * @param config the {@link GitWitConfig} to be used for commit message generation.
-     * @throws GitWitException if the provided configuration is {@code null}.
-     */
-    public CommitWizard(GitWitConfig config) {
-        if (config == null) {
-            throw new GitWitException("config.error.null", false);
-        }
-        this.config = config;
-    }
+    private final TerminalService terminalService;
+    private final I18nService i18nService;
+    private final CommitMessageService commitMessageService;
 
     /**
      * Starts the interactive wizard.
      *
      * @return a validated {@link CommitMessage}.
      */
-    public CommitMessage run() {
-        Terminal terminal = TerminalService.getInstance().getTerminal();
+    public CommitMessage run(GitWitConfig config) {
+        if (config == null) {
+            throw new GitWitException("config.error.null", false);
+        }
+
+        Terminal terminal = this.terminalService.getTerminal();
 
         ConsolePrompt console = new ConsolePrompt(terminal);
         PromptBuilder builder = console.getPromptBuilder();
 
         /* ─────────── Commit Type ─────────── */
-        Map<String, String> types = this.config.getTypes().getValues();
+        Map<String, String> types = config.getTypes().getValues();
         if (types == null || types.isEmpty()) {
             throw new GitWitException("commit.wizard.error.commit_types_required");
         }
         this.promptChoice(
             CommitPromptKeys.COMMIT_TYPE.getKey(),
             this.composePromptMessage(
-                I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_TYPE.getValue()),
-                this.config.getTypes().getDescription(),
+                this.i18nService.getMessage(CommitPromptKeys.COMMIT_TYPE.getValue()),
+                config.getTypes().getDescription(),
                 false
             ),
             types,
@@ -75,16 +71,16 @@ public class CommitWizard {
         );
 
         /* ─────────── Commit Scope ─────────── */
-        boolean scopeOptional = !this.config.getScope().isRequired();
+        boolean scopeOptional = !config.getScope().isRequired();
         String scopePrompt = this.composePromptMessage(
-            I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_SCOPE.getValue()),
-            this.config.getScope().getDescription(),
-            !this.config.getScope().isRequired()
+            this.i18nService.getMessage(CommitPromptKeys.COMMIT_SCOPE.getValue()),
+            config.getScope().getDescription(),
+            !config.getScope().isRequired()
         );
 
-        switch (this.config.getScope().getType().toLowerCase(Locale.ROOT)) {
+        switch (config.getScope().getType().toLowerCase(Locale.ROOT)) {
             case "list" -> {
-                Map<String, String> scopes = this.validateAndCopy(this.config.getScope().getValues(), "commit.wizard.error.scope_values_required")
+                Map<String, String> scopes = this.validateAndCopy(config.getScope().getValues(), "commit.wizard.error.scope_values_required")
                     .keySet()
                     .stream()
                     .collect(Collectors.toMap(Function.identity(), Function.identity()));
@@ -102,40 +98,40 @@ public class CommitWizard {
                 scopePrompt,
                 builder
             );
-            default -> throw new GitWitException("commit.wizard.error.scope_invalid", this.config.getScope().getType());
+            default -> throw new GitWitException("commit.wizard.error.scope_invalid", config.getScope().getType());
         }
 
         /* ─────────── Commit Short Description ─────────── */
         this.promptText(
             CommitPromptKeys.COMMIT_SHORT_DESC.getKey(),
             this.composePromptMessage(
-                I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_SHORT_DESC.getValue()),
-                this.config.getShortDescription().getDescription(),
+                this.i18nService.getMessage(CommitPromptKeys.COMMIT_SHORT_DESC.getValue()),
+                config.getShortDescription().getDescription(),
                 false
             ),
             builder
         );
 
         /* ─────────── Commit Long Description ─────────── */
-        if (this.config.getLongDescription().isEnabled()) {
+        if (config.getLongDescription().isEnabled()) {
             this.promptText(
                 CommitPromptKeys.COMMIT_LONG_DESC.getKey(),
                 this.composePromptMessage(
-                    I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_LONG_DESC.getValue()),
-                    this.config.getLongDescription().getDescription(),
-                    !this.config.getLongDescription().isRequired()
+                    this.i18nService.getMessage(CommitPromptKeys.COMMIT_LONG_DESC.getValue()),
+                    config.getLongDescription().getDescription(),
+                    !config.getLongDescription().isRequired()
                 ),
                 builder
             );
         }
 
         /* ─────────── Commit Breaking Changes ─────────── */
-        if (this.config.getBreakingChanges().isEnabled()) {
+        if (config.getBreakingChanges().isEnabled()) {
             this.promptConfirm(
                 CommitPromptKeys.COMMIT_BREAKING_CHANGES.getKey(),
                 this.composePromptMessage(
-                    I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_BREAKING_CHANGES.getValue()),
-                    I18nService.getInstance().resolve("commit.wizard.prompt.breaking_changes_label"),
+                    this.i18nService.getMessage(CommitPromptKeys.COMMIT_BREAKING_CHANGES.getValue()),
+                    this.i18nService.resolve("commit.wizard.prompt.breaking_changes_label"),
                     false
                 ),
                 builder
@@ -159,7 +155,7 @@ public class CommitWizard {
             terminal.flush();
 
             PromptBuilder breakingBuilder = console.getPromptBuilder();
-            this.createBreakingChangesInputPrompt(breakingBuilder);
+            this.createBreakingChangesInputPrompt(breakingBuilder, config);
 
             try {
                 results.putAll(console.prompt(breakingBuilder.build()));
@@ -170,7 +166,7 @@ public class CommitWizard {
 
         // Build, validate and return the commit message.
         CommitMessage message = this.buildCommit(results, breakingChanges);
-        CommitMessageService.getInstance().validate(message, this.config);
+        this.commitMessageService.validate(message, config);
 
         return message;
     }
@@ -180,12 +176,12 @@ public class CommitWizard {
      *
      * @param builder the {@link PromptBuilder} to add the breaking changes text prompt to.
      */
-    private void createBreakingChangesInputPrompt(PromptBuilder builder) {
+    private void createBreakingChangesInputPrompt(PromptBuilder builder, GitWitConfig config) {
         this.promptText(
             CommitPromptKeys.COMMIT_BREAKING_CHANGES_DESC.getKey(),
             this.composePromptMessage(
-                I18nService.getInstance().getMessage(CommitPromptKeys.COMMIT_BREAKING_CHANGES_DESC.getValue()),
-                this.config.getBreakingChanges().getDescription(),
+                this.i18nService.getMessage(CommitPromptKeys.COMMIT_BREAKING_CHANGES_DESC.getValue()),
+                config.getBreakingChanges().getDescription(),
                 false
             ),
             builder
@@ -224,7 +220,7 @@ public class CommitWizard {
         if (optional) {
             listPrompt.newItem()
                 .name("")
-                .text(I18nService.getInstance().getMessage("commit.wizard.prompt.ignore"))
+                .text(this.i18nService.getMessage("commit.wizard.prompt.ignore"))
                 .add();
         }
 
@@ -325,7 +321,7 @@ public class CommitWizard {
      */
     private String composePromptMessage(String name, String description, boolean optional) {
         StringBuilder message = new StringBuilder(name);
-        String optionalText = I18nService.getInstance().getMessage("commit.wizard.prompt.optional");
+        String optionalText = this.i18nService.getMessage("commit.wizard.prompt.optional");
 
         if (!StringUtils.isNullOrBlank(description)) {
             message.append(" (").append(EmojiUtil.processEmojis(description));

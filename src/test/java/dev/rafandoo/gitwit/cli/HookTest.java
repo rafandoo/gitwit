@@ -1,12 +1,15 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
+import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.service.I18nService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
@@ -20,8 +23,12 @@ import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(GuiceExtension.class)
 @DisplayName("Hook Command Tests")
 class HookTest {
+
+    @Inject
+    I18nService i18nService;
 
     @Test
     @Tag("integration")
@@ -44,7 +51,7 @@ class HookTest {
 
         try (MockedConstruction<CommitWizard> mockWizard = mockConstruction(
             CommitWizard.class,
-            (wizardMock, context) -> when(wizardMock.run()).thenReturn(message)
+            (wizardMock, context) -> when(wizardMock.run(any())).thenReturn(message)
         )) {
             String[] args = {
                 "hook",
@@ -79,7 +86,7 @@ class HookTest {
 
         try (MockedConstruction<CommitWizard> mockWizard = mockConstruction(
             CommitWizard.class,
-            (wizardMock, context) -> when(wizardMock.run()).thenReturn(message)
+            (wizardMock, context) -> when(wizardMock.run(any())).thenReturn(message)
         )) {
             try (MockedStatic<Files> filesMock = mockStatic(Files.class, CALLS_REAL_METHODS)) {
 
@@ -96,7 +103,7 @@ class HookTest {
 
                 assertAll(
                     () -> assertEquals(1, exitCode.get()),
-                    () -> assertTrue(errText.contains(I18nService.getInstance().getMessage("commit.hook.error.commit_write")))
+                    () -> assertTrue(errText.contains(this.i18nService.getMessage("commit.hook.error.commit_write")))
                 );
             }
         }
