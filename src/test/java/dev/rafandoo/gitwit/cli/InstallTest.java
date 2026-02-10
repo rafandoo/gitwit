@@ -17,7 +17,7 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(GuiceExtension.class)
@@ -50,10 +50,8 @@ class InstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
 
         verify(this.gitService).configureGitAliasLocal();
         verify(this.gitService, never()).configureGitAliasGlobal();
@@ -77,10 +75,8 @@ class InstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
 
         verify(this.gitService).configureGitAliasGlobal();
         verify(this.gitService, never()).configureGitAliasLocal();
@@ -104,10 +100,8 @@ class InstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
 
         verify(this.gitService).setupCommitWizardHook(false);
         verify(this.gitService, never()).configureGitAliasLocal();
@@ -132,10 +126,8 @@ class InstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(this.i18nService.getMessage("install.error.conflict")))
-        );
+        assertThat(exitCode.get()).isEqualTo(1);
+        assertThat(errText).contains(this.i18nService.getMessage("install.error.conflict"));
 
         verify(this.gitService, never()).configureGitAliasGlobal();
         verify(this.gitService, never()).configureGitAliasLocal();
@@ -160,10 +152,8 @@ class InstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
 
         verify(this.gitService).setupCommitWizardHook(true);
         verify(this.gitService, never()).configureGitAliasLocal();
@@ -191,10 +181,8 @@ class InstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(this.i18nService.getMessage("git.error.not_a_repo")))
-        );
+        assertThat(exitCode.get()).isEqualTo(1);
+        assertThat(errText).contains(this.i18nService.getMessage("git.error.not_a_repo"));
 
         verify(this.gitService).setupCommitWizardHook(false);
         verify(this.gitService, never()).configureGitAliasLocal();

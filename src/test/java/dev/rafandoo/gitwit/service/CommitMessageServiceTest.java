@@ -1,9 +1,7 @@
 package dev.rafandoo.gitwit.service;
 
-import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.config.GitWitConfig;
-import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
@@ -15,43 +13,37 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@ExtendWith(GuiceExtension.class)
+@ExtendWith(MockitoExtension.class)
 @DisplayName("CommitMessageService Tests")
 class CommitMessageServiceTest {
 
-    @Inject
-    private CommitMessageService commitMessageService;
+    @Mock
+    TerminalService terminalService;
 
-    @Inject
-    private I18nService i18nService;
+    CommitMessageService service;
 
-    private List<RevCommit> commits;
+    I18nService i18nService = new I18nService();
 
-    private GitWitConfig loadDefaultConfig() {
-        TestUtils.setupConfig(".general.gitwit");
-        return GitWitConfig.load();
-    }
+    @Spy
+    MessageService messageService = new MessageService(terminalService, i18nService);
 
-    private Map<String, CommitMessage> mapCommits(List<RevCommit> commits) {
-        Map<String, CommitMessage> messages = new HashMap<>();
-        commits.forEach(commit -> messages.put(commit.getId().getName(), CommitMessage.of(commit)));
-        return messages;
-    }
-
-    private void putCommit(Map<String, CommitMessage> map, String id, String message) {
-        map.put(id, CommitMessage.of(CommitMockFactory.mockCommit(id, message)));
-    }
+    List<RevCommit> commits;
 
     @BeforeEach
-    void setupCommits() {
+    void setup() {
+        this.service = new CommitMessageService(this.messageService, this.i18nService);
         this.commits = List.of(
             CommitMockFactory.mockCommit("abc123", "feat: Add new feature X"),
             CommitMockFactory.mockCommit("def456", "fix: Correct bug in feature Y"),
@@ -59,30 +51,36 @@ class CommitMessageServiceTest {
         );
     }
 
+    Map<String, CommitMessage> mapCommits(List<RevCommit> commits) {
+        Map<String, CommitMessage> messages = new HashMap<>();
+        commits.forEach(commit -> messages.put(commit.getId().getName(), CommitMessage.of(commit)));
+        return messages;
+    }
+
+    void putCommit(Map<String, CommitMessage> map, String id, String message) {
+        map.put(id, CommitMessage.of(CommitMockFactory.mockCommit(id, message)));
+    }
+
     @Test
     void shouldPassValidationForValidCommits() {
-        GitWitConfig config = this.loadDefaultConfig();
+        GitWitConfig config = TestUtils.loadDefaultConfig();
         Map<String, CommitMessage> messages = this.mapCommits(this.commits);
-        assertDoesNotThrow(() -> this.commitMessageService.validate(messages, config));
+        assertThatNoException().isThrownBy(
+            () -> this.service.validate(messages, config)
+        );
     }
 
     @ParameterizedTest
     @MethodSource("invalidCommitProvider")
     void shouldThrowExceptionForInvalidCommits(String id, String message, String expectedKey, Object param) {
-        GitWitConfig config = this.loadDefaultConfig();
+        GitWitConfig config = TestUtils.loadDefaultConfig();
         Map<String, CommitMessage> messages = this.mapCommits(this.commits);
         this.putCommit(messages, id, message);
 
-        GitWitException ex = assertThrows(
-            GitWitException.class,
-            () -> this.commitMessageService.validate(messages, config)
-        );
-
-        String expected = this.i18nService.resolve(expectedKey, param);
-        assertAll(
-            () -> assertTrue(ex.getMessage().contains(id)),
-            () -> assertTrue(ex.getMessage().contains(expected))
-        );
+        assertThatThrownBy(() -> this.service.validate(messages, config))
+            .isInstanceOf(GitWitException.class)
+            .hasMessageContaining(id)
+            .hasMessageContaining(this.i18nService.resolve(expectedKey, param));
     }
 
     private static Stream<Arguments> invalidCommitProvider() {
@@ -95,71 +93,59 @@ class CommitMessageServiceTest {
 
     @Test
     void shouldThrowExceptionWhenScopeIsMissing() {
-        GitWitConfig config = this.loadDefaultConfig();
+        GitWitConfig config = TestUtils.loadDefaultConfig();
         config.getScope().setRequired(true);
 
         Map<String, CommitMessage> messages = this.mapCommits(this.commits);
         this.putCommit(messages, "noScope", "feat: No scope");
 
-        GitWitException ex = assertThrows(
-            GitWitException.class,
-            () -> this.commitMessageService.validate(messages, config)
-        );
-
-        String expected = this.i18nService.getMessage("commit.validation.scope_required");
-        assertAll(
-            () -> assertTrue(ex.getMessage().contains("noScope")),
-            () -> assertTrue(ex.getMessage().contains(expected))
-        );
+        assertThatThrownBy(() -> this.service.validate(messages, config))
+            .isInstanceOf(GitWitException.class)
+            .hasMessageContaining("noScope")
+            .hasMessageContaining(
+                this.i18nService.getMessage("commit.validation.scope_required")
+            );
     }
 
     @Test
     void shouldThrowExceptionWhenLongDescriptionIsMissing() {
-        GitWitConfig config = this.loadDefaultConfig();
+        GitWitConfig config = TestUtils.loadDefaultConfig();
         config.getLongDescription().setRequired(true);
 
         Map<String, CommitMessage> messages = this.mapCommits(this.commits);
         this.putCommit(messages, "noLong", "feat: No long desc");
 
-        GitWitException ex = assertThrows(
-            GitWitException.class,
-            () -> this.commitMessageService.validate(messages, config)
-        );
-
-        String expected = this.i18nService.getMessage("commit.validation.long_description_required");
-        assertAll(
-            () -> assertTrue(ex.getMessage().contains("noLong")),
-            () -> assertTrue(ex.getMessage().contains(expected))
-        );
+        assertThatThrownBy(() -> this.service.validate(messages, config))
+            .isInstanceOf(GitWitException.class)
+            .hasMessageContaining("noLong")
+            .hasMessageContaining(
+                this.i18nService.getMessage("commit.validation.long_description_required")
+            );
     }
 
     @Test
     void shouldThrowExceptionWhenLongDescriptionIsTooShort() {
-        GitWitConfig config = this.loadDefaultConfig();
+        GitWitConfig config = TestUtils.loadDefaultConfig();
         config.getLongDescription().setRequired(true);
         config.getLongDescription().setMinLength(20);
 
         Map<String, CommitMessage> messages = this.mapCommits(this.commits);
         this.putCommit(messages, "shortLong", "feat: Short long desc\n\nToo short");
 
-        GitWitException ex = assertThrows(
-            GitWitException.class,
-            () -> this.commitMessageService.validate(messages, config)
-        );
-
-        String expected = this.i18nService.getMessage(
-            "commit.validation.long_description_too_short",
-            config.getLongDescription().getMinLength()
-        );
-        assertAll(
-            () -> assertTrue(ex.getMessage().contains("shortLong")),
-            () -> assertTrue(ex.getMessage().contains(expected))
-        );
+        assertThatThrownBy(() -> this.service.validate(messages, config))
+            .isInstanceOf(GitWitException.class)
+            .hasMessageContaining("shortLong")
+            .hasMessageContaining(
+                this.i18nService.getMessage(
+                    "commit.validation.long_description_too_short",
+                    config.getLongDescription().getMinLength()
+                )
+            );
     }
 
     @Test
     void shouldThrowExceptionWhenLongDescriptionIsTooLong() {
-        GitWitConfig config = this.loadDefaultConfig();
+        GitWitConfig config = TestUtils.loadDefaultConfig();
         config.getLongDescription().setRequired(true);
         config.getLongDescription().setMaxLength(50);
 
@@ -168,19 +154,14 @@ class CommitMessageServiceTest {
             "feat: Very long long desc\n\nThis long description is way too long and exceeds the maximum length allowed by the configuration."
         );
 
-        GitWitException ex = assertThrows(
-            GitWitException.class,
-            () -> this.commitMessageService.validate(messages, config)
-        );
-
-        String expected = this.i18nService.getMessage(
-            "commit.validation.long_description_too_long",
-            config.getLongDescription().getMaxLength()
-        );
-        assertAll(
-            () -> assertTrue(ex.getMessage().contains("longLong")),
-            () -> assertTrue(ex.getMessage().contains(expected))
-        );
+        assertThatThrownBy(() -> this.service.validate(messages, config))
+            .isInstanceOf(GitWitException.class)
+            .hasMessageContaining("longLong")
+            .hasMessageContaining(
+                this.i18nService.getMessage(
+                    "commit.validation.long_description_too_long",
+                    config.getLongDescription().getMaxLength()
+                )
+            );
     }
-
 }
