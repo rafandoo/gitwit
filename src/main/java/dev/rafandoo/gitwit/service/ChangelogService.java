@@ -92,6 +92,16 @@ public final class ChangelogService {
 
         Map<String, List<CommitMessage>> groupedByType = commitMessages.stream()
             .filter(commitMessage -> !ignored.contains(commitMessage.type()))
+            .filter(commitMessage -> {
+                if (commitMessage.type() == null) {
+                    MessageService.getInstance().warn(
+                        "changelog.warn.commit_no_type",
+                        commitMessage.hash().abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name()
+                    );
+                    return false;
+                }
+                return true;
+            })
             .collect(Collectors.groupingBy(CommitMessage::type));
 
         return this.generateMarkdown(config, groupedByType, types, subtitle);
