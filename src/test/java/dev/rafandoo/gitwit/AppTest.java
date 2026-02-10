@@ -3,6 +3,7 @@ package dev.rafandoo.gitwit;
 import com.google.inject.Inject;
 import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.service.GitService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -12,8 +13,9 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Path;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemOut;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doReturn;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(GuiceExtension.class)
 @DisplayName("App Command Tests")
@@ -22,6 +24,12 @@ class AppTest {
     @Inject
     GitService gitService;
 
+    @BeforeEach
+    void resetMocks() {
+        reset(this.gitService);
+        clearInvocations(this.gitService);
+    }
+
     @Test
     @Tag("integration")
     void shouldShowHelpWhenNoArgumentsProvided() throws Exception {
@@ -29,10 +37,10 @@ class AppTest {
 
         String outText = tapSystemOut(() -> {
             int exitCode = TestUtils.executeCommand(args);
-            assertEquals(0, exitCode);
+            assertThat(exitCode).isEqualTo(0);
         });
 
-        assertTrue(outText.contains("GitWit"));
+        assertThat(outText).contains("GitWit");
     }
 
     @Test
@@ -44,10 +52,10 @@ class AppTest {
 
         String outText = tapSystemOut(() -> {
             int exitCode = TestUtils.executeCommand(args);
-            assertEquals(0, exitCode);
+            assertThat(exitCode).isEqualTo(0);
         });
 
-        assertTrue(outText.contains("dev‑snapshot"));
+        assertThat(outText).contains("dev‑snapshot");
     }
 
     @Test
@@ -62,12 +70,15 @@ class AppTest {
         };
 
         int exitCode = TestUtils.executeCommand(args);
-        assertEquals(0, exitCode);
+        assertThat(exitCode).isEqualTo(0);
     }
 
     @Test
     void shouldDoesntThrowExceptionWhenNoArgsProvided() {
         String[] args = {};
-        assertDoesNotThrow(() -> App.main(args));
+        assertThatNoException()
+            .isThrownBy(
+                () -> App.main(args)
+            );
     }
 }

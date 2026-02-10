@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(GuiceExtension.class)
@@ -54,12 +54,10 @@ class UninstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(uninstallArgs)));
 
-        assertAll(
-            () -> assertEquals(0, exitCodeInstall.get()),
-            () -> assertTrue(errTextInstall.isBlank()),
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCodeInstall.get()).isEqualTo(0);
+        assertThat(errTextInstall).isBlank();
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
 
         verify(this.gitService).removeGitAliasLocal();
     }
@@ -89,12 +87,10 @@ class UninstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(uninstallArgs)));
 
-        assertAll(
-            () -> assertEquals(0, exitCodeInstall.get()),
-            () -> assertTrue(errTextInstall.isBlank()),
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCodeInstall.get()).isEqualTo(0);
+        assertThat(errTextInstall).isBlank();
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
 
         verify(this.gitService).removeGitAliasGlobal();
     }
@@ -124,12 +120,10 @@ class UninstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(uninstallArgs)));
 
-        assertAll(
-            () -> assertEquals(0, exitCodeInstall.get()),
-            () -> assertTrue(errTextInstall.isBlank()),
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCodeInstall.get()).isEqualTo(0);
+        assertThat(errTextInstall).isBlank();
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
 
         verify(this.gitService, never()).configureGitAliasLocal();
         verify(this.gitService, never()).configureGitAliasGlobal();
@@ -155,9 +149,7 @@ class UninstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(this.i18nService.getMessage("uninstall.error.conflict")))
-        );
+        assertThat(exitCode.get()).isEqualTo(1);
+        assertThat(errText).contains(this.i18nService.getMessage("uninstall.error.conflict"));
     }
 }

@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
-import dev.rafandoo.gitwit.service.ChangelogService;
 import dev.rafandoo.gitwit.service.GitService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.*;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(GuiceExtension.class)
@@ -26,9 +25,6 @@ class ChangelogTest {
 
     @Inject
     GitService gitService;
-
-    @Inject
-    ChangelogService changelogService;
 
     @BeforeEach
     void resetMocks() {
@@ -56,17 +52,14 @@ class ChangelogTest {
 
         String[] args = {
             "changelog",
-            "--from", "1234",
-            "--to", "5678"
+            "1234..5678"
         };
 
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
     }
 
     @Test
@@ -85,17 +78,14 @@ class ChangelogTest {
 
         String[] args = {
             "changelog",
-            "--from", "1234",
-            "--to", "5678",
+            "1234..5678",
             "--copy"
         };
 
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
     }
 }
