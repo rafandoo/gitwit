@@ -94,7 +94,7 @@ public final class ChangelogService {
             .filter(commitMessage -> !ignored.contains(commitMessage.type()))
             .filter(commitMessage -> {
                 if (commitMessage.type() == null) {
-                    MessageService.getInstance().warn(
+                    this.messageService.warn(
                         "changelog.warn.commit_no_type",
                         commitMessage.hash().abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name()
                     );
