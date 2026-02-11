@@ -139,7 +139,7 @@ public record CommitMessage(
         }
 
         String[] parts = fullMessage.split("\n\n", 2);
-        String header = parts[0];
+        String header = parts[0].replace('\n', ' ').trim();
         String body = parts.length > 1 ? parts[1] : null;
 
         String type = null;
@@ -148,7 +148,7 @@ public record CommitMessage(
         String subject;
 
         Pattern pattern = Pattern.compile(
-            "^(?<type>\\w+|:\\w+:)(?<breaking>!)?\\s?(?:\\((?<scope>[^)]+)\\))?:?\\s*(?<desc>.*)$"
+            "^(?<type>\\w+|:\\w+:)\\s?(?:\\((?<scope>[^)]+)\\))?(?<breaking>!)?:?\\s*(?<desc>.*)$"
         );
 
         Matcher matcher = pattern.matcher(header);

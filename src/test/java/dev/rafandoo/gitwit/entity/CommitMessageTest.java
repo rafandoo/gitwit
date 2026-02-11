@@ -5,9 +5,13 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,6 +35,136 @@ class CommitMessageTest {
 
         assertThat(msg.format())
             .isEqualTo("feat(core): add new feature");
+    }
+
+    @ParameterizedTest
+    @MethodSource("conventionalCommitProvider")
+    @MethodSource("emojiCommitProvider")
+    void shouldParseCorrectlyOnly(
+        String raw,
+        String expectedType,
+        String expectedScope,
+        boolean expectedBreaking,
+        String expectedShortDescription,
+        String expectedLongDescription
+    ) {
+        CommitMessage msg = CommitMessage.of(raw);
+
+        assertThat(msg)
+            .extracting(
+                CommitMessage::type,
+                CommitMessage::scope,
+                CommitMessage::breakingChanges,
+                CommitMessage::shortDescription,
+                CommitMessage::longDescription
+            )
+            .containsExactly(
+                expectedType,
+                expectedScope,
+                expectedBreaking,
+                expectedShortDescription,
+                expectedLongDescription
+            );
+    }
+
+    static Stream<Arguments> conventionalCommitProvider() {
+        return Stream.of(
+            Arguments.of(
+                "fix: correct minor typos in code",
+                "fix",
+                null,
+                false,
+                "correct minor typos in code",
+                null
+            ),
+            Arguments.of(
+                "feat(core): add new engine",
+                "feat",
+                "core",
+                false,
+                "add new engine",
+                null
+            ),
+            Arguments.of(
+                "feat(api)!: change response format",
+                "feat",
+                "api",
+                true,
+                "change response format",
+                null
+            ),
+            Arguments.of(
+                "docs: update README\n",
+                "docs",
+                null,
+                false,
+                "update README",
+                null
+            ),
+            Arguments.of(
+                """
+                chore: update dependencies
+
+                Updated all dependencies to their latest versions.""",
+                "chore",
+                null,
+                false,
+                "update dependencies",
+                "Updated all dependencies to their latest versions."
+            )
+        );
+    }
+
+    static Stream<Arguments> emojiCommitProvider() {
+        return Stream.of(
+            Arguments.of(
+                ":sparkles: add new feature",
+                ":sparkles:",
+                null,
+                false,
+                "add new feature",
+                null
+            ),
+            Arguments.of(
+                ":sparkles:(core): add engine",
+                ":sparkles:",
+                "core",
+                false,
+                "add engine",
+                null
+            ),
+            Arguments.of(
+                ":bug:(api)!: fix critical issue",
+                ":bug:",
+                "api",
+                true,
+                "fix critical issue",
+                null
+            ),
+            Arguments.of(
+                """
+                :fire:(config): remove deprecated property
+
+                Cleanup unused configuration""",
+                ":fire:",
+                "config",
+                false,
+                "remove deprecated property",
+                "Cleanup unused configuration"
+            ),
+            Arguments.of(
+                """
+                :boom:(auth)!: change login flow
+
+                BREAKING CHANGE: token format updated
+                """,
+                ":boom:",
+                "auth",
+                true,
+                "change login flow",
+                ""
+            )
+        );
     }
 
     @Test
