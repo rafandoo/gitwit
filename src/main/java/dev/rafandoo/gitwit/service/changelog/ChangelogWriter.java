@@ -1,9 +1,9 @@
 package dev.rafandoo.gitwit.service.changelog;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
-import dev.rafandoo.gitwit.service.GitService;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import dev.rafandoo.gitwit.service.git.GitService;
 import lombok.AllArgsConstructor;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ import java.nio.file.StandardOpenOption;
  */
 @Singleton
 @AllArgsConstructor(onConstructor_ = @__({@Inject}))
-public class ChangelogWriter {
+public final class ChangelogWriter {
 
     private final GitService gitService;
     private static final String NL = "\n\n";

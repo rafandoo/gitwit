@@ -2,11 +2,11 @@ package dev.rafandoo.gitwit.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.entity.CommitMessage;
+import dev.rafandoo.gitwit.exception.GitWitException;
+import dev.rafandoo.gitwit.service.git.GitRepositoryService;
 import lombok.AllArgsConstructor;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public final class LintService {
 
     private final MessageService messageService;
     private final CommitMessageService commitMessageService;
-    private final GitService gitService;
+    private final GitRepositoryService gitRepositoryService;
 
     /**
      * Lints commit messages based on the provided revision specification or message parts.
@@ -42,7 +42,10 @@ public final class LintService {
             return;
         }
 
-        List<RevCommit> commits = this.resolveCommits(revSpec, from, to, config);
+        List<RevCommit> commits = this.gitRepositoryService.resolveCommits(revSpec, from, to, config.getLint().getIgnored());
+        if (commits.isEmpty()) {
+            throw new GitWitException("lint.noCommits");
+        }
         Map<String, CommitMessage> messages = commits.stream()
             .collect(Collectors.toMap(
                 commit -> commit.getId().getName(),
@@ -51,37 +54,5 @@ public final class LintService {
 
         this.messageService.debug("lint.total", messages.size());
         this.commitMessageService.validate(messages, config);
-    }
-
-    /**
-     * Resolves the commits to be linted based on the provided revision specification.
-     *
-     * @param revSpec revision specification (e.g., "HEAD~5..HEAD").
-     * @param from    starting point of the commit range (deprecated).
-     * @param to      ending point of the commit range (deprecated).
-     * @param config  GitWit configuration.
-     * @return list of {@link RevCommit} objects to be linted.
-     */
-    private List<RevCommit> resolveCommits(String revSpec, String from, String to, GitWitConfig config) {
-        List<RevCommit> commits;
-
-        if (!StringUtils.isNullOrBlank(revSpec)) {
-            commits = this.gitService.resolveCommits(revSpec);
-        } else if (!StringUtils.isNullOrBlank(from) || !StringUtils.isNullOrBlank(to)) {
-            this.messageService.warn("lint.deprecated-range-options");
-            commits = this.gitService.listCommitsBetween(from, to);
-        } else {
-            commits = this.gitService.resolveCommit(Constants.HEAD).stream().collect(Collectors.toList());
-        }
-
-        if (config.getLint() != null && config.getLint().getIgnored() != null) {
-            commits.removeIf(commit -> config.getLint()
-                .getIgnored()
-                .stream()
-                .anyMatch(ignored -> commit.getFullMessage().matches(ignored))
-            );
-        }
-
-        return commits;
     }
 }

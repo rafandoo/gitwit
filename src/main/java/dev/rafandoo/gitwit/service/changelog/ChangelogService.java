@@ -8,7 +8,7 @@ import dev.rafandoo.gitwit.entity.Changelog;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.enums.ChangelogScope;
 import dev.rafandoo.gitwit.exception.GitWitException;
-import dev.rafandoo.gitwit.service.GitService;
+import dev.rafandoo.gitwit.service.git.GitRepositoryService;
 import dev.rafandoo.gitwit.service.MessageService;
 import dev.rafandoo.gitwit.service.changelog.render.Renderer;
 import dev.rafandoo.gitwit.util.EmojiUtil;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public final class ChangelogService {
 
     private final MessageService messageService;
-    private final GitService gitService;
+    private final GitRepositoryService gitRepositoryService;
     private final Renderer renderer;
     private final ChangelogOutputService outputService;
 
@@ -54,7 +54,12 @@ public final class ChangelogService {
         boolean copyToClipboard,
         boolean append
     ) {
-        List<RevCommit> commits = this.resolveCommits(revSpec, from, to, config);
+        List<RevCommit> commits = this.gitRepositoryService.resolveCommits(
+            revSpec,
+            from,
+            to,
+            config.getChangelog().getIgnored()
+        );
         Map<String, List<CommitMessage>> grouped = this.toCommitMessages(commits);
         Map<String, String> types = this.resolveTypes(config);
 
@@ -120,41 +125,6 @@ public final class ChangelogService {
             throw new GitWitException("changelog.error.no_template");
         }
         return template;
-    }
-
-    /**
-     * Resolves the list of Git commits based on the provided revision specification or range.
-     *
-     * @param revSpec the Git revision specification (e.g., commit hash, tag, branch).
-     * @param from    the starting point of the commit range (deprecated, use revSpec instead).
-     * @param to      the ending point of the commit range (deprecated, use revSpec instead).
-     * @param config  the GitWit configuration containing changelog settings.
-     * @return a list of resolved {@link RevCommit} objects.
-     */
-    private List<RevCommit> resolveCommits(String revSpec, String from, String to, GitWitConfig config) {
-        List<RevCommit> commits;
-
-        if (!StringUtils.isNullOrBlank(revSpec)) {
-            commits = this.gitService.resolveCommits(revSpec);
-        } else {
-            this.messageService.warn("changelog.warn.deprecated-range-options");
-            String range = String.format(
-                "%s..%s",
-                StringUtils.isNullOrBlank(from) ? Constants.HEAD : from,
-                StringUtils.isNullOrBlank(to) ? Constants.HEAD : to
-            );
-            commits = this.gitService.resolveCommits(range);
-        }
-
-        if (config.getChangelog().getIgnored() != null) {
-            commits.removeIf(commit -> config.getChangelog()
-                .getIgnored()
-                .stream()
-                .anyMatch(ignored -> commit.getFullMessage().matches(ignored))
-            );
-        }
-
-        return commits;
     }
 
     /**

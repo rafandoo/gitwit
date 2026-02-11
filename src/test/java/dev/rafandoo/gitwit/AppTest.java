@@ -2,7 +2,7 @@ package dev.rafandoo.gitwit;
 
 import com.google.inject.Inject;
 import dev.rafandoo.gitwit.di.GuiceExtension;
-import dev.rafandoo.gitwit.service.GitService;
+import dev.rafandoo.gitwit.service.git.GitService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;

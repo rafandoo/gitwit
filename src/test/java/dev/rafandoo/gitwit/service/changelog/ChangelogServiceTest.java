@@ -7,7 +7,7 @@ import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.enums.ChangelogScope;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
-import dev.rafandoo.gitwit.service.GitService;
+import dev.rafandoo.gitwit.service.git.GitRepositoryService;
 import dev.rafandoo.gitwit.service.I18nService;
 import dev.rafandoo.gitwit.service.MessageService;
 import dev.rafandoo.gitwit.service.changelog.render.Renderer;
@@ -32,7 +32,7 @@ class ChangelogServiceTest {
     MessageService messageService;
 
     @Mock
-    GitService gitService;
+    GitRepositoryService gitRepositoryService;
 
     @Mock
     Renderer renderer;
@@ -48,7 +48,7 @@ class ChangelogServiceTest {
     void setup() {
         this.service = new ChangelogService(
             this.messageService,
-            this.gitService,
+            this.gitRepositoryService,
             this.renderer,
             this.outputService
         );
@@ -64,7 +64,7 @@ class ChangelogServiceTest {
             CommitMockFactory.mockCommit("b2", "fix: bug fix")
         );
 
-        when(this.gitService.resolveCommits("HEAD"))
+        when(this.gitRepositoryService.resolveCommits(eq("HEAD"), any(), any(), anyList()))
             .thenReturn(new ArrayList<>(commits));
 
         when(this.renderer.render(any(Changelog.class), eq(false)))
@@ -90,7 +90,7 @@ class ChangelogServiceTest {
         TestUtils.setupConfig(".changelog.gitwit");
         GitWitConfig config = GitWitConfig.load();
 
-        when(this.gitService.resolveCommits(anyString()))
+        when(this.gitRepositoryService.resolveCommits(eq("HEAD"), any(), any(), anyList()))
             .thenReturn(new ArrayList<>());
 
         this.service.handle(

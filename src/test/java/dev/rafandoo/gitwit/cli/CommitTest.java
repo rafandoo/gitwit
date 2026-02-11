@@ -6,8 +6,8 @@ import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
 import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
-import dev.rafandoo.gitwit.service.GitService;
 import dev.rafandoo.gitwit.service.I18nService;
+import dev.rafandoo.gitwit.service.git.GitCommitService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,15 +27,15 @@ import static org.mockito.Mockito.*;
 class CommitTest {
 
     @Inject
-    GitService gitService;
+    GitCommitService gitCommitService;
 
     @Inject
     I18nService i18nService;
 
     @BeforeEach
     void resetMocks() {
-        reset(this.gitService);
-        clearInvocations(this.gitService);
+        reset(this.gitCommitService);
+        clearInvocations(this.gitCommitService);
     }
 
     @Test
@@ -45,7 +45,7 @@ class CommitTest {
 
         RevCommit commit = CommitMockFactory.mockCommit("abc123", "feat (core): Add new feature Z");
         doReturn(commit)
-            .when(this.gitService)
+            .when(this.gitCommitService)
             .commit(any(CommitMessage.class), anyBoolean(), anyBoolean(), anyBoolean());
 
         String[] args = {
@@ -68,7 +68,7 @@ class CommitTest {
         TestUtils.setupConfig(".general.gitwit");
 
         doReturn(null)
-            .when(this.gitService)
+            .when(this.gitCommitService)
             .commit(any(CommitMessage.class), anyBoolean(), anyBoolean(), anyBoolean());
 
         String[] args = {
@@ -126,7 +126,7 @@ class CommitTest {
         )) {
             RevCommit commit = CommitMockFactory.mockCommit("abc123", "feat (core): Add new feature Z");
             doReturn(commit)
-                .when(this.gitService)
+                .when(this.gitCommitService)
                 .commit(any(CommitMessage.class), anyBoolean(), anyBoolean(), anyBoolean());
 
             String[] args = {

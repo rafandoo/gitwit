@@ -1,7 +1,8 @@
 package dev.rafandoo.gitwit.di;
 
-import dev.rafandoo.gitwit.service.GitService;
-import org.mockito.Mockito;
+import dev.rafandoo.gitwit.service.git.*;
+
+import static org.mockito.Mockito.mock;
 
 public class TestAppModule extends AppModule {
 
@@ -9,7 +10,19 @@ public class TestAppModule extends AppModule {
     protected void configure() {
         super.configure();
 
-        GitService gitService = Mockito.mock(GitService.class);
+        GitService gitService = mock(GitService.class);
         bind(GitService.class).toInstance(gitService);
+
+        GitRepositoryService gitRepositoryService = mock(GitRepositoryService.class);
+        bind(GitRepositoryService.class).toInstance(gitRepositoryService);
+
+        GitConfigService gitConfigService = mock(GitConfigService.class);
+        bind(GitConfigService.class).toInstance(gitConfigService);
+
+        GitHookService gitHookService = mock(GitHookService.class);
+        bind(GitHookService.class).toInstance(gitHookService);
+
+        GitCommitService gitCommitService = mock(GitCommitService.class);
+        bind(GitCommitService.class).toInstance(gitCommitService);
     }
 }
