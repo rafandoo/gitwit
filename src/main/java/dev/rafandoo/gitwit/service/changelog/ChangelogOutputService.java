@@ -1,10 +1,10 @@
 package dev.rafandoo.gitwit.service.changelog;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.MessageService;
 import dev.rafandoo.gitwit.util.ClipboardUtil;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 import lombok.AllArgsConstructor;
 
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.nio.file.Path;
  */
 @Singleton
 @AllArgsConstructor(onConstructor_ = @__({@Inject}))
-public class ChangelogOutputService {
+public final class ChangelogOutputService {
 
     private final ChangelogWriter writer;
     private MessageService messageService;

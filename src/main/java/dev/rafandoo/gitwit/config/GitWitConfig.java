@@ -6,7 +6,7 @@ import dev.rafandoo.cup.config.source.YamlConfigSource;
 import dev.rafandoo.gitwit.di.InjectorFactory;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
 import dev.rafandoo.gitwit.exception.GitWitException;
-import dev.rafandoo.gitwit.service.GitService;
+import dev.rafandoo.gitwit.service.git.GitService;
 import dev.rafandoo.gitwit.service.MessageService;
 import dev.rafandoo.gitwit.util.EnvironmentUtil;
 import lombok.Data;

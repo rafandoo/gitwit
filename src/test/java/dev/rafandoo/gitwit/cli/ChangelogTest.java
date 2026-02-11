@@ -4,7 +4,8 @@ import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
-import dev.rafandoo.gitwit.service.GitService;
+import dev.rafandoo.gitwit.service.git.GitRepositoryService;
+import dev.rafandoo.gitwit.service.git.GitService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,10 +27,14 @@ class ChangelogTest {
     @Inject
     GitService gitService;
 
+    @Inject
+    GitRepositoryService gitRepositoryService;
+
     @BeforeEach
     void resetMocks() {
+        reset(this.gitRepositoryService);
+        clearInvocations(this.gitRepositoryService);
         reset(this.gitService);
-        clearInvocations(this.gitService);
     }
 
     @Test
@@ -43,7 +48,7 @@ class ChangelogTest {
         );
 
         doReturn(mockCommits)
-            .when(this.gitService)
+            .when(this.gitRepositoryService)
             .listCommitsBetween(any(), any());
 
         doReturn(tempDir)
@@ -73,7 +78,7 @@ class ChangelogTest {
         );
 
         doReturn(mockCommits)
-            .when(this.gitService)
+            .when(this.gitRepositoryService)
             .listCommitsBetween(any(), any());
 
         String[] args = {

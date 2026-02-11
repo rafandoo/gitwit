@@ -1,7 +1,7 @@
 package dev.rafandoo.gitwit.service.changelog;
 
 import dev.rafandoo.gitwit.enums.ConfigPaths;
-import dev.rafandoo.gitwit.service.GitService;
+import dev.rafandoo.gitwit.service.git.GitService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
