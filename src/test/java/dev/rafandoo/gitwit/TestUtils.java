@@ -3,7 +3,6 @@ package dev.rafandoo.gitwit;
 import lombok.experimental.UtilityClass;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import picocli.CommandLine;
 
 import java.nio.file.Path;
 

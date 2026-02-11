@@ -1,10 +1,10 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.exception.GitWitException;
-import dev.rafandoo.gitwit.service.MessageService;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -33,12 +33,15 @@ public class Hook extends BaseCommand {
     @CommandLine.Parameters(index = "0", description = "Path to the commit message file.")
     private Path messageFile;
 
+    @Inject
+    private CommitWizard commitWizard;
+
     @Override
     public void run() {
         GitWitConfig config = loadConfig();
 
         // Start interactive wizard
-        CommitMessage msg = new CommitWizard(config).run();
+        CommitMessage msg = this.commitWizard.run(config);
 
         // Persist the formatted message to the file provided by Git so the commit can proceed.
         try {
@@ -46,7 +49,7 @@ public class Hook extends BaseCommand {
         } catch (IOException e) {
             throw new GitWitException("commit.hook.error.commit_write", e);
         }
-        MessageService.getInstance().debug("commit.hook.written", this.messageFile);
-        MessageService.getInstance().success("commit.hook.success");
+        messageService.debug("commit.hook.written", this.messageFile);
+        messageService.success("commit.hook.success");
     }
 }

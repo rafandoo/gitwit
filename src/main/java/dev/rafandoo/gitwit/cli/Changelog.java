@@ -1,9 +1,9 @@
 package dev.rafandoo.gitwit.cli;
 
+import com.google.inject.Inject;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.ChangelogService;
-import dev.rafandoo.gitwit.service.MessageService;
 import dev.rafandoo.gitwit.util.ClipboardUtil;
 import picocli.CommandLine;
 
@@ -58,24 +58,31 @@ public class Changelog extends BaseCommand {
     )
     private boolean append = false;
 
+    @Inject
+    private ChangelogService changelogService;
+
     @Override
     public void run() {
-        MessageService.getInstance().info("changelog.start");
+        messageService.info("changelog.start");
         GitWitConfig config = loadConfig();
 
-        StringBuilder changelogContent = ChangelogService.getInstance()
-            .generateChangelog(this.from, this.to, config, this.subtitle);
+        StringBuilder changelogContent = this.changelogService.generateChangelog(
+            this.from,
+            this.to,
+            config,
+            this.subtitle
+        );
 
         if (changelogContent != null) {
-            MessageService.getInstance().info("changelog.generated");
+            messageService.info("changelog.generated");
             if (this.copyToClipboard) {
                 if (ClipboardUtil.copyToClipboard(changelogContent.toString())) {
-                    MessageService.getInstance().success("changelog.copied");
+                    messageService.success("changelog.copied");
                 }
             } else {
                 try {
-                    Path changelogPath = ChangelogService.getInstance().writeChangeLog(changelogContent.toString(), this.append);
-                    MessageService.getInstance().success("changelog.written", changelogPath);
+                    Path changelogPath = this.changelogService.writeChangeLog(changelogContent.toString(), this.append);
+                    messageService.success("changelog.written", changelogPath);
                 } catch (IOException e) {
                     throw new GitWitException("changelog.error.write", e);
                 }

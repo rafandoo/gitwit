@@ -1,5 +1,6 @@
 package dev.rafandoo.gitwit.service;
 
+import com.google.inject.Singleton;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.util.EnvironmentUtil;
 import org.jline.terminal.Terminal;
@@ -11,28 +12,10 @@ import java.nio.charset.StandardCharsets;
 /**
  * Class responsible for managing the terminal, providing access to the terminal instance.
  */
+@Singleton
 public final class TerminalService {
 
-    private static TerminalService instance;
-    private static Terminal terminal;
-
-    /**
-     * Private constructor to prevent instantiation.
-     */
-    private TerminalService() {
-    }
-
-    /**
-     * Returns the singleton instance, instantiating it on first use.
-     *
-     * @return {@link TerminalService} instance.
-     */
-    public static synchronized TerminalService getInstance() {
-        if (instance == null) {
-            instance = new TerminalService();
-        }
-        return instance;
-    }
+    private Terminal terminal;
 
     /**
      * Retrieves or creates a terminal instance with color and system support.
@@ -64,21 +47,37 @@ public final class TerminalService {
                         .system(true)
                         .dumb(false)
                         .encoding(StandardCharsets.UTF_8)
-                        .nativeSignals(true)
+                        .nativeSignals(false)
+                        .ffm(false)
+                        .jansi(false)
+                        .jna(false)
                         .build();
                 }
-
-                MessageService.getInstance().debug("Terminal type: %s", terminal.getType());
-                MessageService.getInstance().debug("Ansi supported: %s", terminal.getType().contains("ansi"));
-                MessageService.getInstance().debug("Width: %s", terminal.getWidth());
-                MessageService.getInstance().debug("Height: %s", terminal.getHeight());
-                MessageService.getInstance().debug("Encoding: %s", terminal.encoding().displayName());
-                MessageService.getInstance().debug("OS: %s", System.getProperty("os.name"));
             } catch (IOException e) {
                 throw new GitWitException("terminal.error.create", e);
             }
         }
         return terminal;
+    }
+
+    /**
+     * Retrieves detailed information about the terminal.
+     *
+     * @return a string containing terminal type, dimensions, encoding, and OS information.
+     */
+    public String getTerminalInfo() {
+        Terminal terminal = this.getTerminal();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Terminal Information:\n");
+        sb.append("Type: ").append(terminal.getType()).append("\n");
+        sb.append("Ansi Supported: ").append(terminal.getType().contains("ansi")).append("\n");
+        sb.append("Width: ").append(terminal.getWidth()).append("\n");
+        sb.append("Height: ").append(terminal.getHeight()).append("\n");
+        sb.append("Encoding: ").append(terminal.encoding().displayName()).append("\n");
+        sb.append("OS: ").append(System.getProperty("os.name")).append("\n");
+
+        return sb.toString();
     }
 
     /**

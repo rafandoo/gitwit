@@ -1,5 +1,7 @@
 package dev.rafandoo.gitwit.service;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
@@ -7,6 +9,7 @@ import dev.rafandoo.gitwit.enums.ChangelogScope;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.util.EmojiUtil;
+import lombok.AllArgsConstructor;
 import net.steppschuh.markdowngenerator.list.UnorderedList;
 import net.steppschuh.markdowngenerator.text.heading.Heading;
 import org.eclipse.jgit.lib.Constants;
@@ -28,29 +31,14 @@ import java.util.stream.Collectors;
  * This singleton service provides methods to create changelogs by processing commit messages,
  * grouping them by type, and generating a Markdown-formatted changelog file.
  */
+@Singleton
+@AllArgsConstructor(onConstructor = @__({@Inject}))
 public final class ChangelogService {
 
-    private static ChangelogService instance;
-
+    private final MessageService messageService;
+    private final GitService gitService;
+    private final I18nService i18nService;
     private static final String NEW_LINE = "\n\n";
-
-    /**
-     * Private constructor to prevent instantiation.
-     */
-    private ChangelogService() {
-    }
-
-    /**
-     * Returns the singleton instance, instantiating it on first use.
-     *
-     * @return {@link ChangelogService} instance.
-     */
-    public static synchronized ChangelogService getInstance() {
-        if (instance == null) {
-            instance = new ChangelogService();
-        }
-        return instance;
-    }
 
     /**
      * Retrieves the path to the changelog file within the current Git repository.
@@ -58,8 +46,7 @@ public final class ChangelogService {
      * @return a {@link Path} representing the location of the changelog file.
      */
     private Path getChangelogFile() {
-        return GitService.getInstance()
-            .getRepo()
+        return this.gitService.getRepo()
             .resolve(ConfigPaths.CHANGELOG_FILE.get().asString());
     }
 
@@ -95,8 +82,10 @@ public final class ChangelogService {
             .map(EmojiUtil::replaceEmojiWithAlias)
             .toList();
 
-        List<RevCommit> commits = GitService.getInstance()
-            .getCommits(from, Objects.requireNonNullElse(to, Constants.HEAD));
+        List<RevCommit> commits = this.gitService.getCommits(
+            from,
+            Objects.requireNonNullElse(to, Constants.HEAD)
+        );
 
         List<CommitMessage> commitMessages = new ArrayList<>();
         commits.forEach(commit -> commitMessages.add(CommitMessage.of(commit)));
@@ -105,7 +94,7 @@ public final class ChangelogService {
             .filter(commitMessage -> !ignored.contains(commitMessage.type()))
             .filter(commitMessage -> {
                 if (commitMessage.type() == null) {
-                    MessageService.getInstance().warn(
+                    this.messageService.warn(
                         "changelog.warn.commit_no_type",
                         commitMessage.hash().abbreviate(Constants.OBJECT_ID_ABBREV_STRING_LENGTH).name()
                     );
@@ -134,7 +123,7 @@ public final class ChangelogService {
         String subtitle
     ) {
         if (groupedByType.isEmpty()) {
-            MessageService.getInstance().warn("changelog.warn.no_commits");
+            this.messageService.warn("changelog.warn.no_commits");
             return null;
         }
 
@@ -167,7 +156,11 @@ public final class ChangelogService {
                 allBreakingChanges.addAll(
                     breakingChanges.stream()
                         .map(message -> message.formatForChangelog(
-                            config.getChangelog().getFormat(), ChangelogScope.BREAKING_CHANGES)
+                                this.getChangelogCommitTemplateByScope(
+                                    config.getChangelog().getFormat(),
+                                    ChangelogScope.BREAKING_CHANGES
+                                )
+                            )
                         )
                         .toList()
                 );
@@ -180,12 +173,16 @@ public final class ChangelogService {
 
         types.forEach((typeKey, typeTitle) -> {
             if (groupedByType.containsKey(typeKey)) {
-                List<String> messages = groupedByType.get(typeKey).stream()
+                List<String> messages = groupedByType.get(typeKey)
+                    .stream()
                     .map(message -> message.formatForChangelog(
-                        config.getChangelog().getFormat(),
-                        ChangelogScope.SECTION
+                        this.getChangelogCommitTemplateByScope(
+                            config.getChangelog().getFormat(),
+                            ChangelogScope.SECTION
+                        )
                     ))
-                    .collect(Collectors.toList());
+                    .toList();
+
                 if (!messages.isEmpty()) {
                     sb.append(new Heading(typeTitle, 3)).append(NEW_LINE);
                     sb.append(new UnorderedList<>(messages)).append(NEW_LINE);
@@ -200,12 +197,14 @@ public final class ChangelogService {
                 .stream()
                 .flatMap(List::stream)
                 .map(message -> message.formatForChangelog(
-                    config.getChangelog().getFormat(),
-                    ChangelogScope.OTHER_TYPES
+                    this.getChangelogCommitTemplateByScope(
+                        config.getChangelog().getFormat(),
+                        ChangelogScope.OTHER_TYPES
+                    )
                 ))
                 .toList();
             if (!others.isEmpty()) {
-                sb.append(new Heading(I18nService.getInstance().getMessage("changelog.other"), 3))
+                sb.append(new Heading(this.i18nService.getMessage("changelog.other"), 3))
                     .append(NEW_LINE);
                 sb.append(new UnorderedList<>(others));
             }
