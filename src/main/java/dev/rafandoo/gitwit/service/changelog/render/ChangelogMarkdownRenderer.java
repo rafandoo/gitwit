@@ -1,15 +1,21 @@
 package dev.rafandoo.gitwit.service.changelog.render;
 
+import com.google.inject.Inject;
 import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.Changelog;
+import dev.rafandoo.gitwit.service.I18nService;
 import dev.rafandoo.gitwit.util.EmojiUtil;
+import lombok.AllArgsConstructor;
 import net.steppschuh.markdowngenerator.list.UnorderedList;
 import net.steppschuh.markdowngenerator.text.heading.Heading;
 
 /**
  * Markdown renderer for changelogs.
  */
+@AllArgsConstructor(onConstructor_ = @__({@Inject}))
 public class ChangelogMarkdownRenderer implements Renderer {
+
+    private final I18nService i18nService;
 
     private static final String NL = "\n\n";
 
@@ -47,7 +53,7 @@ public class ChangelogMarkdownRenderer implements Renderer {
             });
 
         if (!changelog.otherChanges().isEmpty()) {
-            sb.append(new Heading("Other", 3)).append(NL);
+            sb.append(new Heading(this.i18nService.resolve("changelog.other"), 3)).append(NL);
             sb.append(new UnorderedList<>(changelog.otherChanges()));
         }
 
