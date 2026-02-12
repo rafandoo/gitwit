@@ -154,7 +154,7 @@ public final class GitRepositoryService {
         if (!StringUtils.isNullOrBlank(revSpec)) {
             commits = this.resolveCommits(revSpec);
         } else if (!StringUtils.isNullOrBlank(from) || !StringUtils.isNullOrBlank(to)) {
-            this.messageService.warn("changelog.warn.deprecated-range-options");
+            this.messageService.warn("warn.deprecated-range-options");
             String range = String.format(
                 "%s..%s",
                 StringUtils.isNullOrBlank(from) ? Constants.HEAD : from,

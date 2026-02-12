@@ -1,6 +1,7 @@
 package dev.rafandoo.gitwit.service.changelog.render;
 
 import dev.rafandoo.gitwit.entity.Changelog;
+import dev.rafandoo.gitwit.service.I18nService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,10 +15,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ChangelogMarkdownRendererTest {
 
     ChangelogMarkdownRenderer renderer;
+    I18nService i18nService = new I18nService();
 
     @BeforeEach
     void setup() {
-        this.renderer = new ChangelogMarkdownRenderer();
+        this.renderer = new ChangelogMarkdownRenderer(this.i18nService);
     }
 
     @Test
@@ -48,7 +50,7 @@ class ChangelogMarkdownRendererTest {
         assertThat(result).contains("### Fixes");
         assertThat(result).contains("- Crash on startup");
 
-        assertThat(result).contains("### Other");
+        assertThat(result).contains("### " + this.i18nService.resolve("changelog.other"));
         assertThat(result).contains("- Minor refactoring");
     }
 
