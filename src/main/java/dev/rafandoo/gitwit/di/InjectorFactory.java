@@ -3,14 +3,12 @@ package dev.rafandoo.gitwit.di;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import dev.rafandoo.gitwit.util.EnvironmentUtil;
-import lombok.Setter;
 
 /**
  * Provides a shared Guice {@link Injector} instance for the application.
  */
 public final class InjectorFactory {
 
-    @Setter
     private static volatile Injector injector;
 
     /**
