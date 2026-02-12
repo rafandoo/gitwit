@@ -23,6 +23,9 @@ import java.util.stream.Stream;
 import static dev.rafandoo.gitwit.service.git.GitConfigService.GIT_CONFIG_CORE;
 import static dev.rafandoo.gitwit.service.git.GitConfigService.GIT_CONFIG_HOOKS_PATH;
 
+/**
+ * Service responsible for managing Git hooks within the repository, including setup and uninstallation of the Commit Wizard hook.
+ */
 @Singleton
 @AllArgsConstructor(onConstructor_ = @__({@Inject}))
 public final class GitHookService {

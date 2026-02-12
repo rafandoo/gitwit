@@ -9,6 +9,9 @@ import lombok.AllArgsConstructor;
 import org.eclipse.jgit.api.errors.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+/**
+ * Service wrapper responsible for performing commit operations against a Git repository.
+ */
 @Singleton
 @AllArgsConstructor(onConstructor_ = @__({@Inject}))
 public final class GitCommitService {

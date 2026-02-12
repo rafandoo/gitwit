@@ -16,6 +16,9 @@ import org.eclipse.jgit.util.SystemReader;
 import java.io.IOException;
 import java.util.Locale;
 
+/**
+ * Service responsible for managing Git configuration, including loading configurations and handling alias setup.
+ */
 @Singleton
 @AllArgsConstructor(onConstructor_ = @__({@Inject}))
 public final class GitConfigService {
