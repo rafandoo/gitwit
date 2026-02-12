@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ChangelogWriter Tests")
-public class ChangelogWriterTest {
+class ChangelogWriterTest {
 
     @Mock
     GitService gitService;
