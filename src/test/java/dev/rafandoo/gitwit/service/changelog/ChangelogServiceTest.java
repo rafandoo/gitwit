@@ -179,7 +179,7 @@ class ChangelogServiceTest {
             ChangelogScope.SECTION
         );
 
-        assertThat("- %s").isEqualTo(template);
+        assertThat(template).isEqualTo("- %s");
     }
 
     @Test
