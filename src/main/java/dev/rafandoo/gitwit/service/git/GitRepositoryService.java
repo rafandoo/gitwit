@@ -26,6 +26,10 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Service for interacting with the Git repository using JGit.
+ * Provides methods to list commits between references, resolve rev-specs to commits, and handle commit filtering based on message patterns.
+ */
 @Singleton
 @AllArgsConstructor(onConstructor_ = @__({@Inject}))
 public final class GitRepositoryService {
@@ -33,6 +37,14 @@ public final class GitRepositoryService {
     private final GitService gitService;
     private final MessageService messageService;
 
+
+    /**
+     * Executes a function with an opened Git repository.
+     *
+     * @param fn  the function to execute, which takes a {@link Git} instance, a {@link Repository}, and a {@link RevWalk} as input and returns a result of type T.
+     * @param <T> the type of the result returned by the function.
+     * @return the result of executing the provided function.
+     */
     private <T> T withRepo(RepoFunction<T> fn) {
         return this.gitService.withGit(git -> {
             try (
@@ -44,8 +56,22 @@ public final class GitRepositoryService {
         });
     }
 
+    /**
+     * A functional interface representing a function that takes a Git instance, a Repository, and a RevWalk, and returns a result of type T.
+     *
+     * @param <T> the type of the result produced by the function.
+     */
     @FunctionalInterface
     private interface RepoFunction<T> {
+
+        /**
+         * Applies this function to the given Git instance, Repository, and RevWalk.
+         *
+         * @param git  the Git instance to use for repository operations.
+         * @param repo the Repository instance representing the Git repository.
+         * @param walk the RevWalk instance for parsing commits and tags.
+         * @return the result of applying this function.
+         */
         T apply(Git git, Repository repo, RevWalk walk);
     }
 
@@ -189,7 +215,7 @@ public final class GitRepositoryService {
      * @param revSpec the rev-spec to resolve.
      * @return the resolved {@link ObjectId} of the commit.
      * @throws GitWitException if the rev-spec is null, blank, cannot be resolved, or does not point to a commit or tag.
-     * @throws IOException if there is an error resolving the rev-spec or parsing the commit.
+     * @throws IOException     if there is an error resolving the rev-spec or parsing the commit.
      */
     private ObjectId resolveCommitId(Repository repo, RevWalk walk, String revSpec) throws IOException {
         if (StringUtils.isNullOrBlank(revSpec)) {
