@@ -31,9 +31,8 @@ public final class GitConfigService {
      *
      * @param scope the configuration scope (GLOBAL or LOCAL) to load the Git configuration from.
      * @return a {@link StoredConfig} representing the Git configuration for the specified scope.
-     * @throws IOException if there is an error accessing the Git configuration.
      */
-    public StoredConfig load(GitConfigScope scope) throws IOException {
+    public StoredConfig load(GitConfigScope scope) {
         return switch (scope) {
             case GLOBAL -> SystemReader.getInstance().openUserConfig(null, FS.DETECTED);
             case LOCAL -> this.gitService.withGit(git -> git.getRepository().getConfig());

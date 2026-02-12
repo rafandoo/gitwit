@@ -70,13 +70,13 @@ public class Changelog extends BaseCommand {
         messageService.info("changelog.start");
 
         this.changelogService.handle(
-            revSpec,
-            from,
-            to,
+            this.revSpec,
+            this.from,
+            this.to,
             config,
-            subtitle,
-            copyToClipboard,
-            append
+            this.subtitle,
+            this.copyToClipboard,
+            this.append
         );
     }
 }

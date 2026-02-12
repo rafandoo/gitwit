@@ -50,7 +50,7 @@ public final class GitService {
      */
     public <T> T withGit(GitFunction<T> fn) {
         try (
-            Git git = Git.open(getGit().toFile());
+            Git git = Git.open(getGit().toFile())
         ) {
             return fn.apply(git);
         } catch (IOException e) {

@@ -75,7 +75,7 @@ class LintTest {
         TestUtils.setupConfig(".lint.repo.gitwit");
 
         RevCommit commit = CommitMockFactory.mockCommit("HEAD", ":sparkles:: Latest commit");
-        doReturn(Arrays.asList(commit))
+        doReturn(List.of(commit))
             .when(this.gitRepositoryService)
             .resolveCommits(
                 any(),
@@ -101,7 +101,7 @@ class LintTest {
         TestUtils.setupConfig(".lint.repo.gitwit");
 
         RevCommit commit = CommitMockFactory.mockCommit("f337727030873b96ead6b5ce75d13fffae931bc6", ":sparkles:: Specific commit");
-        doReturn(Arrays.asList(commit))
+        doReturn(List.of(commit))
             .when(this.gitRepositoryService)
             .resolveCommits(
                 any(),
@@ -147,8 +147,8 @@ class LintTest {
             "invalidSHA"
         );
 
-//        assertThat(exitCode.get()).isEqualTo(1);
-//        assertThat(errText).contains(expectedMessage);
+        assertThat(exitCode.get()).isEqualTo(1);
+        assertThat(errText).contains(expectedMessage);
     }
 
     @ParameterizedTest
