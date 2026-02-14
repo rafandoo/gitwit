@@ -12,8 +12,8 @@ import picocli.CommandLine;
  * </p>
  *
  * <p>
- * If no range is provided, the most recent commit (HEAD) is checked. If a range is provided
- * using {@code --from} and {@code --to}, all commits in the interval will be validated.
+ * If no range is provided, the most recent commit (HEAD) is checked. If a range is provided,
+ * all commits in the interval will be validated.
  * </p>
  */
 @CommandLine.Command(
