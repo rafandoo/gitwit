@@ -13,6 +13,7 @@ import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
@@ -21,6 +22,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -28,7 +30,9 @@ import java.util.stream.Collectors;
 
 /**
  * Service for interacting with the Git repository using JGit.
- * Provides methods to list commits between references, resolve rev-specs to commits, and handle commit filtering based on message patterns.
+ * <p>
+ * Provides methods to list commits between references, resolve
+ * rev-specs to commits, and handle commit filtering based on message patterns.
  */
 @Singleton
 @AllArgsConstructor(onConstructor_ = @__({@Inject}))
@@ -37,6 +41,7 @@ public final class GitRepositoryService {
     private final GitService gitService;
     private final MessageService messageService;
 
+    private static final Pattern DESCRIBE_SUFFIX = Pattern.compile("-(\\d+)-g[0-9a-f]+$");
 
     /**
      * Executes a function with an opened Git repository.
@@ -57,31 +62,13 @@ public final class GitRepositoryService {
     }
 
     /**
-     * A functional interface representing a function that takes a Git instance, a Repository, and a RevWalk, and returns a result of type T.
-     *
-     * @param <T> the type of the result produced by the function.
-     */
-    @FunctionalInterface
-    private interface RepoFunction<T> {
-
-        /**
-         * Applies this function to the given Git instance, Repository, and RevWalk.
-         *
-         * @param git  the Git instance to use for repository operations.
-         * @param repo the Repository instance representing the Git repository.
-         * @param walk the RevWalk instance for parsing commits and tags.
-         * @return the result of applying this function.
-         */
-        T apply(Git git, Repository repo, RevWalk walk);
-    }
-
-    /**
      * Returns the list of commits between two references (inclusive).
      *
      * @param from any rev‑spec accepted by Git (tag, branch, hash).
      * @param to   any rev‑spec accepted by Git (tag, branch, hash).
      * @return list of {@link RevCommit}, inclusive from and to (if reachable).
      */
+    // TODO: private
     public List<RevCommit> listCommitsBetween(String from, String to) {
         return this.withRepo((git, repo, walk) -> {
             try {
@@ -122,7 +109,7 @@ public final class GitRepositoryService {
      * @return an {@link Optional} containing the resolved {@link RevCommit}, or empty if the rev-spec is null or blank.
      * @throws GitWitException if there is an error resolving the rev-spec or parsing the commit.
      */
-    public Optional<RevCommit> resolveCommit(String revSpec) {
+    private Optional<RevCommit> resolveCommit(String revSpec) {
         if (StringUtils.isNullOrBlank(revSpec)) {
             return Optional.empty();
         }
@@ -156,7 +143,7 @@ public final class GitRepositoryService {
 
         if (revSpec.contains("..")) {
             String[] parts = revSpec.split("\\.\\.", 2);
-            if (parts[1] == null || parts[1].isBlank()) {
+            if (StringUtils.isNullOrBlank(parts[1])) {
                 parts[1] = Constants.HEAD;
             }
             return this.listCommitsBetween(parts[0], parts[1]);
@@ -191,19 +178,152 @@ public final class GitRepositoryService {
             commits = this.resolveCommit(Constants.HEAD).stream().collect(Collectors.toList());
         }
 
-        if (ignoredMessages != null) {
-            Pattern ignoredPattern = Pattern.compile(
-                ignoredMessages.stream()
-                    .map(EmojiUtil::replaceEmojiWithAlias)
-                    .collect(Collectors.joining("|"))
-            );
+        return this.filterIgnored(commits, ignoredMessages);
+    }
 
-            commits.removeIf(commit ->
-                ignoredPattern.matcher(EmojiUtil.replaceEmojiWithAlias(commit.getFullMessage())).find()
-            );
+    /**
+     * Filters out commits whose messages match any of the provided ignored message patterns.
+     *
+     * @param commits         the list of commits to filter.
+     * @param ignoredMessages a list of commit message patterns to ignore. Each pattern is treated as a regular expression.
+     * @return a list of commits whose messages do not match any of the ignored patterns.
+     */
+    private List<RevCommit> filterIgnored(List<RevCommit> commits, List<String> ignoredMessages) {
+        if (ignoredMessages == null || ignoredMessages.isEmpty()) {
+            return commits;
         }
 
-        return commits;
+        String joined = ignoredMessages.stream()
+            .map(EmojiUtil::replaceEmojiWithAlias)
+            .collect(Collectors.joining("|"));
+
+        Pattern ignoredPattern = Pattern.compile(joined);
+
+        return commits.stream()
+            .filter(commit ->
+                !ignoredPattern.matcher(EmojiUtil.replaceEmojiWithAlias(commit.getFullMessage()))
+                    .find())
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves the latest Git tag in the repository.
+     *
+     * @return the name of the latest tag in the repository, or {@code null} if no tags are found.
+     * @throws GitWitException if there is an error retrieving the tags or parsing the associated commits.
+     */
+    public String getLatestTag() {
+        return this.withRepo(((git, repo, walk) -> this.listTagCommits(git, walk).stream()
+            .findFirst()
+            .map(TagCommit::name)
+            .orElse(null)));
+    }
+
+    /**
+     * Retrieves the previous Git tag that is reachable from the specified reference.
+     *
+     * @param from the rev-spec (e.g., commit hash, tag, branch) to start from when searching for the previous tag.
+     * @return the name of the previous tag reachable from the specified reference, or {@code null} if no such tag exists.
+     * @throws GitWitException if there is an error resolving the reference or retrieving the tags.
+     */
+    public String getPreviousTag(String from) {
+        return this.withRepo(((git, repo, walk) -> {
+            try {
+                ObjectId fromId = this.resolveCommitId(repo, walk, from);
+                int fromCommitTime = walk.parseCommit(fromId).getCommitTime();
+
+                return this.listTagCommits(git, walk).stream()
+                    .filter(tag -> tag.commitTime() < fromCommitTime)
+                    .findFirst()
+                    .map(TagCommit::name)
+                    .orElse(null);
+            } catch (IOException e) {
+                throw new GitWitException("git.error.init_failed", e);
+            }
+        }));
+    }
+
+    /**
+     * Retrieves a list of Git tags in the repository, along with their associated
+     * commit times, sorted by commit time in descending order.
+     *
+     * @param git  the Git instance to use for repository operations.
+     * @param walk the RevWalk instance for parsing commits and tags.
+     * @return a list of TagCommit records containing the normalized tag names and their commit times, sorted by commit time (newest first).
+     * @throws GitWitException if there is an error retrieving the tags or parsing the associated commits.
+     */
+    private List<TagCommit> listTagCommits(Git git, RevWalk walk) {
+        try {
+            return git.tagList()
+                .call()
+                .stream()
+                .map(ref -> resolveTag(ref, walk))
+                .sorted(Comparator
+                    .comparing(TagCommit::commitTime)
+                    .reversed()
+                )
+                .toList();
+        } catch (GitAPIException e) {
+            throw new GitWitException("git.error.api_exception", e);
+        }
+    }
+
+    /**
+     * Checks if the given rev-spec resolves to a tag in the repository.
+     *
+     * @param repo    the Git repository.
+     * @param walk    the {@link RevWalk} instance for parsing objects.
+     * @param revSpec the rev-spec to check.
+     * @return {@code true} if the rev-spec is a tag, {@code false} otherwise.
+     * @throws IOException if there is an error resolving the rev-spec or parsing the object.
+     */
+    private boolean isTag(Repository repo, RevWalk walk, String revSpec) throws IOException {
+        ObjectId id = repo.resolve(revSpec);
+        if (id == null) {
+            return false;
+        }
+        RevObject obj = walk.parseAny(id);
+        return obj instanceof RevTag;
+    }
+
+    /**
+     * Resolves a Git tag reference to a {@link TagCommit} containing the tag
+     * name and its associated commit time.
+     *
+     * @param ref  the Git reference representing the tag.
+     * @param walk the {@link RevWalk} instance for parsing objects.
+     * @return a {@link TagCommit} containing the normalized tag name and its commit time.
+     * @throws GitWitException if there is an error resolving the tag or parsing the associated commit.
+     */
+    private TagCommit resolveTag(Ref ref, RevWalk walk) {
+        try {
+            RevObject obj = walk.parseAny(ref.getObjectId());
+
+            RevCommit commit = switch (obj) {
+                case RevTag tag -> walk.parseCommit(tag.getObject());
+                case RevCommit c -> c;
+                default -> throw new GitWitException(
+                    "git.error.unsupported",
+                    String.valueOf(obj.getType())
+                );
+            };
+
+            String tagName = Repository.shortenRefName(ref.getName());
+            return new TagCommit(this.normalizeTag(tagName), commit.getCommitTime());
+        } catch (IOException e) {
+            throw new GitWitException("git.error.init_failed", e);
+        }
+    }
+
+    /**
+     * Normalizes a tag name by removing any describe suffix (e.g., "-1-gabcdef") that
+     * may be present in tags created by "git describe".
+     *
+     * @param tag the original tag name to normalize.
+     * @return the normalized tag name with any describe suffix removed.
+     */
+    private String normalizeTag(String tag) {
+        return DESCRIBE_SUFFIX.matcher(tag).replaceAll("");
     }
 
     /**
@@ -227,49 +347,41 @@ public final class GitRepositoryService {
         }
         RevObject obj = walk.parseAny(id);
 
-        if (obj instanceof RevTag tag) {
-            return tag.getObject();
-        } else if (obj instanceof RevCommit commit) {
-            return commit.getId();
-        } else {
-            throw new GitWitException("git.error.unsupported", String.valueOf(obj.getType()));
-        }
+        return switch (obj) {
+            case RevTag tag -> tag.getObject();
+            case RevCommit commit -> commit.getId();
+            default -> throw new GitWitException(
+                "git.error.unsupported",
+                String.valueOf(obj.getType())
+            );
+        };
     }
 
     /**
-     * Checks if the given rev-spec resolves to a tag in the repository.
+     * A functional interface representing a function that takes a Git instance, a Repository, and a RevWalk, and returns a result of type T.
      *
-     * @param repo    the Git repository.
-     * @param walk    the {@link RevWalk} instance for parsing objects.
-     * @param revSpec the rev-spec to check.
-     * @return {@code true} if the rev-spec is a tag, {@code false} otherwise.
-     * @throws IOException if there is an error resolving the rev-spec or parsing the object.
+     * @param <T> the type of the result produced by the function.
      */
-    private boolean isTag(Repository repo, RevWalk walk, String revSpec) throws IOException {
-        ObjectId id = repo.resolve(revSpec);
-        if (id == null) {
-            return false;
-        }
-        RevObject obj = walk.parseAny(id);
-        return obj instanceof RevTag;
+    @FunctionalInterface
+    private interface RepoFunction<T> {
+
+        /**
+         * Applies this function to the given Git instance, Repository, and RevWalk.
+         *
+         * @param git  the Git instance to use for repository operations.
+         * @param repo the Repository instance representing the Git repository.
+         * @param walk the RevWalk instance for parsing commits and tags.
+         * @return the result of applying this function.
+         */
+        T apply(Git git, Repository repo, RevWalk walk);
     }
 
-//    public String getLatestTag() {
-//        try (
-//            Git git = Git.open(this.getGit().toFile());
-//            Repository repo = git.getRepository()
-//        ) {
-//            String tag = git.describe()
-//                .setTags(true)
-//                .setTarget(repo.resolve(Constants.HEAD))
-//                .call();
-//
-//            if (!StringUtils.isNullOrBlank(tag)) {
-//                return tag.replaceAll("-(\\d+)-g[0-9a-f]+$", "");
-//            }
-//            return null;
-//        } catch (IOException | GitAPIException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    /**
+     * A record representing a Git tag and its associated commit time.
+     *
+     * @param name       the name of the tag.
+     * @param commitTime the commit time of the tag, represented as a Unix timestamp (seconds since epoch).
+     */
+    private record TagCommit(String name, int commitTime) {
+    }
 }
