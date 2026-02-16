@@ -1,0 +1,26 @@
+coverage:
+  precision: 2
+  round: down
+  range: '70...100'
+
+  status:
+    project:
+      default:
+        target: 85%
+        threshold: 1%
+    patch:
+      default:
+        target: 90%
+
+ignore:
+  - '**/dev/rafandoo/gitwit/cli/dto/**'
+  - '**/dev/rafandoo/gitwit/cli/help/**'
+  - '**/dev/rafandoo/gitwit/cli/wiz/**'
+  - '**/dev/rafandoo/gitwit/config/**'
+  - '**/dev/rafandoo/gitwit/di/**'
+  - '**/dev/rafandoo/gitwit/enums/**'
+  - '**/dev/rafandoo/gitwit/exception/**'
+  - '**/dev/rafandoo/gitwit/provider/ManifestVersionProvider.*'
+  - '**/dev/rafandoo/gitwit/service/TerminalService.*'
+  - '**/dev/rafandoo/gitwit/service/git/**'
+  - '**/dev/rafandoo/gitwit/util/**'
