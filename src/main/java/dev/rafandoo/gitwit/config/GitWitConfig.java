@@ -6,7 +6,7 @@ import dev.rafandoo.cup.config.source.YamlConfigSource;
 import dev.rafandoo.gitwit.di.InjectorFactory;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
 import dev.rafandoo.gitwit.exception.GitWitException;
-import dev.rafandoo.gitwit.service.GitService;
+import dev.rafandoo.gitwit.service.git.GitService;
 import dev.rafandoo.gitwit.service.MessageService;
 import dev.rafandoo.gitwit.util.EnvironmentUtil;
 import lombok.Data;
@@ -128,6 +128,11 @@ public class GitWitConfig {
          * Defaults to "Changelog".
          */
         private String title = "Changelog";
+
+        /**
+         * The file path where the generated changelog should be saved.
+         */
+        private String filepath = null;
 
         /**
          * A map of commit types and their section titles in the changelog.

@@ -61,6 +61,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.21.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.21.0'
     testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
@@ -83,14 +84,17 @@ compileJava {
 }
 
 def jacocoExclusions = [
+    '**/dev/rafandoo/gitwit/cli/dto/**',
+    '**/dev/rafandoo/gitwit/cli/help/**',
+    '**/dev/rafandoo/gitwit/cli/wiz/**',
+    '**/dev/rafandoo/gitwit/config/**',
+    '**/dev/rafandoo/gitwit/di/**',
     '**/dev/rafandoo/gitwit/enums/**',
     '**/dev/rafandoo/gitwit/exception/**',
-    '**/dev/rafandoo/gitwit/util/**',
-    '**/dev/rafandoo/gitwit/cli/wiz/**',
-    '**/dev/rafandoo/gitwit/di/**',
-    '**/dev/rafandoo/gitwit/service/TerminalService.class',
-    '**/dev/rafandoo/gitwit/service/GitService.class',
     '**/dev/rafandoo/gitwit/provider/ManifestVersionProvider.class',
+    '**/dev/rafandoo/gitwit/service/TerminalService.class',
+    '**/dev/rafandoo/gitwit/service/git/**',
+    '**/dev/rafandoo/gitwit/util/**',
 ]
 
 jacoco {

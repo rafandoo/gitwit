@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
-import dev.rafandoo.gitwit.service.ChangelogService;
-import dev.rafandoo.gitwit.service.GitService;
+import dev.rafandoo.gitwit.service.git.GitRepositoryService;
+import dev.rafandoo.gitwit.service.git.GitService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,8 +16,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.github.stefanbirkner.systemlambda.SystemLambda.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(GuiceExtension.class)
@@ -28,12 +28,13 @@ class ChangelogTest {
     GitService gitService;
 
     @Inject
-    ChangelogService changelogService;
+    GitRepositoryService gitRepositoryService;
 
     @BeforeEach
     void resetMocks() {
+        reset(this.gitRepositoryService);
+        clearInvocations(this.gitRepositoryService);
         reset(this.gitService);
-        clearInvocations(this.gitService);
     }
 
     @Test
@@ -47,7 +48,7 @@ class ChangelogTest {
         );
 
         doReturn(mockCommits)
-            .when(this.gitService)
+            .when(this.gitRepositoryService)
             .listCommitsBetween(any(), any());
 
         doReturn(tempDir)
@@ -56,17 +57,14 @@ class ChangelogTest {
 
         String[] args = {
             "changelog",
-            "--from", "1234",
-            "--to", "5678"
+            "1234..5678"
         };
 
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
     }
 
     @Test
@@ -80,22 +78,33 @@ class ChangelogTest {
         );
 
         doReturn(mockCommits)
-            .when(this.gitService)
+            .when(this.gitRepositoryService)
             .listCommitsBetween(any(), any());
 
         String[] args = {
             "changelog",
-            "--from", "1234",
-            "--to", "5678",
+            "1234..5678",
             "--copy"
         };
 
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
+    }
+
+    @Test
+    @Tag("integration")
+    void shouldShowHelpWhenNoArgumentsProvided() throws Exception {
+        String[] args = {
+            "changelog"
+        };
+
+        AtomicInteger exitCode = new AtomicInteger();
+        String outText = tapSystemOut(() -> exitCode.set(TestUtils.executeCommand(args)));
+
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(outText).contains("changelog");
     }
 }

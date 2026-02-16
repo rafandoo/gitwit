@@ -1,23 +1,19 @@
 package dev.rafandoo.gitwit.cli;
 
 import com.google.inject.Inject;
+import dev.rafandoo.gitwit.cli.dto.ChangelogOptions;
 import dev.rafandoo.gitwit.config.GitWitConfig;
-import dev.rafandoo.gitwit.exception.GitWitException;
-import dev.rafandoo.gitwit.service.ChangelogService;
-import dev.rafandoo.gitwit.util.ClipboardUtil;
+import dev.rafandoo.gitwit.service.changelog.ChangelogService;
 import picocli.CommandLine;
-
-import java.io.IOException;
-import java.nio.file.Path;
 
 /**
  * <h2>changelog</h2>
  * <p>
- * Generates a changelog between two commits.
+ * Generates a changelog based on the commit history of the Git repository.
  * </p>
+ *
  * <p>
- * If no range is provided, the most recent commit (HEAD) is checked. If a range is provided
- * using {@code --from} and {@code --to}, all commits in the interval will be validated.
+ * The changelog is generated based on the commit messages and the configuration provided in the GitWit config file.
  * </p>
  */
 @CommandLine.Command(
@@ -27,66 +23,37 @@ import java.nio.file.Path;
 )
 public class Changelog extends BaseCommand {
 
-    @CommandLine.Option(
-        names = {"-f", "--from"},
-        descriptionKey = "changelog.option.from",
-        required = true
-    )
-    private String from;
+    @CommandLine.ArgGroup(exclusive = false)
+    private ChangelogOptions options;
 
-    @CommandLine.Option(
-        names = {"-t", "--to"},
-        descriptionKey = "changelog.option.to"
+    @CommandLine.Parameters(
+        index = "0",
+        arity = "0..1",
+        descriptionKey = "changelog.parameter.rev-spec"
     )
-    private String to;
-
-    @CommandLine.Option(
-        names = {"-c", "--copy"},
-        descriptionKey = "changelog.option.copy"
-    )
-    private boolean copyToClipboard;
-
-    @CommandLine.Option(
-        names = {"-s", "--subtitle"},
-        descriptionKey = "changelog.option.subtitle"
-    )
-    private String subtitle;
-
-    @CommandLine.Option(
-        names = {"-a", "--append"},
-        descriptionKey = "changelog.option.append"
-    )
-    private boolean append = false;
+    private String revSpec;
 
     @Inject
     private ChangelogService changelogService;
 
     @Override
     public void run() {
-        messageService.info("changelog.start");
-        GitWitConfig config = loadConfig();
-
-        StringBuilder changelogContent = this.changelogService.generateChangelog(
-            this.from,
-            this.to,
-            config,
-            this.subtitle
-        );
-
-        if (changelogContent != null) {
-            messageService.info("changelog.generated");
-            if (this.copyToClipboard) {
-                if (ClipboardUtil.copyToClipboard(changelogContent.toString())) {
-                    messageService.success("changelog.copied");
-                }
-            } else {
-                try {
-                    Path changelogPath = this.changelogService.writeChangeLog(changelogContent.toString(), this.append);
-                    messageService.success("changelog.written", changelogPath);
-                } catch (IOException e) {
-                    throw new GitWitException("changelog.error.write", e);
-                }
-            }
+        if (this.options == null && this.revSpec == null) {
+            super.run();
+            return;
         }
+
+        if (this.options == null) {
+            this.options = new ChangelogOptions();
+        }
+
+        GitWitConfig config = loadConfig();
+        messageService.info("changelog.start");
+
+        this.changelogService.handle(
+            this.revSpec,
+            this.options,
+            config
+        );
     }
 }

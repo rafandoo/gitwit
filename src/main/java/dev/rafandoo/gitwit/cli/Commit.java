@@ -7,7 +7,8 @@ import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.CommitMessageService;
-import dev.rafandoo.gitwit.service.GitService;
+import dev.rafandoo.gitwit.service.git.GitService;
+import dev.rafandoo.gitwit.service.git.GitCommitService;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.revwalk.RevCommit;
 import picocli.CommandLine;
@@ -81,7 +82,7 @@ public class Commit extends BaseCommand {
     private String longDescription;
 
     @Inject
-    private GitService gitService;
+    private GitCommitService gitCommitService;
 
     @Inject
     private CommitMessageService commitMessageService;
@@ -113,7 +114,7 @@ public class Commit extends BaseCommand {
         }
 
         // Perform the commit
-        RevCommit commit = this.gitService.commit(message, this.add, this.amend, this.allowEmpty);
+        RevCommit commit = this.gitCommitService.commit(message, this.add, this.amend, this.allowEmpty);
 
         if (commit != null) {
             messageService.success(

@@ -1,6 +1,8 @@
 package dev.rafandoo.gitwit.di;
 
 import com.google.inject.AbstractModule;
+import dev.rafandoo.gitwit.service.changelog.render.ChangelogMarkdownRenderer;
+import dev.rafandoo.gitwit.service.changelog.render.Renderer;
 
 /**
  * Guice module for configuring application dependencies.
@@ -12,6 +14,6 @@ public class AppModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        // Default bindings can be configured here
+        bind(Renderer.class).to(ChangelogMarkdownRenderer.class);
     }
 }

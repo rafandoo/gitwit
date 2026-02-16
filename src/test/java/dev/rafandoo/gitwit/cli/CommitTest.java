@@ -6,8 +6,8 @@ import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
 import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
-import dev.rafandoo.gitwit.service.GitService;
 import dev.rafandoo.gitwit.service.I18nService;
+import dev.rafandoo.gitwit.service.git.GitCommitService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +19,7 @@ import org.mockito.MockedConstruction;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(GuiceExtension.class)
@@ -27,15 +27,15 @@ import static org.mockito.Mockito.*;
 class CommitTest {
 
     @Inject
-    GitService gitService;
+    GitCommitService gitCommitService;
 
     @Inject
     I18nService i18nService;
 
     @BeforeEach
     void resetMocks() {
-        reset(this.gitService);
-        clearInvocations(this.gitService);
+        reset(this.gitCommitService);
+        clearInvocations(this.gitCommitService);
     }
 
     @Test
@@ -45,7 +45,7 @@ class CommitTest {
 
         RevCommit commit = CommitMockFactory.mockCommit("abc123", "feat (core): Add new feature Z");
         doReturn(commit)
-            .when(this.gitService)
+            .when(this.gitCommitService)
             .commit(any(CommitMessage.class), anyBoolean(), anyBoolean(), anyBoolean());
 
         String[] args = {
@@ -58,10 +58,8 @@ class CommitTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
     }
 
     @Test
@@ -70,7 +68,7 @@ class CommitTest {
         TestUtils.setupConfig(".general.gitwit");
 
         doReturn(null)
-            .when(this.gitService)
+            .when(this.gitCommitService)
             .commit(any(CommitMessage.class), anyBoolean(), anyBoolean(), anyBoolean());
 
         String[] args = {
@@ -83,10 +81,8 @@ class CommitTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(this.i18nService.getMessage("commit.failure")))
-        );
+        assertThat(exitCode.get()).isEqualTo(1);
+        assertThat(errText).contains(this.i18nService.getMessage("commit.failure"));
     }
 
     @Test
@@ -104,10 +100,8 @@ class CommitTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(this.i18nService.getMessage("commit.validation.violations")))
-        );
+        assertThat(exitCode.get()).isEqualTo(1);
+        assertThat(errText).contains(this.i18nService.getMessage("commit.validation.violations"));
     }
 
     @Test
@@ -132,7 +126,7 @@ class CommitTest {
         )) {
             RevCommit commit = CommitMockFactory.mockCommit("abc123", "feat (core): Add new feature Z");
             doReturn(commit)
-                .when(this.gitService)
+                .when(this.gitCommitService)
                 .commit(any(CommitMessage.class), anyBoolean(), anyBoolean(), anyBoolean());
 
             String[] args = {
@@ -142,10 +136,8 @@ class CommitTest {
             AtomicInteger exitCode = new AtomicInteger();
             String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-            assertAll(
-                () -> assertEquals(0, exitCode.get()),
-                () -> assertTrue(errText.isBlank())
-            );
+            assertThat(exitCode.get()).isEqualTo(0);
+            assertThat(errText).isBlank();
         }
     }
 

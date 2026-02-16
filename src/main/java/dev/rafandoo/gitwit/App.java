@@ -2,6 +2,7 @@ package dev.rafandoo.gitwit;
 
 import com.google.inject.Injector;
 import dev.rafandoo.gitwit.cli.*;
+import dev.rafandoo.gitwit.cli.help.GlobalHelpFactory;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.cup.os.OperatingSystem;
 import dev.rafandoo.gitwit.di.InjectorFactory;
@@ -167,6 +168,8 @@ public class App extends BaseCommand {
 
             return new CommandLine.RunLast().execute(parseResult);
         });
+        cmd.setHelpFactory(new GlobalHelpFactory());
+
         return cmd;
     }
 

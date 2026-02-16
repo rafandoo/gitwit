@@ -52,6 +52,8 @@ changelog:
   ignored:
     - 🧹
     - 👷
+    - 🔖
+    - Merge
   format:
     sectionTemplate: "{scope}: {description} ({shortHash})"
     breakingChangesTemplate: "{type} ({scope})!: {description} ({shortHash})"

@@ -3,7 +3,8 @@ package dev.rafandoo.gitwit.cli;
 import com.google.inject.Inject;
 import dev.rafandoo.gitwit.enums.GitRepositoryParam;
 import dev.rafandoo.gitwit.exception.GitWitException;
-import dev.rafandoo.gitwit.service.GitService;
+import dev.rafandoo.gitwit.service.git.GitConfigService;
+import dev.rafandoo.gitwit.service.git.GitHookService;
 import picocli.CommandLine;
 
 /**
@@ -43,7 +44,10 @@ public class Install extends BaseCommand {
     private boolean global;
 
     @Inject
-    private GitService gitService;
+    private GitConfigService gitConfigService;
+
+    @Inject
+    private GitHookService gitHookService;
 
     @Override
     public void run() {
@@ -53,17 +57,17 @@ public class Install extends BaseCommand {
 
         if (this.hook) {
             messageService.info("install.hook.start");
-            this.gitService.setupCommitWizardHook(this.force);
+            this.gitHookService.setupCommitWizardHook(this.force);
             messageService.success("install.hook.success");
             return;
         }
 
         if (this.global) {
             messageService.info("install.alias.global");
-            this.gitService.configureGitAliasGlobal();
+            this.gitConfigService.configureGitAliasGlobal();
         } else {
             messageService.info("install.alias.local");
-            this.gitService.configureGitAliasLocal();
+            this.gitConfigService.configureGitAliasLocal();
         }
         messageService.success(
             "install.success",

@@ -1,5 +1,6 @@
 package dev.rafandoo.gitwit;
 
+import dev.rafandoo.gitwit.config.GitWitConfig;
 import lombok.experimental.UtilityClass;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -15,6 +16,11 @@ public final class TestUtils {
         var resource = Thread.currentThread().getContextClassLoader().getResource(resourceName);
         assertNotNull(resource, "Config not found: " + resourceName);
         System.setProperty("gitwit.config", resource.getFile());
+    }
+
+    public static GitWitConfig loadDefaultConfig() {
+        setupConfig(".general.gitwit");
+        return GitWitConfig.load();
     }
 
     public static void initTempGitRepo(Path tempDir) throws GitAPIException {

@@ -3,8 +3,10 @@ package dev.rafandoo.gitwit.cli;
 import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.di.GuiceExtension;
-import dev.rafandoo.gitwit.service.GitService;
+import dev.rafandoo.gitwit.service.git.GitService;
 import dev.rafandoo.gitwit.service.I18nService;
+import dev.rafandoo.gitwit.service.git.GitConfigService;
+import dev.rafandoo.gitwit.service.git.GitHookService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -16,7 +18,7 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(GuiceExtension.class)
@@ -27,12 +29,20 @@ class UninstallTest {
     GitService gitService;
 
     @Inject
+    GitConfigService gitConfigService;
+
+    @Inject
+    GitHookService gitHookService;
+
+    @Inject
     I18nService i18nService;
 
     @BeforeEach
     void resetMocks() {
         reset(this.gitService);
         clearInvocations(this.gitService);
+        clearInvocations(this.gitConfigService);
+        clearInvocations(this.gitHookService);
     }
 
     @Test
@@ -54,14 +64,12 @@ class UninstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(uninstallArgs)));
 
-        assertAll(
-            () -> assertEquals(0, exitCodeInstall.get()),
-            () -> assertTrue(errTextInstall.isBlank()),
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCodeInstall.get()).isEqualTo(0);
+        assertThat(errTextInstall).isBlank();
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
 
-        verify(this.gitService).removeGitAliasLocal();
+        verify(this.gitConfigService).removeGitAliasLocal();
     }
 
     @Test
@@ -89,14 +97,12 @@ class UninstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(uninstallArgs)));
 
-        assertAll(
-            () -> assertEquals(0, exitCodeInstall.get()),
-            () -> assertTrue(errTextInstall.isBlank()),
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCodeInstall.get()).isEqualTo(0);
+        assertThat(errTextInstall).isBlank();
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
 
-        verify(this.gitService).removeGitAliasGlobal();
+        verify(this.gitConfigService).removeGitAliasGlobal();
     }
 
     @Test
@@ -124,17 +130,15 @@ class UninstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(uninstallArgs)));
 
-        assertAll(
-            () -> assertEquals(0, exitCodeInstall.get()),
-            () -> assertTrue(errTextInstall.isBlank()),
-            () -> assertEquals(0, exitCode.get()),
-            () -> assertTrue(errText.isBlank())
-        );
+        assertThat(exitCodeInstall.get()).isEqualTo(0);
+        assertThat(errTextInstall).isBlank();
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(errText).isBlank();
 
-        verify(this.gitService, never()).configureGitAliasLocal();
-        verify(this.gitService, never()).configureGitAliasGlobal();
-        verify(this.gitService).setupCommitWizardHook(false);
-        verify(this.gitService).uninstallCommitWizardHook();
+        verify(this.gitConfigService, never()).configureGitAliasLocal();
+        verify(this.gitConfigService, never()).configureGitAliasGlobal();
+        verify(this.gitHookService).setupCommitWizardHook(false);
+        verify(this.gitHookService).uninstallCommitWizardHook();
     }
 
     @Test
@@ -155,9 +159,7 @@ class UninstallTest {
         AtomicInteger exitCode = new AtomicInteger();
         String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
 
-        assertAll(
-            () -> assertEquals(1, exitCode.get()),
-            () -> assertTrue(errText.contains(this.i18nService.getMessage("uninstall.error.conflict")))
-        );
+        assertThat(exitCode.get()).isEqualTo(1);
+        assertThat(errText).contains(this.i18nService.getMessage("uninstall.error.conflict"));
     }
 }

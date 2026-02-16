@@ -1,6 +1,7 @@
 package dev.rafandoo.gitwit.cli;
 
 import com.google.inject.Inject;
+import dev.rafandoo.gitwit.cli.help.GlobalHelpFactory;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.provider.ManifestVersionProvider;
 import dev.rafandoo.gitwit.service.MessageService;
@@ -35,6 +36,7 @@ public abstract class BaseCommand implements Runnable {
     @Override
     public void run() {
         CommandLine cmd = new CommandLine(this);
+        cmd.setHelpFactory(new GlobalHelpFactory());
         cmd.usage(System.out);
     }
 }
