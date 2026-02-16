@@ -148,64 +148,73 @@ O comando pode validar:
 #### Uso:
 
 ```bash
-gitwit lint [<rev-spec>] [-m=<message>]
+gitwit lint [-m=<message>] [<revSpec>]
 ```
 
-| Opção                     | Descrição                                                                                             |
-|---------------------------|-------------------------------------------------------------------------------------------------------|
-| `-m, --message=<message>` | Mensagem a ser validada.                                                                              |
-| `<rev-spec>`              | Especificação de revisão do Git. Pode ser um commit, branch, tag ou um intervalo no formato from..to. |
+| Opção                     | Descrição                                                                                               |
+|---------------------------|---------------------------------------------------------------------------------------------------------|
+| `-m, --message=<message>` | Mensagem a ser validada.                                                                                |
+| `<revSpec>`               | Especificação de revisão do Git. Pode ser um commit, branch, tag ou um intervalo no formato `from..to`. |
 
 #### Exemplos:
 
-Validar apenas o commit mais recente (padrão):
-
 ```bash
+# Validar apenas o commit mais recente (padrão)
 gitwit lint
-```
 
-Validar um commit específico:
-
-```bash
+# Validar um commit específico
 gitwit lint 105564ac5c6ca88bee5f3f4978287f5c8f87c07b
-```
 
-Validar um intervalo de commits (inclusive):
-
-```bash
+# Valida um intervalo de commits
 gitwit lint 8d2094..105564a
-```
 
-Validar uma mensagem sem referência a um commit:
-
-```bash
+# Validar uma mensagem sem referência a um commit
 gitwit lint -m 'feat(ui): Adicionar tema escuro'
 ```
 
 ## 📜 `changelog`
 
-Gera um changelog formatado a partir das mensagens de commit.
+Gera um changelog estruturado a partir das mensagens de commit do repositório Git, com suporte a tags, intervalos de revisão e incremento automático de versão.
 
 #### Uso:
 
 ```bash
-gitwit changelog [-ac] -f=<from> [-t=<to>] [-s=<subtitle>] 
+gitwit changelog [[-c] [-s=<subtitle>] [-a] [-l | --for-tag=<forTag>] [-M | -m | -p]] [<revSpec>]
 ```
 
-| Opção               | Descrição                                                               |
-|---------------------|-------------------------------------------------------------------------|
-| `-f, --from=<from>` | Ponto inicial (hash, tag ou branch).                                    |
-| `-t, --to=<to>`     | Ponto final. Padrão: `HEAD`.                                            |
-| `-s, --subtitle`    | Subtítulo a ser exibido no changelog.                                   |
-| `-a, --append`      | Indica se o changelog será anexado ao arquivo existente ou sobrescrito. |                 
-| `-c, --copy`        | Copia o changelog gerado para a área de transferência.                  |
+| Opção                | Descrição                                                                                               |
+|----------------------|---------------------------------------------------------------------------------------------------------|
+| `-c, --copy`         | Copia o changelog gerado para a área de transferência.                                                  |
+| `-s, --subtitle`     | Define um subtítulo a ser exibido no changelog.                                                         |
+| `-a, --append`       | Anexa o changelog ao arquivo existente em vez de sobrescrevê-lo.                                        |          
+| `-l, --last-tag`     | Usa a última tag do repositório como ponto inicial para gerar o changelog.                              |
+| `--for-tag=<forTag>` | Usa a tag especificada como ponto inicial para gerar o changelog.                                       |
+| `-M --major`         | Incrementa a versão **major** a partir da última tag e gera o changelog para a nova versão.             |
+| `-m, --minor`        | Incrementa a versão **minor** a partir da última tag e gera o changelog para a nova versão.             |
+| `-p, --patch`        | Incrementa a versão **patch** a partir da última tag e gera o changelog para a nova versão.             |
+| `<revSpec>`          | Especificação de revisão do Git. Pode ser um commit, branch, tag ou um intervalo no formato `from..to`. |
+
+<br>
+
+::: warning ⚠️ Aviso:
+As opções de incremento de versão (-M, -m, -p) são mutuamente exclusivas. Bem como as opções de tag (-l, --for-tag) não podem ser usadas em conjunto.
+:::
 
 #### Exemplos:
 
 ```bash
-# Gera changelog desde a última tag
-gitwit changelog --from v1.0.0
+# Gera o changelog para a última tag
+gitwit changelog -l
 
-# Gera changelog e copia para a área de transferência
-gitwit changelog --from v1.0.0 --to v1.2.0 --copy
+# Gera o changelog a partir de uma tag específica
+gitwit changelog --for-tag=v1.2.0
+
+# Gera o changelog incrementando a versão minor
+gitwit changelog -m
+
+# Gera o changelog para um intervalo de commits
+gitwit changelog 8d2094..105564a
+
+# Gera o changelog e copia para a área de transferência
+gitwit changelog -l --copy
 ```

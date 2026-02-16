@@ -148,65 +148,73 @@ The command can validate:
 #### Usage:
 
 ```bash
-gitwit lint [<rev-spec>] [-m=<message>]
+gitwit lint [-m=<message>] [<revSpec>]
 ```
 
-| Option                    | Description                                                                              |
-|---------------------------|------------------------------------------------------------------------------------------|
-| `-m, --message=<message>` | Message to be validated.                                                                 |
-| `<rev-spec>`              | Git revision specification. It can be a commit, branch, tag or range in the format from. |
+| Option                    | Description                                                                                    |
+|---------------------------|------------------------------------------------------------------------------------------------|
+| `-m, --message=<message>` | Message to be validated.                                                                       |
+| `<revSpec>`               | Git revision specification. It can be a commit, branch, tag or range in the format `from..to`. |
 
 #### Examples:
 
-Validate only the most recent commit (default):
-
 ```bash
+# Validate only the most recent commit (default)
 gitwit lint
-```
 
-Validate a specific commit:
-
-```bash
+# Validate a specific commit
 gitwit lint 105564ac5c6ca88bee5f3f4978287f5c8f87c07b
-```
 
-Validate a range of commits (including):
-
-```bash
+# Validate a range of commits
 gitwit lint 8d2094..105564a
-```
 
-Validating a message without a commit reference:
-
-```bash
+# Validating a message without a commit reference
 gitwit lint -m 'feat(ui): Add dark theme'
-
 ```
 
 ## 📜 `changelog`
 
-Generates a formatted changelog from commit messages.
+Generates a structured changelog from the commit messages of the Git repository, with support for tags, review intervals and automatic version increment.
 
 #### Usage:
 
 ```bash
-gitwit changelog [-ac] -f=<from> [-t=<to>] [-s=<subtitle>]
+gitwit changelog [[-c] [-s=<subtitle>] [-a] [-l | --for-tag=<forTag>] [-M | -m | -p]] [<revSpec>]
 ```
 
-| Option              | Description                                                      |
-|---------------------|------------------------------------------------------------------|
-| `-f, --from=<from>` | Starting point (hash, tag, or branch).                           |
-| `-t, --to=<to>`     | Ending point. Default: `HEAD`.                                   |
-| `-s, --subtitle`    | Subtitle to be displayed in the changelog.                       |
-| `-a, --append`      | Indicates whether the changelog will be appended or overwritten. |
-| `-c, --copy`        | Copies the generated changelog to the clipboard.                 |
+| Option               | Description                                                                                        |
+|----------------------|----------------------------------------------------------------------------------------------------|
+| `-c, --copy`         | Copy the generated changelog to the clipboard.                                                     |
+| `-s, --subtitle`     | Sets a subtitle to be displayed in the changelog.                                                  |
+| `-a, --append`       | Attach the changelog to the existing file instead of overwriting it.                               |          
+| `-l, --last-tag`     | Use the last tag of the repository as a starting point to generate the changelog.                  |
+| `--for-tag=<forTag>` | Use the specified tag as start point to generate changelog.                                        |
+| `-M --major`         | Increases the **major** version from the last tag and generates the changelog for the new version. |
+| `-m, --minor`        | Increases the **minor** version from the last tag and generates the changelog for the new version. |
+| `-p, --patch`        | Increases the **patch** version from the last tag and generates the changelog for the new version. |
+| `<revSpec>`          | Git revision specification. It can be a commit, branch, tag, or interval in the `from..to`.        |
+
+<br>
+
+::: warning ⚠️ Warning:
+The version increment options (-M, -m, -p) are mutually exclusive. Also, the tag options (-l, --for-tag) cannot be used together.
+:::
 
 #### Examples:
 
 ```bash
-# Generate changelog since the last tag
-gitwit changelog --from v1.0.0
+# Generates changelog for the last tag
+gitwit changelog -l
 
-# Generate changelog and copy to the clipboard
-gitwit changelog --from v1.0.0 --to v1.2.0 --copy
+# Generates the changelog from a specific tag
+gitwit changelog --for-tag=v1.2.0
+
+# Generates the changelog by increasing the minor version
+gitwit changelog -m
+
+# Generates the changelog for a commit interval
+gitwit changelog 8d2094..105564a
+
+# Generates the changelog and copies it to the clipboard
+gitwit changelog -l --copy
 ```
