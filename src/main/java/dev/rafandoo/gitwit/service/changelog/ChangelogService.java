@@ -2,6 +2,7 @@ package dev.rafandoo.gitwit.service.changelog;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import dev.rafandoo.gitwit.cli.dto.ChangelogOptions;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.cup.utils.StringUtils;
 import dev.rafandoo.gitwit.entity.Changelog;
@@ -33,45 +34,85 @@ public final class ChangelogService {
     private final GitRepositoryService gitRepositoryService;
     private final Renderer renderer;
     private final ChangelogOutputService outputService;
+    private final ChangelogVersionResolver versionResolver;
 
     /**
      * Handles the generation of a changelog based on the provided revision specification or range.
      *
-     * @param revSpec         the Git revision specification (e.g., commit hash, tag, branch).
-     * @param from            the starting point of the commit range (deprecated, use revSpec instead).
-     * @param to              the ending point of the commit range (deprecated, use revSpec instead).
-     * @param config          the GitWit configuration containing changelog settings.
-     * @param subtitle        an optional subtitle for the changelog.
-     * @param copyToClipboard if {@code true}, copies the generated changelog to the clipboard.
-     * @param append          if {@code true}, appends to an existing changelog file; otherwise, overwrites it.
+     * @param revSpec the Git revision specification (e.g., commit hash, tag, branch).
+     * @param options the options for generating the changelog, including subtitle, copy to clipboard, and append mode.
+     * @param config  the GitWit configuration containing changelog settings.
      */
     public void handle(
         String revSpec,
-        String from,
-        String to,
-        GitWitConfig config,
-        String subtitle,
-        boolean copyToClipboard,
-        boolean append
+        ChangelogOptions options,
+        GitWitConfig config
     ) {
-        List<RevCommit> commits = this.gitRepositoryService.resolveCommits(
-            revSpec,
-            from,
-            to,
-            config.getChangelog().getIgnored()
-        );
+        List<RevCommit> commits = this.resolveCommits(revSpec, options, config);
+        this.messageService.debug("changelog.resolved_commits", commits.size());
+
         Map<String, List<CommitMessage>> grouped = this.toCommitMessages(commits);
         Map<String, String> types = this.resolveTypes(config);
+
+        String subtitle = this.versionResolver.resolveSubtitle(options);
+        this.messageService.debug("changelog.resolved_subtitle", subtitle);
 
         Changelog changelog = this.generate(config, grouped, types, subtitle);
         if (changelog == null) {
             return;
         }
 
-        String output = this.renderer.render(changelog, append);
-        this.outputService.output(output, copyToClipboard, append);
+        String output = this.renderer.render(changelog, options.isAppend());
+        this.outputService.output(output, options.isCopyToClipboard(), options.isAppend(), config);
 
         this.messageService.success("changelog.generated");
+    }
+
+    /**
+     * Resolves the list of Git commits based on the provided revision specification and options.
+     *
+     * @param revSpec the Git revision specification (e.g., commit hash, tag, branch).
+     * @param options the options for generating the changelog, including tag and version options.
+     * @param config  the GitWit configuration containing changelog settings.
+     * @return a list of {@link RevCommit} objects representing the resolved commits.
+     */
+    private List<RevCommit> resolveCommits(String revSpec, ChangelogOptions options, GitWitConfig config) {
+        if (
+            options.getTagOptions().isLastTag() ||
+                options.getVersionOptions().isMajor() ||
+                options.getVersionOptions().isMinor() ||
+                options.getVersionOptions().isPatch()
+        ) {
+            String latestTag = this.gitRepositoryService.getLatestTag();
+            return this.gitRepositoryService.resolveCommits(
+                String.format("%s..%s", latestTag, Constants.HEAD),
+                null,
+                null,
+                config.getChangelog().getIgnored()
+            );
+        }
+
+        if (!StringUtils.isNullOrBlank(options.getTagOptions().getForTag())) {
+            String forTag = options.getTagOptions().getForTag();
+            String previousTag = this.gitRepositoryService.getPreviousTag(forTag);
+            if (StringUtils.isNullOrBlank(previousTag)) {
+                this.messageService.warn("changelog.warn.no_previous_tag", forTag);
+                previousTag = forTag + "^";
+            }
+            return this.gitRepositoryService.resolveCommits(
+                String.format("%s..%s", previousTag, forTag),
+                null,
+                null,
+                config.getChangelog().getIgnored()
+            );
+        }
+
+        return this.gitRepositoryService.resolveCommits(
+            revSpec,
+            options.getFrom(),
+            options.getTo(),
+            config.getChangelog().getIgnored()
+        );
     }
 
     /**

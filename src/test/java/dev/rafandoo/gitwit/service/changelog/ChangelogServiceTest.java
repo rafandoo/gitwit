@@ -1,6 +1,7 @@
 package dev.rafandoo.gitwit.service.changelog;
 
 import dev.rafandoo.gitwit.TestUtils;
+import dev.rafandoo.gitwit.cli.dto.ChangelogOptions;
 import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.entity.Changelog;
 import dev.rafandoo.gitwit.entity.CommitMessage;
@@ -57,6 +58,8 @@ class ChangelogServiceTest {
     void handle_shouldGenerateRenderAndOutputChangelog() {
         TestUtils.setupConfig(".changelog.gitwit");
         GitWitConfig config = GitWitConfig.load();
+        ChangelogOptions options = new ChangelogOptions();
+
 
         List<RevCommit> commits = List.of(
             CommitMockFactory.mockCommit("a1", "feat: add feature"),

@@ -3,6 +3,9 @@ package dev.rafandoo.gitwit.cli.dto;
 import lombok.Getter;
 import picocli.CommandLine;
 
+/**
+ * DTO for changelog command options.
+ */
 @Getter
 public class ChangelogOptions {
 
@@ -38,35 +41,47 @@ public class ChangelogOptions {
     )
     private boolean append = false;
 
-    @CommandLine.Option(
-        names = {"-l", "--last-tag"},
-        descriptionKey = "changelog.option.last-tag"
-    )
-    private boolean lastTag;
+    @CommandLine.ArgGroup
+    private TagOptions tagOptions = new TagOptions();
 
-    @CommandLine.Option(
-        names = {"--for-tag"},
-        descriptionKey = "changelog.option.for-tag"
-    )
-    private String forTag;
+    @CommandLine.ArgGroup
+    private VersionOptions versionOptions = new VersionOptions();
 
-    @CommandLine.Option(
-        names = {"--major"},
-        descriptionKey = "changelog.option.major"
-    )
-    private boolean major;
+    @Getter
+    public static class TagOptions {
 
-    @CommandLine.Option(
-        names = {"--minor"},
-        descriptionKey = "changelog.option.minor"
-    )
-    private boolean minor;
+        @CommandLine.Option(
+            names = {"-l", "--last-tag"},
+            descriptionKey = "changelog.option.last-tag"
+        )
+        private boolean lastTag;
 
-    @CommandLine.Option(
-        names = {"--patch"},
-        descriptionKey = "changelog.option.patch"
-    )
-    private boolean patch;
+        @CommandLine.Option(
+            names = {"--for-tag"},
+            descriptionKey = "changelog.option.for-tag"
+        )
+        private String forTag;
+    }
 
+    @Getter
+    public static class VersionOptions {
 
+        @CommandLine.Option(
+            names = {"-M", "--major"},
+            descriptionKey = "changelog.option.major"
+        )
+        private boolean major;
+
+        @CommandLine.Option(
+            names = {"-m", "--minor"},
+            descriptionKey = "changelog.option.minor"
+        )
+        private boolean minor;
+
+        @CommandLine.Option(
+            names = {"-p", "--patch"},
+            descriptionKey = "changelog.option.patch"
+        )
+        private boolean patch;
+    }
 }

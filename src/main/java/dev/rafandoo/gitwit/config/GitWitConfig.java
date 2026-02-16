@@ -130,6 +130,11 @@ public class GitWitConfig {
         private String title = "Changelog";
 
         /**
+         * The file path where the generated changelog should be saved.
+         */
+        private String filepath = null;
+
+        /**
          * A map of commit types and their section titles in the changelog.
          * Key = commit type (e.g., "feat"), Value = section title (e.g., "New features").
          */

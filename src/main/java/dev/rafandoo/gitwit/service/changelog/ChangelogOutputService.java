@@ -2,6 +2,7 @@ package dev.rafandoo.gitwit.service.changelog;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.MessageService;
 import dev.rafandoo.gitwit.util.ClipboardUtil;
@@ -26,8 +27,9 @@ public final class ChangelogOutputService {
      * @param content the changelog content to output.
      * @param copy    if {@code true}, copies the content to the clipboard; otherwise, writes it to a file.
      * @param append  if {@code true} and writing to a file, appends the content; otherwise, overwrites the file.
+     * @param config  the GitWit configuration containing changelog settings.
      */
-    public void output(String content, boolean copy, boolean append) {
+    public void output(String content, boolean copy, boolean append, GitWitConfig config) {
         try {
             if (copy) {
                 if (!ClipboardUtil.copyToClipboard(content)) {
@@ -35,7 +37,7 @@ public final class ChangelogOutputService {
                 }
                 this.messageService.info("changelog.copied");
             } else {
-                Path path = this.writer.write(content, append);
+                Path path = this.writer.write(content, append, config);
                 messageService.success("changelog.written", path);
             }
         } catch (IOException e) {

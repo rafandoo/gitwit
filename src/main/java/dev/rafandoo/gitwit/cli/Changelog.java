@@ -38,17 +38,18 @@ public class Changelog extends BaseCommand {
 
     @Override
     public void run() {
+        if (this.options == null && this.revSpec == null) {
+            super.run();
+            return;
+        }
+
         GitWitConfig config = loadConfig();
         messageService.info("changelog.start");
 
         this.changelogService.handle(
             this.revSpec,
-            this.options.getFrom(),
-            this.options.getTo(),
-            config,
-            this.options.getSubtitle(),
-            this.options.isCopyToClipboard(),
-            this.options.isAppend()
+            this.options,
+            config
         );
     }
 }
