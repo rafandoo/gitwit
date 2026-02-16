@@ -22,7 +22,7 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: Run Build & Tests
-        run: ./gradlew clean build --no-daemon
+        run: ./gradlew clean check build --no-daemon
 
   validate-docs:
     name: Build Documentation
