@@ -84,6 +84,8 @@ compileJava {
 }
 
 def jacocoExclusions = [
+    '**/dev/rafandoo/gitwit/cli/dto/**',
+    '**/dev/rafandoo/gitwit/cli/help/**',
     '**/dev/rafandoo/gitwit/cli/wiz/**',
     '**/dev/rafandoo/gitwit/config/**',
     '**/dev/rafandoo/gitwit/di/**',

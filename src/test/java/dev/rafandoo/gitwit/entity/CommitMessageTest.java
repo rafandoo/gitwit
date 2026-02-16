@@ -336,4 +336,14 @@ class CommitMessageTest {
         assertThat(result)
             .isEqualTo("- fix: minor fix");
     }
+
+    @Test
+    void shouldReturnEmptyCommitMessageWhenRevCommitIsNull() {
+        CommitMessage msg = CommitMessage.of((RevCommit) null);
+
+        assertThat(msg.type())
+            .isNull();
+        assertThat(msg.shortDescription())
+            .isNull();
+    }
 }

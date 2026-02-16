@@ -1,5 +1,6 @@
 package dev.rafandoo.gitwit.service.changelog;
 
+import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.enums.ConfigPaths;
 import dev.rafandoo.gitwit.service.git.GitService;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +39,7 @@ class ChangelogWriterTest {
 
     @Test
     void shouldWriteChangelogOverwritingExistingFile() throws IOException {
-        Path result = this.writer.write("first content", false);
+        Path result = this.writer.write("first content", false, new GitWitConfig());
 
         assertThat(Files.exists(result)).isTrue();
         assertThat(result.getFileName().toString())
@@ -50,7 +51,7 @@ class ChangelogWriterTest {
 
     @Test
     void shouldAppendWithoutSeparatorWhenFileDoesNotExist() throws IOException {
-        Path result = this.writer.write("initial content", true);
+        Path result = this.writer.write("initial content", true, new GitWitConfig());
 
         String fileContent = Files.readString(result);
         assertThat(fileContent).isEqualTo("initial content");
@@ -61,7 +62,7 @@ class ChangelogWriterTest {
         Path file = this.repoDir.resolve(ConfigPaths.CHANGELOG_FILE.get().asString());
         Files.writeString(file, "existing content");
 
-        this.writer.write("new content", true);
+        this.writer.write("new content", true, new GitWitConfig());
 
         String fileContent = Files.readString(file);
         assertThat(fileContent)

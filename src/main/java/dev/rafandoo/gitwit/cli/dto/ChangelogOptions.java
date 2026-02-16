@@ -1,12 +1,16 @@
 package dev.rafandoo.gitwit.cli.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import picocli.CommandLine;
 
 /**
  * DTO for changelog command options.
  */
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChangelogOptions {
 
     @CommandLine.Option(
@@ -47,6 +51,8 @@ public class ChangelogOptions {
     @CommandLine.ArgGroup
     private VersionOptions versionOptions = new VersionOptions();
 
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Getter
     public static class TagOptions {
 
@@ -63,6 +69,8 @@ public class ChangelogOptions {
         private String forTag;
     }
 
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Getter
     public static class VersionOptions {
 

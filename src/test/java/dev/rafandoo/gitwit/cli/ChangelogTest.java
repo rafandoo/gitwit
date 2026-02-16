@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErr;
+import static com.github.stefanbirkner.systemlambda.SystemLambda.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -92,5 +92,19 @@ class ChangelogTest {
 
         assertThat(exitCode.get()).isEqualTo(0);
         assertThat(errText).isBlank();
+    }
+
+    @Test
+    @Tag("integration")
+    void shouldShowHelpWhenNoArgumentsProvided() throws Exception {
+        String[] args = {
+            "changelog"
+        };
+
+        AtomicInteger exitCode = new AtomicInteger();
+        String outText = tapSystemOut(() -> exitCode.set(TestUtils.executeCommand(args)));
+
+        assertThat(exitCode.get()).isEqualTo(0);
+        assertThat(outText).contains("changelog");
     }
 }

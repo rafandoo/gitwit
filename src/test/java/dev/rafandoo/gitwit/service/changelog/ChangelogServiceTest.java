@@ -14,6 +14,7 @@ import dev.rafandoo.gitwit.service.MessageService;
 import dev.rafandoo.gitwit.service.changelog.render.Renderer;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -26,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("ChangelogService test")
 class ChangelogServiceTest {
 
     @Mock
@@ -40,6 +42,9 @@ class ChangelogServiceTest {
     @Mock
     ChangelogOutputService outputService;
 
+    @Mock
+    ChangelogVersionResolver versionResolver;
+
     ChangelogService service;
 
     I18nService i18nService = new I18nService();
@@ -50,7 +55,8 @@ class ChangelogServiceTest {
             this.messageService,
             this.gitRepositoryService,
             this.renderer,
-            this.outputService
+            this.outputService,
+            this.versionResolver
         );
     }
 
@@ -58,7 +64,15 @@ class ChangelogServiceTest {
     void handle_shouldGenerateRenderAndOutputChangelog() {
         TestUtils.setupConfig(".changelog.gitwit");
         GitWitConfig config = GitWitConfig.load();
-        ChangelogOptions options = new ChangelogOptions();
+        ChangelogOptions options = new ChangelogOptions(
+            null,
+            null,
+            false,
+            "subtitle",
+            false,
+            new ChangelogOptions.TagOptions(),
+            new ChangelogOptions.VersionOptions()
+        );
 
 
         List<RevCommit> commits = List.of(
@@ -74,16 +88,12 @@ class ChangelogServiceTest {
 
         this.service.handle(
             "HEAD",
-            null,
-            null,
-            config,
-            "subtitle",
-            false,
-            false
+            options,
+            config
         );
 
         verify(this.renderer).render(any(Changelog.class), eq(false));
-        verify(this.outputService).output("rendered", false, false);
+        verify(this.outputService).output("rendered", false, false, config);
         verify(this.messageService).success("changelog.generated");
     }
 
@@ -91,18 +101,23 @@ class ChangelogServiceTest {
     void handle_shouldDoNothingWhenNoCommits() {
         TestUtils.setupConfig(".changelog.gitwit");
         GitWitConfig config = GitWitConfig.load();
+        ChangelogOptions options = new ChangelogOptions(
+            null,
+            null,
+            false,
+            "subtitle",
+            false,
+            new ChangelogOptions.TagOptions(),
+            new ChangelogOptions.VersionOptions()
+        );
 
         when(this.gitRepositoryService.resolveCommits(eq("HEAD"), any(), any(), anyList()))
             .thenReturn(new ArrayList<>());
 
         this.service.handle(
             "HEAD",
-            null,
-            null,
-            config,
-            null,
-            false,
-            false
+            options,
+            config
         );
 
         verify(messageService).warn("changelog.warn.no_commits");
@@ -115,15 +130,21 @@ class ChangelogServiceTest {
         GitWitConfig config = GitWitConfig.load();
         config.getChangelog().getTypes().clear();
 
+        ChangelogOptions options = new ChangelogOptions(
+            null,
+            null,
+            false,
+            "subtitle",
+            false,
+            new ChangelogOptions.TagOptions(),
+            new ChangelogOptions.VersionOptions()
+        );
+
         assertThatThrownBy(() ->
             this.service.handle(
                 "",
-                null,
-                null,
-                config,
-                "subtitle",
-                false,
-                false
+                options,
+                config
             )
         )
             .isInstanceOf(GitWitException.class)

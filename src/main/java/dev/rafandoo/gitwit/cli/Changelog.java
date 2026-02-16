@@ -43,6 +43,10 @@ public class Changelog extends BaseCommand {
             return;
         }
 
+        if (this.options == null) {
+            this.options = new ChangelogOptions();
+        }
+
         GitWitConfig config = loadConfig();
         messageService.info("changelog.start");
 
