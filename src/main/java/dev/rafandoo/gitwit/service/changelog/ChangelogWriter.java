@@ -26,7 +26,7 @@ public final class ChangelogWriter {
     /**
      * Writes the changelog content to the changelog file.
      *
-     * @param content yhe changelog content to write.
+     * @param content the changelog content to write.
      * @param append  whether to append to the existing file or overwrite it.
      * @param config  the GitWit configuration containing changelog settings.
      * @return the path to the changelog file.

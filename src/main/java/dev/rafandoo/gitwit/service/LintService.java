@@ -44,7 +44,7 @@ public final class LintService {
 
         List<RevCommit> commits = this.gitRepositoryService.resolveCommits(revSpec, from, to, config.getLint().getIgnored());
         if (commits.isEmpty()) {
-            throw new GitWitException("lint.noCommits");
+            throw new GitWitException("lint.warn.no_commits");
         }
         Map<String, CommitMessage> messages = commits.stream()
             .collect(Collectors.toMap(

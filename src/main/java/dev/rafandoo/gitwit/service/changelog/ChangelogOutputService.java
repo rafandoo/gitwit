@@ -19,7 +19,7 @@ import java.nio.file.Path;
 public final class ChangelogOutputService {
 
     private final ChangelogWriter writer;
-    private MessageService messageService;
+    private final MessageService messageService;
 
     /**
      * Outputs the changelog content either by copying it to the clipboard or writing it to a file.
