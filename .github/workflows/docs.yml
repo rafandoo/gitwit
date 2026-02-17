@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   build-docs:
-    name: 🛠 Build Documentation Site
+    name: Build Documentation Site
     runs-on: ubuntu-latest
 
     steps:
