@@ -10,9 +10,38 @@ permissions:
   pull-requests: read
 
 jobs:
+  changes:
+    name: Analyze Changes
+    runs-on: ubuntu-latest
+
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      docs: ${{ steps.filter.outputs.docs }}
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v6
+
+      - name: Analyze Changed Files
+        uses: dorny/paths-filter@v3.0.2
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'src/main/java/**'
+              - 'src/test/java/**'
+              - 'build.gradle'
+              - 'settings.gradle'
+              - '.github/**'
+            docs:
+              - 'src/main/docs/**'
+              - '.github/**'
+
   validate-backend:
     name: Build & Test Backend
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
 
     steps:
       - name: Checkout Source Code
@@ -27,6 +56,8 @@ jobs:
   validate-docs:
     name: Build Documentation
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.docs == 'true' }}
 
     steps:
       - name: Checkout Source Code
