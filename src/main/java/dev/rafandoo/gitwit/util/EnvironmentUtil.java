@@ -33,6 +33,17 @@ public class EnvironmentUtil {
     }
 
     /**
+     * Checks if the current environment is set to continuous integration (CI).
+     *
+     * @return {@code true} if in CI environment, {@code false} otherwise.
+     */
+    public static boolean isCI() {
+        return Optional.ofNullable(System.getenv("GITWIT_ENV"))
+            .map(env -> env.equalsIgnoreCase("CI"))
+            .orElse(false);
+    }
+
+    /**
      * Checks if the current environment is set to production.
      *
      * @return {@code true} if in production environment, {@code false} otherwise.

@@ -40,17 +40,24 @@ public final class TerminalService {
                         .name("GitWit Dev Terminal")
                         .dumb(true)
                         .build();
+                } else if (EnvironmentUtil.isCI()) {
+                    terminal = TerminalBuilder.builder()
+                        .name("GitWit CI Terminal")
+                        .color(true)
+                        .encoding(StandardCharsets.UTF_8)
+                        .dumb(true)
+                        .build();
                 } else {
                     terminal = TerminalBuilder.builder()
                         .name("GitWit Terminal")
                         .color(true)
-                        .system(true)
-                        .dumb(false)
                         .encoding(StandardCharsets.UTF_8)
+                        .system(true)
                         .nativeSignals(false)
                         .ffm(false)
                         .jansi(false)
                         .jna(false)
+                        .dumb(false)
                         .build();
                 }
             } catch (IOException e) {
