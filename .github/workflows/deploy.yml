@@ -1,8 +1,9 @@
 name: Release Deployment
 
 on:
-  release:
-    types: [ published ]
+  push:
+    tags:
+      - 'v*'
 
 concurrency:
   group: deploy-release
@@ -30,6 +31,29 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: build/reports/jacoco/test/jacocoTestReport.xml
+
+  determine-release-type:
+    name: Determine Release Type
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    outputs:
+      is-pre-release: ${{ steps.determine.outputs.is-pre-release }}
+      tag-name: ${{ github.ref_name }}
+
+    steps:
+      - name: Determine Release Type
+        id: determine
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+            if [[ "$TAG" == *"-"* ]]; then
+                echo "This is a pre-release version."
+                echo "is-pre-release=true" >> $GITHUB_OUTPUT
+            else
+                echo "This is a stable release version."
+                echo "is-pre-release=false" >> $GITHUB_OUTPUT
+            fi
 
   package-jar:
     name: Package JAR Artifact
@@ -108,7 +132,7 @@ jobs:
   release:
     name: Publish Release Artifacts
     runs-on: ubuntu-latest
-    needs: [ package-jar, package-linux, package-windows ]
+    needs: [ determine-release-type, package-jar, package-linux, package-windows ]
     permissions:
       contents: write
 
@@ -137,6 +161,12 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ needs.determine-release-type.outputs.tag-name }}
+          name: ${{ needs.determine-release-type.outputs.tag-name }}
+          draft: false
+          prerelease: ${{ needs.determine-release-type.outputs.is-pre-release }}
+          body: |
+            **${{ needs.determine-release-type.outputs.tagname }}**
           files: |
             dist/jar/**
             dist/linux/**
