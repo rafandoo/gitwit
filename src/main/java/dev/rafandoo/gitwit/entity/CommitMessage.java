@@ -138,7 +138,9 @@ public record CommitMessage(
             return new ParsedCommit(null, null, null, null, false, null);
         }
 
-        String[] parts = fullMessage.split("\n\n", 2);
+        String message = EmojiUtil.replaceEmojiWithAlias(fullMessage);
+
+        String[] parts = message.split("\n\n", 2);
         String header = parts[0].replace('\n', ' ').trim();
         String body = parts.length > 1 ? parts[1] : null;
 
@@ -183,7 +185,6 @@ public record CommitMessage(
             breakingDesc
         );
     }
-
 
     /**
      * Creates a {@link CommitMessage} from a {@link RevCommit}.
