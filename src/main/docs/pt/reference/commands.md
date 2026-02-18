@@ -179,14 +179,16 @@ Gera um changelog estruturado a partir das mensagens de commit do repositório G
 #### Uso:
 
 ```bash
-gitwit changelog [[-c] [-s=<subtitle>] [-a] [-l | --for-tag=<forTag>] [-M | -m | -p]] [<revSpec>]
+gitwit changelog [[-c] [-s=<subtitle>] [-n] [-a] [-S] [-l | --for-tag=<forTag>] [-M | -m | -p]] [<revSpec>]
 ```
 
 | Opção                | Descrição                                                                                               |
 |----------------------|---------------------------------------------------------------------------------------------------------|
 | `-c, --copy`         | Copia o changelog gerado para a área de transferência.                                                  |
 | `-s, --subtitle`     | Define um subtítulo a ser exibido no changelog.                                                         |
-| `-a, --append`       | Anexa o changelog ao arquivo existente em vez de sobrescrevê-lo.                                        |          
+| `-n, --no-subtitle`  | Gera o changelog sem um subtítulo.                                                                      |
+| `-a, --append`       | Anexa o changelog ao arquivo existente em vez de sobrescrevê-lo.                                        |
+| `-S, --stdout`       | Exibe o changelog gerado no terminal em vez de salvá-lo em um arquivo.                                  |
 | `-l, --last-tag`     | Usa a última tag do repositório como ponto inicial para gerar o changelog.                              |
 | `--for-tag=<forTag>` | Usa a tag especificada como ponto inicial para gerar o changelog.                                       |
 | `-M --major`         | Incrementa a versão **major** a partir da última tag e gera o changelog para a nova versão.             |
