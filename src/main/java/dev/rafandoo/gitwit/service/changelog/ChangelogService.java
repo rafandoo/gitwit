@@ -54,7 +54,13 @@ public final class ChangelogService {
         Map<String, List<CommitMessage>> grouped = this.toCommitMessages(commits);
         Map<String, String> types = this.resolveTypes(config);
 
-        String subtitle = this.versionResolver.resolveSubtitle(options);
+        String subtitle;
+        if (options.getSubtitleOptions().isNoSubtitle()) {
+            subtitle = null;
+        } else {
+            subtitle = this.versionResolver.resolveSubtitle(options);
+        }
+
         this.messageService.debug("changelog.resolved_subtitle", subtitle);
 
         Changelog changelog = this.generate(config, grouped, types, subtitle);
@@ -63,9 +69,17 @@ public final class ChangelogService {
         }
 
         String output = this.renderer.render(changelog, options.isAppend());
-        this.outputService.output(output, options.isCopyToClipboard(), options.isAppend(), config);
+        this.outputService.output(
+            output,
+            options.getOutputOptions().isCopyToClipboard(),
+            options.isAppend(),
+            config,
+            options.getOutputOptions().isStdout()
+        );
 
-        this.messageService.success("changelog.generated");
+        if (!options.getOutputOptions().isStdout()) {
+            this.messageService.success("changelog.generated");
+        }
     }
 
     /**

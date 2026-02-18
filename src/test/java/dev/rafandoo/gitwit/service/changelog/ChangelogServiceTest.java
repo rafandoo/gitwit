@@ -68,8 +68,11 @@ class ChangelogServiceTest {
             null,
             null,
             false,
-            "subtitle",
-            false,
+            new ChangelogOptions.SubtitleOptions(
+                "subtitle",
+                false
+            ),
+            new ChangelogOptions.OutputOptions(),
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions()
         );
@@ -93,7 +96,7 @@ class ChangelogServiceTest {
         );
 
         verify(this.renderer).render(any(Changelog.class), eq(false));
-        verify(this.outputService).output("rendered", false, false, config);
+        verify(this.outputService).output("rendered", false, false, config, false);
         verify(this.messageService).success("changelog.generated");
     }
 
@@ -105,8 +108,11 @@ class ChangelogServiceTest {
             null,
             null,
             false,
-            "subtitle",
-            false,
+            new ChangelogOptions.SubtitleOptions(
+                "subtitle",
+                false
+            ),
+            new ChangelogOptions.OutputOptions(),
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions()
         );
@@ -134,8 +140,11 @@ class ChangelogServiceTest {
             null,
             null,
             false,
-            "subtitle",
-            false,
+            new ChangelogOptions.SubtitleOptions(
+                "subtitle",
+                false
+            ),
+            new ChangelogOptions.OutputOptions(),
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions()
         );

@@ -179,14 +179,16 @@ Generates a structured changelog from the commit messages of the Git repository,
 #### Usage:
 
 ```bash
-gitwit changelog [[-c] [-s=<subtitle>] [-a] [-l | --for-tag=<forTag>] [-M | -m | -p]] [<revSpec>]
+gitwit changelog [[-a] [-s=<subtitle> | -n] [-c | -S] [-l | --for-tag=<forTag>] [-M | -m | -p]] [<revSpec>]
 ```
 
 | Option               | Description                                                                                        |
 |----------------------|----------------------------------------------------------------------------------------------------|
 | `-c, --copy`         | Copy the generated changelog to the clipboard.                                                     |
 | `-s, --subtitle`     | Sets a subtitle to be displayed in the changelog.                                                  |
-| `-a, --append`       | Attach the changelog to the existing file instead of overwriting it.                               |          
+| `-n, --no-subtitle`  | Generates the changelog without a subtitle.                                                        |
+| `-a, --append`       | Attach the changelog to the existing file instead of overwriting it.                               |
+| `-S, --stdout`       | Print the generated changelog to the standard output instead of saving it to a file.               |
 | `-l, --last-tag`     | Use the last tag of the repository as a starting point to generate the changelog.                  |
 | `--for-tag=<forTag>` | Use the specified tag as start point to generate changelog.                                        |
 | `-M --major`         | Increases the **major** version from the last tag and generates the changelog for the new version. |
@@ -197,7 +199,11 @@ gitwit changelog [[-c] [-s=<subtitle>] [-a] [-l | --for-tag=<forTag>] [-M | -m |
 <br>
 
 ::: warning ⚠️ Warning:
-The version increment options (-M, -m, -p) are mutually exclusive. Also, the tag options (-l, --for-tag) cannot be used together.
+The version increment options (-M, -m, -p) are mutually exclusive. In addition, the following groups of options cannot be used together:
+
+- `-l, --last-tag` and `--for-tag=<forTag>`
+- `-s, --subtitle` and `-n, --no-subtitle`
+- `-c, --copy` and `-S, --stdout`
 :::
 
 #### Examples:

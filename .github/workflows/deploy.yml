@@ -166,7 +166,7 @@ jobs:
           draft: false
           prerelease: ${{ needs.determine-release-type.outputs.is-pre-release }}
           body: |
-            **${{ needs.determine-release-type.outputs.tagname }}**
+            **${{ needs.determine-release-type.outputs.tag-name }}**
           files: |
             dist/jar/**
             dist/linux/**

@@ -28,28 +28,58 @@ public class ChangelogOptions {
     private String to;
 
     @CommandLine.Option(
-        names = {"-c", "--copy"},
-        descriptionKey = "changelog.option.copy"
-    )
-    private boolean copyToClipboard;
-
-    @CommandLine.Option(
-        names = {"-s", "--subtitle"},
-        descriptionKey = "changelog.option.subtitle"
-    )
-    private String subtitle;
-
-    @CommandLine.Option(
         names = {"-a", "--append"},
         descriptionKey = "changelog.option.append"
     )
     private boolean append = false;
 
     @CommandLine.ArgGroup
+    private SubtitleOptions subtitleOptions = new SubtitleOptions();
+
+    @CommandLine.ArgGroup
+    private OutputOptions outputOptions = new OutputOptions();
+
+    @CommandLine.ArgGroup
     private TagOptions tagOptions = new TagOptions();
 
     @CommandLine.ArgGroup
     private VersionOptions versionOptions = new VersionOptions();
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    public static class SubtitleOptions {
+
+        @CommandLine.Option(
+            names = {"-s", "--subtitle"},
+            descriptionKey = "changelog.option.subtitle"
+        )
+        private String subtitle;
+
+        @CommandLine.Option(
+            names = {"-n", "--no-subtitle"},
+            descriptionKey = "changelog.option.no-subtitle"
+        )
+        private boolean noSubtitle = false;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    public static class OutputOptions {
+
+        @CommandLine.Option(
+            names = {"-c", "--copy"},
+            descriptionKey = "changelog.option.copy"
+        )
+        private boolean copyToClipboard;
+
+        @CommandLine.Option(
+            names = {"-S", "--stdout"},
+            descriptionKey = "changelog.option.stdout"
+        )
+        private boolean stdout = false;
+    }
 
     @NoArgsConstructor
     @AllArgsConstructor
