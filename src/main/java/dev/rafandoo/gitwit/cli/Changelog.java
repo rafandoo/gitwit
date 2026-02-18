@@ -48,7 +48,7 @@ public class Changelog extends BaseCommand {
         }
 
         GitWitConfig config = loadConfig();
-        if (!options.isStdout()) {
+        if (!options.getOutputOptions().isStdout()) {
             messageService.info("changelog.start");
         }
 

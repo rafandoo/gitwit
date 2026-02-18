@@ -68,10 +68,11 @@ class ChangelogServiceTest {
             null,
             null,
             false,
-            "subtitle",
-            false,
-            false,
-            false,
+            new ChangelogOptions.SubtitleOptions(
+                "subtitle",
+                false
+            ),
+            new ChangelogOptions.OutputOptions(),
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions()
         );
@@ -107,10 +108,11 @@ class ChangelogServiceTest {
             null,
             null,
             false,
-            "subtitle",
-            false,
-            false,
-            false,
+            new ChangelogOptions.SubtitleOptions(
+                "subtitle",
+                false
+            ),
+            new ChangelogOptions.OutputOptions(),
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions()
         );
@@ -138,10 +140,11 @@ class ChangelogServiceTest {
             null,
             null,
             false,
-            "subtitle",
-            false,
-            false,
-            false,
+            new ChangelogOptions.SubtitleOptions(
+                "subtitle",
+                false
+            ),
+            new ChangelogOptions.OutputOptions(),
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions()
         );

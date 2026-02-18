@@ -179,7 +179,7 @@ Gera um changelog estruturado a partir das mensagens de commit do repositório G
 #### Uso:
 
 ```bash
-gitwit changelog [[-c] [-s=<subtitle>] [-n] [-a] [-S] [-l | --for-tag=<forTag>] [-M | -m | -p]] [<revSpec>]
+gitwit changelog [[-a] [-s=<subtitle> | -n] [-c | -S] [-l | --for-tag=<forTag>] [-M | -m | -p]] [<revSpec>]
 ```
 
 | Opção                | Descrição                                                                                               |
@@ -199,7 +199,11 @@ gitwit changelog [[-c] [-s=<subtitle>] [-n] [-a] [-S] [-l | --for-tag=<forTag>] 
 <br>
 
 ::: warning ⚠️ Aviso:
-As opções de incremento de versão (-M, -m, -p) são mutuamente exclusivas. Bem como as opções de tag (-l, --for-tag) não podem ser usadas em conjunto.
+As opções de incremento de versão (-M, -m, -p) são mutuamente exclusivas. Além disto, os seguintes grupos de opções não podem ser usados juntos:
+
+- `-l, --last-tag` e `--for-tag=<forTag>`
+- `-s, --subtitle` e `-n, --no-subtitle`
+- `-c, --copy` e `-S, --stdout`
 :::
 
 #### Exemplos:

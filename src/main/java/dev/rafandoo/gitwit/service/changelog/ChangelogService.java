@@ -55,7 +55,7 @@ public final class ChangelogService {
         Map<String, String> types = this.resolveTypes(config);
 
         String subtitle;
-        if (options.isNoSubtitle()) {
+        if (options.getSubtitleOptions().isNoSubtitle()) {
             subtitle = null;
         } else {
             subtitle = this.versionResolver.resolveSubtitle(options);
@@ -69,9 +69,15 @@ public final class ChangelogService {
         }
 
         String output = this.renderer.render(changelog, options.isAppend());
-        this.outputService.output(output, options.isCopyToClipboard(), options.isAppend(), config, options.isStdout());
+        this.outputService.output(
+            output,
+            options.getOutputOptions().isCopyToClipboard(),
+            options.isAppend(),
+            config,
+            options.getOutputOptions().isStdout()
+        );
 
-        if (!options.isStdout()) {
+        if (!options.getOutputOptions().isStdout()) {
             this.messageService.success("changelog.generated");
         }
     }

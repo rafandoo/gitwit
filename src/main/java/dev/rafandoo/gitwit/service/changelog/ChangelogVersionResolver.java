@@ -50,8 +50,8 @@ public final class ChangelogVersionResolver {
      * @return the resolved subtitle version, or {@code null} if none applies.
      */
     public String resolveSubtitle(ChangelogOptions options) {
-        if (!StringUtils.isNullOrBlank(options.getSubtitle())) {
-            return options.getSubtitle();
+        if (!StringUtils.isNullOrBlank(options.getSubtitleOptions().getSubtitle())) {
+            return options.getSubtitleOptions().getSubtitle();
         }
 
         String version = this.resolveVersion(options);

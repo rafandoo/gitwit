@@ -45,10 +45,11 @@ class ChangelogVersionResolverTest {
             null,
             null,
             false,
-            "Custom Subtitle",
-            false,
-            false,
-            false,
+            new ChangelogOptions.SubtitleOptions(
+                "Custom Subtitle",
+                false
+            ),
+            null,
             null,
             null
         );
@@ -63,10 +64,8 @@ class ChangelogVersionResolverTest {
             null,
             null,
             false,
+            new ChangelogOptions.SubtitleOptions(),
             null,
-            false,
-            false,
-            false,
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions()
         );
@@ -81,10 +80,8 @@ class ChangelogVersionResolverTest {
             null,
             null,
             false,
+            new ChangelogOptions.SubtitleOptions(),
             null,
-            false,
-            false,
-            false,
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions(true, false, false)
         );
@@ -99,10 +96,8 @@ class ChangelogVersionResolverTest {
             null,
             null,
             false,
+            new ChangelogOptions.SubtitleOptions(),
             null,
-            false,
-            false,
-            false,
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions(false, true, false)
         );
@@ -117,10 +112,8 @@ class ChangelogVersionResolverTest {
             null,
             null,
             false,
+            new ChangelogOptions.SubtitleOptions(),
             null,
-            false,
-            false,
-            false,
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions(false, false, true)
         );
@@ -137,10 +130,8 @@ class ChangelogVersionResolverTest {
             null,
             null,
             false,
+            new ChangelogOptions.SubtitleOptions(),
             null,
-            false,
-            false,
-            false,
             new ChangelogOptions.TagOptions(true, null),
             new ChangelogOptions.VersionOptions()
         );
@@ -156,10 +147,8 @@ class ChangelogVersionResolverTest {
             null,
             null,
             false,
+            new ChangelogOptions.SubtitleOptions(),
             null,
-            false,
-            false,
-            false,
             new ChangelogOptions.TagOptions(false, "v1.2.3"),
             new ChangelogOptions.VersionOptions()
         );
@@ -177,10 +166,8 @@ class ChangelogVersionResolverTest {
             null,
             null,
             false,
+            new ChangelogOptions.SubtitleOptions(),
             null,
-            false,
-            false,
-            false,
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions(true, false, false)
         );
@@ -198,10 +185,8 @@ class ChangelogVersionResolverTest {
             null,
             null,
             false,
+            new ChangelogOptions.SubtitleOptions(),
             null,
-            false,
-            false,
-            false,
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions(false, true, false)
         );
@@ -219,10 +204,8 @@ class ChangelogVersionResolverTest {
             null,
             null,
             false,
+            new ChangelogOptions.SubtitleOptions(),
             null,
-            false,
-            false,
-            false,
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions(false, false, true)
         );
@@ -240,10 +223,8 @@ class ChangelogVersionResolverTest {
             null,
             null,
             false,
+            new ChangelogOptions.SubtitleOptions(),
             null,
-            false,
-            false,
-            false,
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions()
         );
@@ -261,10 +242,8 @@ class ChangelogVersionResolverTest {
             null,
             null,
             false,
+            new ChangelogOptions.SubtitleOptions(),
             null,
-            false,
-            false,
-            false,
             new ChangelogOptions.TagOptions(),
             new ChangelogOptions.VersionOptions(true, false, false)
         );
