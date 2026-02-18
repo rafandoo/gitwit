@@ -40,10 +40,22 @@ public class ChangelogOptions {
     private String subtitle;
 
     @CommandLine.Option(
+        names = {"-n", "--no-subtitle"},
+        descriptionKey = "changelog.option.no-subtitle"
+    )
+    private boolean noSubtitle = false;
+
+    @CommandLine.Option(
         names = {"-a", "--append"},
         descriptionKey = "changelog.option.append"
     )
     private boolean append = false;
+
+    @CommandLine.Option(
+        names = {"-S", "--stdout"},
+        descriptionKey = "changelog.option.stdout"
+    )
+    private boolean stdout = false;
 
     @CommandLine.ArgGroup
     private TagOptions tagOptions = new TagOptions();

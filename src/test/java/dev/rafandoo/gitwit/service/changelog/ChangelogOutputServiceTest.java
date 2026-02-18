@@ -4,6 +4,7 @@ import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.service.I18nService;
 import dev.rafandoo.gitwit.service.MessageService;
+import dev.rafandoo.gitwit.service.TerminalService;
 import dev.rafandoo.gitwit.util.ClipboardUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,9 +34,11 @@ class ChangelogOutputServiceTest {
 
     I18nService i18nService = new I18nService();
 
+    TerminalService terminalService = new TerminalService();
+
     @BeforeEach
     void setup() {
-        this.service = new ChangelogOutputService(this.writer, this.messageService);
+        this.service = new ChangelogOutputService(this.writer, this.messageService, this.terminalService);
     }
 
     @Test
@@ -44,7 +47,7 @@ class ChangelogOutputServiceTest {
             clipboardMock.when(() -> ClipboardUtil.copyToClipboard("content"))
                 .thenReturn(true);
 
-            this.service.output("content", true, false, new GitWitConfig());
+            this.service.output("content", true, false, new GitWitConfig(), false);
 
             verify(this.messageService).info("changelog.copied");
             verifyNoInteractions(this.writer);
@@ -58,7 +61,7 @@ class ChangelogOutputServiceTest {
                 .thenReturn(false);
 
             assertThatThrownBy(() ->
-                this.service.output("content", true, false, new GitWitConfig())
+                this.service.output("content", true, false, new GitWitConfig(), false)
             )
                 .isInstanceOf(GitWitException.class)
                 .hasMessage(this.i18nService.getMessage("changelog.error.clipboard"));
@@ -73,7 +76,7 @@ class ChangelogOutputServiceTest {
         Path path = Path.of("CHANGELOG.md");
         when(this.writer.write(eq("content"), eq(true), any(GitWitConfig.class))).thenReturn(path);
 
-        this.service.output("content", false, true, new GitWitConfig());
+        this.service.output("content", false, true, new GitWitConfig(), false);
 
         verify(this.writer).write(eq("content"), eq(true), any(GitWitConfig.class));
         verify(this.messageService).success("changelog.written", path);
@@ -85,7 +88,7 @@ class ChangelogOutputServiceTest {
             .thenThrow(new IOException("disk error"));
 
         assertThatThrownBy(() ->
-            this.service.output("content", false, false, new GitWitConfig())
+            this.service.output("content", false, false, new GitWitConfig(), false)
         )
             .isInstanceOf(GitWitException.class)
             .hasMessage(this.i18nService.getMessage("changelog.error.write"));
