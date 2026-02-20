@@ -51,10 +51,10 @@ class LintTest {
         doReturn(mockCommits)
             .when(this.gitRepositoryService)
             .resolveCommits(
+                anyString(),
                 any(),
                 any(),
-                any(),
-                any()
+                anyList()
             );
 
         String[] args = {
@@ -81,7 +81,7 @@ class LintTest {
                 any(),
                 any(),
                 any(),
-                any()
+                anyList()
             );
 
         String[] args = {
@@ -104,10 +104,10 @@ class LintTest {
         doReturn(List.of(commit))
             .when(this.gitRepositoryService)
             .resolveCommits(
+                anyString(),
                 any(),
                 any(),
-                any(),
-                any()
+                anyList()
             );
 
         String[] args = {
@@ -124,7 +124,7 @@ class LintTest {
 
     @Test
     @Tag("integration")
-    void shouldFailWhenFromCommitNotFound() throws Exception {
+    void shouldFailWhenCommitRevSpecNotFound() throws Exception {
         TestUtils.setupConfig(".lint.repo.gitwit");
         String[] args = {
             "lint",
@@ -136,7 +136,7 @@ class LintTest {
             "invalidSHA"
         ))
             .when(this.gitRepositoryService)
-            .resolveCommits(eq("invalidSHA"), any(), any(), any());
+            .resolveCommits(eq("invalidSHA"), any(), any(), anyList());
 
 
         AtomicInteger exitCode = new AtomicInteger();
@@ -145,6 +145,29 @@ class LintTest {
         String expectedMessage = this.i18nService.getMessage(
             "git.repo.error.rev_not_found",
             "invalidSHA"
+        );
+
+        assertThat(exitCode.get()).isEqualTo(1);
+        assertThat(errText).contains(expectedMessage);
+    }
+
+    @Test
+    void shouldFailWhenNoCommitsFound() throws Exception {
+        TestUtils.setupConfig(".lint.repo.gitwit");
+        String[] args = {
+            "lint",
+            "f337727030873b96ead6b5ce75d13fffae931bc6..eb2b9188883d29508a818129ac7e6ce5584db0c0"
+        };
+
+        doReturn(Collections.emptyList())
+            .when(this.gitRepositoryService)
+            .resolveCommits(anyString(), anyString(), anyString(), anyList());
+
+        AtomicInteger exitCode = new AtomicInteger();
+        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
+
+        String expectedMessage = this.i18nService.getMessage(
+            "lint.warn.no_commits"
         );
 
         assertThat(exitCode.get()).isEqualTo(1);

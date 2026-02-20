@@ -6,9 +6,7 @@ import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.exception.GitWitException;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -39,16 +37,9 @@ class CommitMessageServiceTest {
     @Spy
     MessageService messageService = new MessageService(terminalService, i18nService);
 
-    List<RevCommit> commits;
-
     @BeforeEach
     void setup() {
         this.service = new CommitMessageService(this.messageService, this.i18nService);
-        this.commits = List.of(
-            CommitMockFactory.mockCommit("abc123", "feat: Add new feature X"),
-            CommitMockFactory.mockCommit("def456", "fix: Correct bug in feature Y"),
-            CommitMockFactory.mockCommit("ghi789", "docs: Update documentation")
-        );
     }
 
     Map<String, CommitMessage> mapCommits(List<RevCommit> commits) {
@@ -57,16 +48,19 @@ class CommitMessageServiceTest {
         return messages;
     }
 
-    void putCommit(Map<String, CommitMessage> map, String id, String message) {
-        map.put(id, CommitMessage.of(CommitMockFactory.mockCommit(id, message)));
-    }
-
     @Test
     void shouldPassValidationForValidCommits() {
         GitWitConfig config = TestUtils.loadDefaultConfig();
-        Map<String, CommitMessage> messages = this.mapCommits(this.commits);
+
+        List<RevCommit> revCommits = List.of(
+            CommitMockFactory.mockCommit("abc123", "feat: Add new feature X"),
+            CommitMockFactory.mockCommit("def456", "fix: Correct bug in feature Y"),
+            CommitMockFactory.mockCommit("ghi789", "docs: Update documentation")
+        );
+        Map<String, CommitMessage> commits = this.mapCommits(revCommits);
+
         assertThatNoException().isThrownBy(
-            () -> this.service.validate(messages, config)
+            () -> this.service.validate(commits, config)
         );
     }
 
@@ -74,12 +68,14 @@ class CommitMessageServiceTest {
     @MethodSource("invalidCommitProvider")
     void shouldThrowExceptionForInvalidCommits(String id, String message, String expectedKey, Object param) {
         GitWitConfig config = TestUtils.loadDefaultConfig();
-        Map<String, CommitMessage> messages = this.mapCommits(this.commits);
-        this.putCommit(messages, id, message);
+        List<RevCommit> revCommits = List.of(
+            CommitMockFactory.mockCommit(id, message)
+        );
+        Map<String, CommitMessage> commits = this.mapCommits(revCommits);
 
-        assertThatThrownBy(() -> this.service.validate(messages, config))
+        assertThatThrownBy(() -> this.service.validate(commits, config))
             .isInstanceOf(GitWitException.class)
-            .hasMessageContaining(id)
+            .hasMessageContaining(String.format("%040x", id.hashCode()))
             .hasMessageContaining(this.i18nService.resolve(expectedKey, param));
     }
 
@@ -96,12 +92,14 @@ class CommitMessageServiceTest {
         GitWitConfig config = TestUtils.loadDefaultConfig();
         config.getScope().setRequired(true);
 
-        Map<String, CommitMessage> messages = this.mapCommits(this.commits);
-        this.putCommit(messages, "noScope", "feat: No scope");
+        List<RevCommit> revCommits = List.of(
+            CommitMockFactory.mockCommit("noScope", "feat: No scope")
+        );
+        Map<String, CommitMessage> commits = this.mapCommits(revCommits);
 
-        assertThatThrownBy(() -> this.service.validate(messages, config))
+        assertThatThrownBy(() -> this.service.validate(commits, config))
             .isInstanceOf(GitWitException.class)
-            .hasMessageContaining("noScope")
+            .hasMessageContaining(String.format("%040x", "noScope".hashCode()))
             .hasMessageContaining(
                 this.i18nService.getMessage("commit.validation.scope_required")
             );
@@ -112,12 +110,14 @@ class CommitMessageServiceTest {
         GitWitConfig config = TestUtils.loadDefaultConfig();
         config.getLongDescription().setRequired(true);
 
-        Map<String, CommitMessage> messages = this.mapCommits(this.commits);
-        this.putCommit(messages, "noLong", "feat: No long desc");
+        List<RevCommit> revCommits = List.of(
+            CommitMockFactory.mockCommit("noLong", "feat: No long desc")
+        );
+        Map<String, CommitMessage> commits = this.mapCommits(revCommits);
 
-        assertThatThrownBy(() -> this.service.validate(messages, config))
+        assertThatThrownBy(() -> this.service.validate(commits, config))
             .isInstanceOf(GitWitException.class)
-            .hasMessageContaining("noLong")
+            .hasMessageContaining(String.format("%040x", "noLong".hashCode()))
             .hasMessageContaining(
                 this.i18nService.getMessage("commit.validation.long_description_required")
             );
@@ -129,12 +129,14 @@ class CommitMessageServiceTest {
         config.getLongDescription().setRequired(true);
         config.getLongDescription().setMinLength(20);
 
-        Map<String, CommitMessage> messages = this.mapCommits(this.commits);
-        this.putCommit(messages, "shortLong", "feat: Short long desc\n\nToo short");
+        List<RevCommit> revCommits = List.of(
+            CommitMockFactory.mockCommit("shortLong", "feat: Short long desc\n\nToo short")
+        );
+        Map<String, CommitMessage> commits = this.mapCommits(revCommits);
 
-        assertThatThrownBy(() -> this.service.validate(messages, config))
+        assertThatThrownBy(() -> this.service.validate(commits, config))
             .isInstanceOf(GitWitException.class)
-            .hasMessageContaining("shortLong")
+            .hasMessageContaining(String.format("%040x", "shortLong".hashCode()))
             .hasMessageContaining(
                 this.i18nService.getMessage(
                     "commit.validation.long_description_too_short",
@@ -149,19 +151,174 @@ class CommitMessageServiceTest {
         config.getLongDescription().setRequired(true);
         config.getLongDescription().setMaxLength(50);
 
-        Map<String, CommitMessage> messages = this.mapCommits(this.commits);
-        this.putCommit(messages, "longLong",
-            "feat: Very long long desc\n\nThis long description is way too long and exceeds the maximum length allowed by the configuration."
+        List<RevCommit> revCommits = List.of(
+            CommitMockFactory.mockCommit("longLong", "feat: Long long desc\n\nThis long description is way too long and exceeds the maximum length allowed by the configuration.")
         );
+        Map<String, CommitMessage> commits = this.mapCommits(revCommits);
 
-        assertThatThrownBy(() -> this.service.validate(messages, config))
+        assertThatThrownBy(() -> this.service.validate(commits, config))
             .isInstanceOf(GitWitException.class)
-            .hasMessageContaining("longLong")
+            .hasMessageContaining(String.format("%040x", "longLong".hashCode()))
             .hasMessageContaining(
                 this.i18nService.getMessage(
                     "commit.validation.long_description_too_long",
                     config.getLongDescription().getMaxLength()
                 )
             );
+    }
+
+    @Nested
+    @DisplayName("Commit type validation")
+    class CommitTypeValidation {
+
+        @Test
+        void shouldFailWhenTypeIsNull() {
+            GitWitConfig config = TestUtils.loadDefaultConfig();
+
+            CommitMessage msg = new CommitMessage(
+                null,
+                null,
+                "desc",
+                null,
+                false,
+                null,
+                null,
+                null
+            );
+
+            assertThatThrownBy(() -> service.validate(msg, config))
+                .isInstanceOf(GitWitException.class)
+                .hasMessageContaining(
+                    i18nService.getMessage("commit.validation.invalid_type", "null")
+                );
+        }
+    }
+
+    @Nested
+    @DisplayName("Commit scope validation")
+    class CommitScopeValidation {
+
+        @Test
+        void shouldFailWhenScopeIsNullAndRequired() {
+            GitWitConfig config = TestUtils.loadDefaultConfig();
+            config.getScope().setRequired(true);
+
+            CommitMessage msg = new CommitMessage(
+                "feat",
+                null,
+                "desc",
+                null,
+                false,
+                null,
+                null,
+                null
+            );
+
+            assertThatThrownBy(() -> service.validate(msg, config))
+                .isInstanceOf(GitWitException.class)
+                .hasMessageContaining(
+                    i18nService.getMessage("commit.validation.scope_required")
+                );
+        }
+
+        @Test
+        void shouldFailWhenScopeIsBlankAndRequired() {
+            GitWitConfig config = TestUtils.loadDefaultConfig();
+            config.getScope().setRequired(true);
+
+            CommitMessage msg = new CommitMessage(
+                "feat",
+                "   ",
+                "desc",
+                null,
+                false,
+                null,
+                null,
+                null
+            );
+
+            assertThatThrownBy(() -> service.validate(msg, config))
+                .isInstanceOf(GitWitException.class)
+                .hasMessageContaining(
+                    i18nService.getMessage("commit.validation.scope_required")
+                );
+        }
+
+        @Test
+        void shouldPassWhenScopeIsNotRequiredAndNull() {
+            GitWitConfig config = TestUtils.loadDefaultConfig();
+            config.getScope().setRequired(false);
+
+            CommitMessage msg = new CommitMessage(
+                "feat",
+                null,
+                "description",
+                null,
+                false,
+                null,
+                null,
+                null
+            );
+
+            assertThatNoException()
+                .isThrownBy(() -> service.validate(msg, config));
+        }
+    }
+
+    @Nested
+    @DisplayName("Short description length validation")
+    class ShortDescriptionLengthValidation {
+
+        @Test
+        void shouldFailWhenShortDescriptionIsTooShort() {
+            GitWitConfig config = TestUtils.loadDefaultConfig();
+            config.getShortDescription().setMinLength(10);
+
+            CommitMessage msg = new CommitMessage(
+                "feat",
+                null,
+                "short",
+                null,
+                false,
+                null,
+                null,
+                null
+            );
+
+            assertThatThrownBy(() -> service.validate(msg, config))
+                .isInstanceOf(GitWitException.class)
+                .hasMessageContaining(
+                    i18nService.getMessage(
+                        "commit.validation.short_description_too_short",
+                        config.getShortDescription().getMinLength()
+                    )
+                );
+        }
+
+        @Test
+        void shouldFailWhenShortDescriptionIsTooLong() {
+            GitWitConfig config = TestUtils.loadDefaultConfig();
+            config.getShortDescription().setMaxLength(10);
+
+            CommitMessage msg = new CommitMessage(
+                "feat",
+                null,
+                "this description is way too long",
+                null,
+                false,
+                null,
+                null,
+                null
+            );
+
+            assertThatThrownBy(() -> service.validate(msg, config))
+                .isInstanceOf(GitWitException.class)
+                .hasMessageContaining(
+                    i18nService.getMessage(
+                        "commit.validation.short_description_too_long",
+                        config.getShortDescription().getMaxLength()
+                    )
+                );
+        }
     }
 }

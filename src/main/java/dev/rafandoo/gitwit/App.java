@@ -158,7 +158,11 @@ public class App extends BaseCommand {
                 .userObject();
 
             if (App.isDebug()) {
-                configureDebugLogging();
+                if (EnvironmentUtil.isTesting()) {
+                    System.out.println("Debug mode enabled - showing debug info");
+                } else {
+                    configureDebugLogging();
+                }
 
                 TerminalService terminalService = injector.getInstance(TerminalService.class);
                 MessageService messageService = injector.getInstance(MessageService.class);

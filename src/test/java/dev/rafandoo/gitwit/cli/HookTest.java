@@ -3,6 +3,7 @@ package dev.rafandoo.gitwit.cli;
 import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
+import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.service.I18nService;
@@ -51,7 +52,7 @@ class HookTest {
 
         try (MockedConstruction<CommitWizard> mockWizard = mockConstruction(
             CommitWizard.class,
-            (wizardMock, context) -> when(wizardMock.run(any())).thenReturn(message)
+            (wizardMock, context) -> when(wizardMock.run(any(GitWitConfig.class))).thenReturn(message)
         )) {
             String[] args = {
                 "hook",
@@ -84,7 +85,7 @@ class HookTest {
 
         try (MockedConstruction<CommitWizard> mockWizard = mockConstruction(
             CommitWizard.class,
-            (wizardMock, context) -> when(wizardMock.run(any())).thenReturn(message)
+            (wizardMock, context) -> when(wizardMock.run(any(GitWitConfig.class))).thenReturn(message)
         )) {
             try (MockedStatic<Files> filesMock = mockStatic(Files.class, CALLS_REAL_METHODS)) {
 
