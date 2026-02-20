@@ -150,7 +150,7 @@ public record CommitMessage(
         String subject;
 
         Pattern pattern = Pattern.compile(
-            "^(?<type>\\w+|:\\w+:)\\s?(?:\\((?<scope>[^)]+)\\))?(?<breaking>!)?:?\\s*(?<desc>.*)$"
+            "^(?<type>\\w+|:\\w+:)\\s?(?:\\((?<scope>[^)]*)\\))?(?<breaking>!)?:?\\s*(?<desc>.*)$"
         );
 
         Matcher matcher = pattern.matcher(header);
@@ -177,12 +177,12 @@ public record CommitMessage(
         }
 
         return new ParsedCommit(
-            type,
-            scope,
-            subject,
-            description,
+            normalize(type),
+            normalize(scope),
+            normalize(subject),
+            normalize(description),
             breaking,
-            breakingDesc
+            normalize(breakingDesc)
         );
     }
 
@@ -239,5 +239,15 @@ public record CommitMessage(
             null,
             null
         );
+    }
+
+    /**
+     * Normalizes a string by trimming whitespace and converting empty values to null.
+     *
+     * @param value the string to normalize.
+     * @return the normalized string, or null if the input is null or blank.
+     */
+    private static String normalize(String value) {
+        return StringUtils.isNullOrBlank(value) ? null : value.trim();
     }
 }

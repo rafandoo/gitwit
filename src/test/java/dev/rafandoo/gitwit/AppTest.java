@@ -81,4 +81,18 @@ class AppTest {
                 () -> App.main(args)
             );
     }
+
+    @Test
+    void shouldShowDebugInfoWhenDebugOptionProvided() throws Exception {
+        String[] args = {
+            "--debug"
+        };
+
+        String outText = tapSystemOut(() -> {
+            int exitCode = TestUtils.executeCommand(args);
+            assertThat(exitCode).isEqualTo(0);
+        });
+
+        assertThat(outText).contains("Debug mode enabled");
+    }
 }

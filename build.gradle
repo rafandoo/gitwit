@@ -95,6 +95,7 @@ def jacocoExclusions = [
     '**/dev/rafandoo/gitwit/service/TerminalService.class',
     '**/dev/rafandoo/gitwit/service/git/**',
     '**/dev/rafandoo/gitwit/util/**',
+    '**/dev/rafandoo/gitwit/App.class',
 ]
 
 jacoco {

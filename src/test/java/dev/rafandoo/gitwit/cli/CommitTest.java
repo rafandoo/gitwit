@@ -3,6 +3,7 @@ package dev.rafandoo.gitwit.cli;
 import com.google.inject.Inject;
 import dev.rafandoo.gitwit.TestUtils;
 import dev.rafandoo.gitwit.cli.wiz.CommitWizard;
+import dev.rafandoo.gitwit.config.GitWitConfig;
 import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.entity.CommitMessage;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
@@ -122,7 +123,7 @@ class CommitTest {
 
         try (MockedConstruction<CommitWizard> mockWizard = mockConstruction(
             CommitWizard.class,
-            (wizardMock, context) -> when(wizardMock.run(any())).thenReturn(message)
+            (wizardMock, context) -> when(wizardMock.run(any(GitWitConfig.class))).thenReturn(message)
         )) {
             RevCommit commit = CommitMockFactory.mockCommit("abc123", "feat (core): Add new feature Z");
             doReturn(commit)

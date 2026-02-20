@@ -49,7 +49,7 @@ class ChangelogTest {
 
         doReturn(mockCommits)
             .when(this.gitRepositoryService)
-            .listCommitsBetween(any(), any());
+            .listCommitsBetween(anyString(), anyString());
 
         doReturn(tempDir)
             .when(this.gitService)
@@ -79,7 +79,7 @@ class ChangelogTest {
 
         doReturn(mockCommits)
             .when(this.gitRepositoryService)
-            .listCommitsBetween(any(), any());
+            .listCommitsBetween(anyString(), anyString());
 
         String[] args = {
             "changelog",

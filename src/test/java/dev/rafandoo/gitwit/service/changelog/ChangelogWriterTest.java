@@ -68,4 +68,49 @@ class ChangelogWriterTest {
         assertThat(fileContent)
             .isEqualTo("existing content\n\nnew content");
     }
+
+    @Test
+    void shouldUseCustomFilePathWhenConfiguredPathIsFile() throws IOException {
+        Path customFile = this.repoDir.resolve("my-changelog.md");
+
+        GitWitConfig config = new GitWitConfig();
+        config.getChangelog().setFilepath(customFile.toString());
+
+        Path result = this.writer.write("custom content", false, config);
+
+        assertThat(result).isEqualTo(customFile);
+        assertThat(Files.readString(result)).isEqualTo("custom content");
+    }
+
+    @Test
+    void shouldResolveDefaultFilenameInsideCustomDirectory() throws IOException {
+        Path customDir = this.repoDir.resolve("docs");
+        Files.createDirectories(customDir);
+
+        GitWitConfig config = new GitWitConfig();
+        config.getChangelog().setFilepath(customDir.toString());
+
+        Path result = this.writer.write("dir content", false, config);
+
+        Path expected = customDir.resolve(
+            ConfigPaths.CHANGELOG_FILE.get().asString()
+        );
+
+        assertThat(result).isEqualTo(expected);
+        assertThat(Files.readString(expected)).isEqualTo("dir content");
+    }
+
+    @Test
+    void shouldUseConfiguredPathWhenItExistsButIsNotDirectory() throws IOException {
+        Path customFile = this.repoDir.resolve("already-exists.md");
+        Files.writeString(customFile, "old");
+
+        GitWitConfig config = new GitWitConfig();
+        config.getChangelog().setFilepath(customFile.toString());
+
+        Path result = this.writer.write("new", false, config);
+
+        assertThat(result).isEqualTo(customFile);
+        assertThat(Files.readString(customFile)).isEqualTo("new");
+    }
 }

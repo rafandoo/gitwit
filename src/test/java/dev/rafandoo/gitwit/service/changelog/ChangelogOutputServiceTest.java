@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -94,5 +95,14 @@ class ChangelogOutputServiceTest {
             .hasMessage(this.i18nService.getMessage("changelog.error.write"));
 
         verify(this.messageService, never()).success(any(), any());
+    }
+
+    @Test
+    void shouldWriteChangelogToStdoutSuccessfully() {
+        assertThatNoException()
+            .isThrownBy(() -> this.service.output("content", false, false, new GitWitConfig(), true));
+
+        verifyNoInteractions(this.writer);
+        verifyNoInteractions(this.messageService);
     }
 }
