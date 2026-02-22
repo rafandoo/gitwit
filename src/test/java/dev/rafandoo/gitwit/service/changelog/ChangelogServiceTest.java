@@ -245,7 +245,8 @@ class ChangelogServiceTest {
                 config,
                 Map.of(),
                 Map.of("feat", "Features"),
-                null
+                null,
+                false
             );
 
             assertThat(result).isNull();
@@ -268,7 +269,8 @@ class ChangelogServiceTest {
                 config,
                 grouped,
                 Map.of("feat", "Features"),
-                null
+                null,
+                false
             );
 
             assertThat(changelog).isNotNull();
@@ -292,7 +294,8 @@ class ChangelogServiceTest {
                 config,
                 grouped,
                 Map.of("feat", "Features"),
-                null
+                null,
+                false
             );
 
             assertThat(result.breakingChanges()).isEmpty();
@@ -315,7 +318,8 @@ class ChangelogServiceTest {
                 config,
                 grouped,
                 Map.of("feat", "Features"),
-                null
+                null,
+                false
             ).otherChanges();
 
             assertThat(result).isEmpty();
