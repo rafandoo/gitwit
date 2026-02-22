@@ -63,7 +63,7 @@ public final class ChangelogService {
 
         this.messageService.debug("changelog.resolved_subtitle", subtitle);
 
-        Changelog changelog = this.generate(config, grouped, types, subtitle);
+        Changelog changelog = this.generate(config, grouped, types, subtitle, options.getOutputOptions().isStdout());
         if (changelog == null) {
             return;
         }
@@ -136,11 +136,14 @@ public final class ChangelogService {
      * @param groupedByType a map of commit messages grouped by their types.
      * @param types         a map defining the types of commits to include in the changelog.
      * @param subtitle      an optional subtitle for the changelog.
+     * @param stdout       a boolean indicating whether the output is intended for standard output (console) or not.
      * @return the generated {@link Changelog} object, or {@code null} if no commits are available.
      */
-    public Changelog generate(GitWitConfig config, Map<String, List<CommitMessage>> groupedByType, Map<String, String> types, String subtitle) {
+    public Changelog generate(GitWitConfig config, Map<String, List<CommitMessage>> groupedByType, Map<String, String> types, String subtitle, boolean stdout) {
         if (groupedByType.isEmpty()) {
-            this.messageService.warn("changelog.warn.no_commits");
+            if (!stdout) {
+                this.messageService.warn("changelog.warn.no_commits");
+            }
             return null;
         }
 
