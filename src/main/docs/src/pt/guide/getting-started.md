@@ -3,7 +3,7 @@
 Se esta é sua primeira vez utilizando o GitWit, você está no lugar certo.
 Aqui vamos mostrar como instalar e começar a usar a ferramenta rapidamente.
 
-Para entender melhor o que é e para que serve, veja [O que é o GitWit?](./what-is.md).
+Para entender melhor o que é e para que serve, veja [O que é o GitWit?](what-is.md).
 
 ## 1. Pré‑requisitos
 
@@ -29,7 +29,8 @@ Se você não tem o Git instalado, consulte a página oficial:
 ## 2. Download do GitWit
 
 O GitWit está disponível para instalação nativa nos principais sistemas operacionais.
-Você pode obter os pacotes diretamente pela página de [Releases](https://github.com/rafandoo/gitwit/releases) no repositório no GitHub.
+Você pode obter os pacotes diretamente pela página de [Releases](https://github.com/rafandoo/gitwit/releases) no
+repositório no GitHub.
 
 Nos anexos de cada release você encontrará:
 
@@ -42,7 +43,8 @@ Para conferir a versão mais recente do GitWit clique [aqui](https://github.com/
 
 ::: info ⚠ Importante
 O GitWit é desenvolvido em Java, portanto requer o Java Runtime Environment (JRE) para funcionar.  
-Para simplificar a instalação, todos os pacotes já acompanham uma versão mínima do JRE, não sendo necessário instalá-lo separadamente.  
+Para simplificar a instalação, todos os pacotes já acompanham uma versão mínima do JRE, não sendo necessário instalá-lo
+separadamente.  
 :::
 
 ## 3. Executando o GitWit
@@ -55,9 +57,7 @@ gitwit -h
 
 Esse comando exibirá a ajuda do GitWit, listando todos os comandos disponíveis e suas opções.
 
-Para consultar a documentação detalhada de cada comando, acesse: [Referência de Comandos](./../reference/commands.md).
-
 ## 4. Próximos passos
 
-- [Configuração do GitWit](./../reference/configuration.md) – aprenda a personalizar seu ambiente.
-- [Comandos disponíveis](./../reference/commands.md) – documentação técnica detalhada.
+- [Configuração do GitWit](../reference/configuration/overview.md) – aprenda a personalizar seu ambiente.
+- [Comandos disponíveis](../reference/command/overview.md) – documentação técnica detalhada.

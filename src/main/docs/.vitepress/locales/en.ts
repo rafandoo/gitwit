@@ -1,15 +1,10 @@
-import { defineConfig } from 'vitepress';
-import { getVersion } from '../utils';
+import { defineConfig } from 'vitepress'
+import { getVersion, withBase } from '../utils'
 
 export default defineConfig({
   description: 'An application to help you with commit standardization.',
-  lang: 'en-US',
+
   themeConfig: {
-    logo: {
-      src: '/logo.webp',
-      innerWidth: 50,
-      height: 50,
-    },
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/getting-started' },
@@ -26,36 +21,59 @@ export default defineConfig({
     sidebar: [
       {
         text: 'Guide',
-        base: '/guide',
-        items: [
+        items: withBase('/guide', [
           { text: 'What is GitWit?', link: '/what-is' },
           { text: 'Getting Started', link: '/getting-started' }
-        ]
+        ]),
       },
       {
         text: 'Reference',
-        base: '/reference',
-        items: [
-          { text: 'Configuration', link: '/configuration' },
-          { text: 'Commands', link: '/commands' },
-        ]
-      },
-      {
-        text: 'Examples',
-        base: '/examples',
-        items: [
-          { text: 'Basic Example', link: '/basic-example' },
-          { text: 'Emojis', link: '/emoji-example' },
-        ],
+        items: withBase('/reference', [
+          {
+            text: 'Configuration',
+            items: withBase('/configuration', [
+              { text: 'Overview', link: '/overview' },
+              {
+                text: 'Commit', items: withBase('/commit', [
+                  { text: 'Commit Types', link: '/types' },
+                  { text: 'Scope', link: '/scope' },
+                  { text: 'Short Description', link: '/short-description' },
+                  { text: 'Long Description', link: '/long-description' },
+                  { text: 'Breaking Changes', link: '/breaking-changes' }
+                ])
+              },
+              { text: 'Lint', link: '/lint' },
+              { text: 'Changelog', link: '/changelog' },
+              {
+                text: 'Examples',
+                items: withBase('/examples', [
+                  { text: 'Basic Example', link: '/basic-example' },
+                  { text: 'Emojis', link: '/emoji-example' },
+                ]),
+              }
+            ]),
+          },
+          {
+            text: 'Commands',
+            items: withBase('/command', [
+              { text: 'Overview', link: '/overview' },
+              { text: 'Main Command', link: '/gitwit' },
+              { text: 'Commit', link: '/commit' },
+              { text: 'Lint', link: '/lint' },
+              { text: 'Changelog', link: '/changelog' },
+              { text: 'Install', link: '/install' },
+              { text: 'Uninstall', link: '/uninstall' },
+            ]),
+          },
+        ]),
       },
       {
         text: 'Other',
-        base: '/other',
         collapsed: true,
-        items: [
+        items: withBase('/other', [
           { text: 'Changelog', link: '/changelog' },
           { text: 'License', link: '/license' },
-        ],
+        ]),
       },
     ],
 

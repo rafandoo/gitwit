@@ -8,12 +8,16 @@
 </p>
 
 
-**GitWit** é uma aplicação de linha de comando escrita em **Java**, projetada para ajudar desenvolvedores a manterem seus repositórios Git organizados, coerentes e padronizados.  
-Ela atua como um **assistente inteligente de commits**, oferecendo uma interface interativa para criação de mensagens de commit, geração de changelogs e automação de convenções como o padrão [Conventional Commits](https://www.conventionalcommits.org/).
+**GitWit** é uma aplicação de linha de comando escrita em **Java**, projetada para ajudar desenvolvedores a manterem
+seus repositórios Git organizados, coerentes e padronizados.  
+Ela atua como um **assistente inteligente de commits**, oferecendo uma interface interativa para criação de mensagens de
+commit, geração de changelogs e automação de convenções como o
+padrão [Conventional Commits](https://www.conventionalcommits.org/).
 
 ## 🧠 O que a aplicação faz?
 
-O GitWit intercepta ou auxilia comandos Git relacionados a commit e changelog e executa ações baseadas em configuração do projeto. Ele:
+O GitWit intercepta ou auxilia comandos Git relacionados a commit e changelog e executa ações baseadas em configuração
+do projeto. Ele:
 
 - Fornece um **wizard interativo** para criação de commits (com suporte a tipos, escopos e mensagens detalhadas).
 - Valida automaticamente mensagens de commit conforme regras definidas (ex: prefixos como `feat`, `fix`, `docs`, etc.).
@@ -25,7 +29,8 @@ O GitWit intercepta ou auxilia comandos Git relacionados a commit e changelog e 
 GitWit é ideal para:
 
 - Desenvolvedores que querem padronizar commits e changelogs em projetos pessoais ou de equipe.
-- Equipes que seguem guidelines como **Conventional Commits**, **SemVer**, ou integração com pipelines que dependem disso.
+- Equipes que seguem guidelines como **Conventional Commits**, **SemVer**, ou integração com pipelines que dependem
+  disso.
 - Projetos open-source que desejam facilitar contribuições externas mantendo consistência.
 
 ## 🎯 Por que usar o GitWit?
