@@ -6,10 +6,12 @@ import dev.rafandoo.gitwit.di.GuiceExtension;
 import dev.rafandoo.gitwit.mock.CommitMockFactory;
 import dev.rafandoo.gitwit.service.git.GitRepositoryService;
 import dev.rafandoo.gitwit.service.git.GitService;
+import dev.rafandoo.gitwit.util.ClipboardUtil;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
 
 import java.nio.file.*;
 import java.util.Arrays;
@@ -49,7 +51,7 @@ class ChangelogTest {
 
         doReturn(mockCommits)
             .when(this.gitRepositoryService)
-            .listCommitsBetween(anyString(), anyString());
+            .resolveCommits(anyString(), any(), any(), anyList());
 
         doReturn(tempDir)
             .when(this.gitService)
@@ -79,7 +81,7 @@ class ChangelogTest {
 
         doReturn(mockCommits)
             .when(this.gitRepositoryService)
-            .listCommitsBetween(anyString(), anyString());
+            .resolveCommits(any(), any(), any(), any());
 
         String[] args = {
             "changelog",
@@ -87,11 +89,17 @@ class ChangelogTest {
             "--copy"
         };
 
-        AtomicInteger exitCode = new AtomicInteger();
-        String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
+        try (MockedStatic<ClipboardUtil> clipboardMock = mockStatic(ClipboardUtil.class)) {
+            clipboardMock.when(() -> ClipboardUtil.copyToClipboard(anyString()))
+                .thenReturn(true);
 
-        assertThat(exitCode.get()).isEqualTo(0);
-        assertThat(errText).isBlank();
+            AtomicInteger exitCode = new AtomicInteger();
+            String errText = tapSystemErr(() -> exitCode.set(TestUtils.executeCommand(args)));
+
+            assertThat(errText).isBlank();
+            assertThat(exitCode.get()).isEqualTo(0);
+            clipboardMock.verify(() -> ClipboardUtil.copyToClipboard(anyString()));
+        }
     }
 
     @Test
