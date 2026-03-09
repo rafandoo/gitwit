@@ -9,7 +9,6 @@ import dev.rafandoo.gitwit.util.EmojiUtil;
 import lombok.AllArgsConstructor;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -62,31 +61,29 @@ public final class GitRepositoryService {
     }
 
     /**
-     * Returns the list of commits between two references (inclusive).
+     * Returns the list of commits between two references.
      *
      * @param from any rev‑spec accepted by Git (tag, branch, hash).
      * @param to   any rev‑spec accepted by Git (tag, branch, hash).
      * @return list of {@link RevCommit}, inclusive from and to (if reachable).
      */
-    // TODO: private
-    public List<RevCommit> listCommitsBetween(String from, String to) {
+    private List<RevCommit> listCommitsBetween(String from, String to) {
         return this.withRepo((git, repo, walk) -> {
             try {
                 walk.setRetainBody(true);
                 List<RevCommit> commits = new ArrayList<>();
 
-                // Range between `from` and `to`, inclusive
                 ObjectId fromId = this.resolveCommitId(repo, walk, from);
                 ObjectId toId = this.resolveCommitId(repo, walk, to);
 
-                // Add intermediate commits (excluding from)
-                for (RevCommit commit : git.log().addRange(fromId, toId).call()) {
-                    commits.add(commit);
-                }
+                RevCommit fromCommit = walk.parseCommit(fromId);
+                RevCommit toCommit = walk.parseCommit(toId);
 
-                // Add 'from' explicitly (inclusive)
-                if (!this.isTag(repo, walk, from)) {
-                    commits.add(walk.parseCommit(fromId));
+                walk.markStart(toCommit);
+                walk.markUninteresting(fromCommit);
+
+                for (RevCommit commit : walk) {
+                    commits.add(commit);
                 }
 
                 return commits;
@@ -94,10 +91,6 @@ public final class GitRepositoryService {
                 throw new GitWitException("git.repo.error.missing_object", e);
             } catch (IOException e) {
                 throw new GitWitException("git.error.init_failed", e);
-            } catch (NoHeadException e) {
-                throw new GitWitException("git.repo.error.no_head");
-            } catch (GitAPIException e) {
-                throw new GitWitException("git.error.api_exception", e);
             }
         });
     }
@@ -266,24 +259,6 @@ public final class GitRepositoryService {
         } catch (GitAPIException e) {
             throw new GitWitException("git.error.api_exception", e);
         }
-    }
-
-    /**
-     * Checks if the given rev-spec resolves to a tag in the repository.
-     *
-     * @param repo    the Git repository.
-     * @param walk    the {@link RevWalk} instance for parsing objects.
-     * @param revSpec the rev-spec to check.
-     * @return {@code true} if the rev-spec is a tag, {@code false} otherwise.
-     * @throws IOException if there is an error resolving the rev-spec or parsing the object.
-     */
-    private boolean isTag(Repository repo, RevWalk walk, String revSpec) throws IOException {
-        ObjectId id = repo.resolve(revSpec);
-        if (id == null) {
-            return false;
-        }
-        RevObject obj = walk.parseAny(id);
-        return obj instanceof RevTag;
     }
 
     /**
