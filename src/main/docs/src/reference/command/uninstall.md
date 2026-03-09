@@ -13,13 +13,13 @@ gitwit uninstall [-g] [-hk]
 
 | Option         | Description                                                                       |
 |----------------|-----------------------------------------------------------------------------------|
-| `-hk, --hook`  | remove the `prepare-commit-msg` hook configured in the current repository.        |
+| `-hk, --hook`  | Remove the `prepare-commit-msg` hook configured in the current repository.        |
 | `-g, --global` | Remove GitWit global alias, making the command unavailable in other repositories. |
 
 <br>
 
 ::: warning ⚠️ Warning:
-The `--hook` and `-global` options cannot **be used together.
+The `--hook` and `--global` options cannot **be used together.
 :::
 
 ## Examples

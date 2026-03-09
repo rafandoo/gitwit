@@ -20,7 +20,7 @@ gitwit install [-fg] [-hk]
 <br>
 
 ::: warning ⚠️ Warning:
-The `--hook` and `-global` options cannot be used at the same time.
+The `--hook` and `--global` options cannot be used at the same time.
 :::
 
 ## Examples

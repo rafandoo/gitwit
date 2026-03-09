@@ -65,11 +65,11 @@ changelog:
 
 As seguintes variáveis podem ser utilizadas em qualquer template:
 
-- `{type}` — tipo do commit (ex.: `feat`, `fix`)
-- `{scope}` — escopo informado no commit
-- `{description}` — descrição curta do commit
-- `{hash}` — hash completo do commit
-- `{shortHash}` — versão curta do hash (primeiros 7 caracteres)
-- `{breakingChanges}` — indicador de breaking change
-- `{author}` — autor do commit
-- `{date}` — data e hora do commit
+- `{type}` - commit type (e.g. `feat`, `fix`)
+- `{scope}` - scope informed at commit
+- `{description}` - short description of the commit
+- `{hash}` - complete commit hash
+- `{shortHash}` - short hash version (first 7 characters)
+- `{breakingChanges}` - breaking change indicator
+- `{author}` - commit author
+- `{date}` - commit date and time

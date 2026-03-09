@@ -13,6 +13,6 @@ lint:
     - Pull request
 ```
 
-| Field     | Required | Type | Standard                                                 | Description                                                                                                                                                                                      |
-|-----------|----------|------|----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ignored` | No       | List | `Merge`, `Revert`, `Pull request`, `fixup! `, `squash! ` | List of patterns applied to commit messages during linting. If the commit message contains any of the defined values, the commit will be ignored and won’t pass through the validations of lint. |
+| Field     | Required | Type | Default                                                | Description                                                                                                                                                                                      |
+|-----------|----------|------|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `ignored` | No       | List | `Merge`, `Revert`, `Pull request`, `fixup!`, `squash!` | List of patterns applied to commit messages during linting. If the commit message contains any of the defined values, the commit will be ignored and won’t pass through the validations of lint. |

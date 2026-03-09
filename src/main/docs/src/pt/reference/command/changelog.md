@@ -21,7 +21,7 @@ gitwit changelog [[-a] [-s=<subtitle> | -n] [-c | -S] [-l | --for-tag=<forTag>] 
 | `-S, --stdout`       | Exibe o changelog diretamente no terminal, sem salvar em arquivo.                                                                     |
 | `-l, --last-tag`     | Utiliza a última tag do repositório como ponto inicial para geração do changelog.                                                     |
 | `--for-tag=<forTag>` | Utiliza a tag informada como ponto inicial para geração do changelog.                                                                 |
-| `-M --major`         | Incrementa a versão **major** a partir da última tag e gera o changelog para a nova versão.                                           |
+| `-M, --major`        | Incrementa a versão **major** a partir da última tag e gera o changelog para a nova versão.                                           |
 | `-m, --minor`        | Incrementa a versão **minor** a partir da última tag e gera o changelog para a nova versão.                                           |
 | `-p, --patch`        | Incrementa a versão **patch** a partir da última tag e gera o changelog para a nova versão.                                           |
 | `<revSpec>`          | Especificação de revisão do Git utilizada como base para geração. Pode ser um commit, branch, tag ou intervalo no formato `from..to`. |

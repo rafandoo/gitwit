@@ -1,7 +1,7 @@
 # GitWit Configuration
 
 GitWit uses a configuration file called `.gitwit`, located in the directory
-**root of the project** - same as where the `.git`directory is located.
+**root of the project** - same as where the `.git` directory is located.
 
 This file defines:
 

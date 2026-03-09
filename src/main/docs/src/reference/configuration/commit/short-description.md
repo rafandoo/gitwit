@@ -12,8 +12,8 @@ shortDescription:
   maxLength: 70
 ```
 
-| Field         | Required | Type   | Standard | Description                                                                                                                              |
-|---------------|----------|--------|----------|------------------------------------------------------------------------------------------------------------------------------------------|
-| `description` | No       | String | -        | Text displayed as auxiliary instruction in the interactive wizard (_wizard_), guiding the user on how to fill out the short description. |
-| `minLength`   | No       | Int    | 1        | Set the minimum number of characters allowed for the short description of the commit.                                                    |
-| `maxLength`   | No       | Int    | 72       | Sets the maximum character limit allowed for short description, helping to keep messages concise and readable in history.                |
+| Field         | Required | Type   | Default | Description                                                                                                                              |
+|---------------|----------|--------|---------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `description` | No       | String | -       | Text displayed as auxiliary instruction in the interactive wizard (_wizard_), guiding the user on how to fill out the short description. |
+| `minLength`   | No       | Int    | 1       | Set the minimum number of characters allowed for the short description of the commit.                                                    |
+| `maxLength`   | No       | Int    | 72      | Sets the maximum character limit allowed for short description, helping to keep messages concise and readable in history.                |

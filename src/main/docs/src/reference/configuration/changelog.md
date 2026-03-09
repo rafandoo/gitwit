@@ -19,17 +19,17 @@ changelog:
   showOtherTypes: true
   showBreakingChanges: true
   ignored:
-    - cry
+    - chore
 ```
 
-| Field                 | Required | Type    | Standard                                                 | Description                                                                                                                                                                                       |
-|-----------------------|----------|---------|----------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `title`               | No       | String  | "Changelog"                                              | Title used at the top of generated changelog.                                                                                                                                                     |
-| `filepath`            | No       | String  | "CHANGELOG.md"                                           | File path where the changelog will be created or updated. Can be relative to the project root.                                                                                                    |
-| `types`               | Yes      | Map     | -                                                        | Define which types of commits will appear as changelog sections and the displayed name for each section.                                                                                          |
-| `showOtherTypes`      | No       | Boolean | true                                                     | When enabled, includes commits whose type is not defined in types, grouping them in a separate section.                                                                                           |
-| `showBreakingChanges` | No       | Boolean | false                                                    | Adds a specific section for commits marked as _breaking changes_                                                                                                                                  |
-| `ignored`             | No       | List    | `Merge`, `Revert`, `Pull request`, `fixup! `, `squash! ` | List of patterns used to filter commits during changelog generation. If the full commit message contains any of the defined values, the commit will be ignored and won’t appear in the changelog. |
+| Field                 | Required | Type    | Default                                                | Description                                                                                                                                                                                       |
+|-----------------------|----------|---------|--------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `title`               | No       | String  | "Changelog"                                            | Title used at the top of generated changelog.                                                                                                                                                     |
+| `filepath`            | No       | String  | "CHANGELOG.md"                                         | File path where the changelog will be created or updated. Can be relative to the project root.                                                                                                    |
+| `types`               | Yes      | Map     | -                                                      | Define which types of commits will appear as changelog sections and the displayed name for each section.                                                                                          |
+| `showOtherTypes`      | No       | Boolean | true                                                   | When enabled, includes commits whose type is not defined in types, grouping them in a separate section.                                                                                           |
+| `showBreakingChanges` | No       | Boolean | false                                                  | Adds a specific section for commits marked as _breaking changes_                                                                                                                                  |
+| `ignored`             | No       | List    | `Merge`, `Revert`, `Pull request`, `fixup!`, `squash!` | List of patterns used to filter commits during changelog generation. If the full commit message contains any of the defined values, the commit will be ignored and won’t appear in the changelog. |
 
 ## Display Templates
 

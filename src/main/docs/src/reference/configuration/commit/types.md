@@ -24,6 +24,6 @@ types:
 
 - Use short names and goals (preferably up to 10 characters).
 - Keep the types consistent among all project contributors.
-- Prefer terms that are widely recognized, such as `feat', `fix', `docs', `test' and `refactor', to make it easier to
+- Prefer terms that are widely recognized, such as `feat`, `fix`, `docs`, `test` and `refactor`, to make it easier to
   read the history of commits.
 :::
