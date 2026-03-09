@@ -17,3 +17,17 @@
 .name.clip {
     font-family: 'Golos', sans-serif;
 }
+
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: rgba(150, 150, 150, 0.4);
+    border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(150, 150, 150, 0.7);
+}

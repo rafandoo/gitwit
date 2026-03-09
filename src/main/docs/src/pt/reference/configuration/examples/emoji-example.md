@@ -1,10 +1,13 @@
 # Exemplo de configuração com emojis
 
-Além do formato tradicional do Conventional Commits, há uma abordagem popular que utiliza emojis para classificar e dar mais expressividade às mensagens de commit.
+Além do formato tradicional do Conventional Commits, há uma abordagem popular que utiliza emojis para classificar e dar
+mais expressividade às mensagens de commit.
 
-Essa prática facilita a leitura e torna o histórico mais visual, permitindo identificar rapidamente o tipo de alteração feita — mesmo sem ler toda a descrição.
+Essa prática facilita a leitura e torna o histórico mais visual, permitindo identificar rapidamente o tipo de alteração
+feita — mesmo sem ler toda a descrição.
 
-Uma das convenções mais conhecidas é o [Gitmoji](https://gitmoji.dev/), que mantém uma lista padronizada de emojis e seus respectivos significados.
+Uma das convenções mais conhecidas é o [Gitmoji](https://gitmoji.dev/), que mantém uma lista padronizada de emojis e
+seus respectivos significados.
 
 O GitWit é totalmente compatível com esse estilo e permite configurá-lo facilmente.
 

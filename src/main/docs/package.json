@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "gitwit-docs",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "docs:dev": "vitepress dev",
@@ -9,6 +9,7 @@
     "docs:preview": "vitepress preview"
   },
   "devDependencies": {
-    "vitepress": "^1.6.3"
+    "@types/node": "25.3.0",
+    "vitepress": "1.6.4"
   }
 }

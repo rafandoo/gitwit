@@ -3,7 +3,7 @@
 If this is your first time using GitWit, you've come to the right place.
 Here we'll show you how to install and get started quickly.
 
-To better understand what it is and what it's for, see [What is GitWit?](./what-is.md).
+To better understand what it is and what it's for, see [What is GitWit?](what-is.md).
 
 ## 1. Prerequisites
 
@@ -55,9 +55,7 @@ gitwit -h
 
 This command will display GitWit help, listing all available commands and their options.
 
-For detailed documentation for each command, visit [Command Reference](./../reference/commands.md).
-
 ## 4. Next Steps
 
-- [GitWit Configuration](./../reference/configuration.md) – learn how to customize your environment.
-- [Available Commands](./../reference/commands.md) – detailed technical documentation.
+- [GitWit Configuration](../reference/configuration/overview.md) – learn how to customize your environment.
+- [Available Commands](../reference/command/overview.md) – detailed technical documentation.

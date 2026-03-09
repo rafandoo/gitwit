@@ -1,15 +1,10 @@
-import { defineConfig } from 'vitepress';
-import { getVersion } from '../utils';
+import { defineConfig } from 'vitepress'
+import { getVersion, withBase } from '../utils'
 
 export default defineConfig({
   description: 'Uma aplicação para ajudar você com a padronização de commits.',
-  lang: 'pt-BR',
+
   themeConfig: {
-    logo: {
-      src: '/logo.webp',
-      innerWidth: 50,
-      height: 50,
-    },
     nav: [
       { text: 'Home', link: '/pt' },
       { text: 'Guia', link: '/pt/guide/getting-started' },
@@ -26,36 +21,59 @@ export default defineConfig({
     sidebar: [
       {
         text: 'Guia',
-        base: '/pt/guide',
-        items: [
+        items: withBase('/pt/guide', [
           { text: 'O que é GitWit?', link: '/what-is' },
           { text: 'Primeiros passos', link: '/getting-started' },
-        ],
+        ]),
       },
       {
         text: 'Referência',
-        base: '/pt/reference',
-        items: [
-          { text: 'Configuração', link: '/configuration' },
-          { text: 'Comandos', link: '/commands' },
-        ],
-      },
-      {
-        text: 'Exemplos',
-        base: '/pt/examples',
-        items: [
-            { text: 'Exemplo básico', link: '/basic-example' },
-            { text: 'Emojis', link: '/emoji-example' },
-        ],
+        items: withBase('/pt/reference', [
+          {
+            text: 'Configuração',
+            items: withBase('/configuration', [
+              { text: 'Visão geral', link: '/overview' },
+              {
+                text: 'Commit', items: withBase('/commit', [
+                  { text: 'Tipos de commit', link: '/types' },
+                  { text: 'Escopo', link: '/scope' },
+                  { text: 'Descrição curta', link: '/short-description' },
+                  { text: 'Descrição longa', link: '/long-description' },
+                  { text: 'Breaking changes', link: '/breaking-changes' }
+                ])
+              },
+              { text: 'Lint', link: '/lint' },
+              { text: 'Changelog', link: '/changelog' },
+              {
+                text: 'Exemplos',
+                items: withBase('/examples', [
+                  { text: 'Exemplo básico', link: '/basic-example' },
+                  { text: 'Emojis', link: '/emoji-example' },
+                ]),
+              },
+            ]),
+          },
+          {
+            text: 'Comandos',
+            items: withBase('/command', [
+              { text: 'Visão geral', link: '/overview' },
+              { text: 'Comando principal', link: '/gitwit' },
+              { text: 'Commit', link: '/commit' },
+              { text: 'Lint', link: '/lint' },
+              { text: 'Changelog', link: '/changelog' },
+              { text: 'Install', link: '/install' },
+              { text: 'Uninstall', link: '/uninstall' },
+            ]),
+          },
+        ]),
       },
       {
         text: 'Outros',
-        base: '/pt/other',
         collapsed: true,
-        items: [
+        items: withBase('/pt/other', [
           { text: 'Changelog', link: '/changelog' },
           { text: 'Licença', link: '/license' },
-        ],
+        ]),
       },
     ],
 
@@ -133,4 +151,4 @@ export default defineConfig({
       linkLabel: 'Voltar para a página inicial',
     },
   },
-});
+})

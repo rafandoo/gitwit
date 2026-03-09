@@ -153,7 +153,7 @@ public class GitWitConfig {
         /**
          * List of commit types to ignore when generating the changelog.
          */
-        private List<String> ignored = new ArrayList<>();
+        private List<String> ignored = List.of("Merge", "Revert", "Pull request", "fixup!", "squash!");
 
         /**
          * Formatting preferences for rendering each commit entry.

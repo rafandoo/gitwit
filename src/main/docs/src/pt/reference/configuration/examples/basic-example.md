@@ -1,6 +1,7 @@
 # Exemplo básico de configuração
 
-Abaixo está um exemplo básico de configuração do Gitwit, que pode ser usado como ponto de partida para personalizar seu fluxo de trabalho:
+Abaixo está um exemplo básico de configuração do Gitwit, que pode ser usado como ponto de partida para personalizar seu
+fluxo de trabalho:
 
 ```yaml
 types:
