@@ -65,6 +65,15 @@ export default defineConfig({
               { text: 'Uninstall', link: '/uninstall' },
             ]),
           },
+          {
+            text: 'Actions',
+            items: withBase('/actions', [
+              { text: 'Visão geral', link: '/overview' },
+              { text: 'Lint', link: '/lint' },
+              { text: 'Changelog', link: '/changelog' },
+              { text: 'Exemplos', link: '/examples' },
+            ]),
+          }
         ]),
       },
       {
