@@ -204,8 +204,11 @@ jobs:
       - name: Generate SHA256 files
         run: |
           cd dist
-          find . -type f ! -name "*.sha256" | while read file; do
-            sha256sum "$file" > "$file.sha256"
+
+          find . -type f ! -name "*.sha256" | while read -r file; do
+            filename=$(basename "$file")
+            hash=$(sha256sum "$file" | awk '{print $1}')
+            echo "$hash  $filename" > "$file.sha256"
           done
 
       - name: Create GitHub Release
