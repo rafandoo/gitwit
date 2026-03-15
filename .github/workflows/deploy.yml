@@ -26,12 +26,6 @@ jobs:
       - name: Run Build & Tests
         run: ./gradlew clean check --no-daemon
 
-      - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: build/reports/jacoco/test/jacocoTestReport.xml
-
   determine-release-type:
     name: Determine Release Type
     runs-on: ubuntu-latest
@@ -129,6 +123,55 @@ jobs:
           name: windows-installer
           path: build/packager/*.exe
 
+  build-docs:
+    name: Build Documentation Site
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set Up Bun Environment
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install Documentation Dependencies
+        run: bun install
+        working-directory: ./src/main/docs
+
+      - name: Build VitePress Documentation
+        run: |
+          bun run docs:build
+          touch .vitepress/dist/.nojekyll
+        working-directory: ./src/main/docs
+
+      - name: Upload Artifacts
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./src/main/docs/.vitepress/dist
+
+  deploy-docs:
+    name: Deploy to GitHub Pages
+    needs: build-docs
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Artifacts to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
   release:
     name: Publish Release Artifacts
     runs-on: ubuntu-latest
@@ -157,6 +200,13 @@ jobs:
 
       - name: Verify Release Artifacts
         run: ls -R dist
+
+      - name: Generate SHA256 files
+        run: |
+          cd dist
+          find . -type f ! -name "*.sha256" | while read file; do
+            sha256sum "$file" > "$file.sha256"
+          done
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

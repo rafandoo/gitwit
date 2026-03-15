@@ -1,0 +1,58 @@
+name: Code Coverage Report
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: coverage
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    name: Analyze Changes
+    runs-on: ubuntu-latest
+
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      docs: ${{ steps.filter.outputs.docs }}
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v6
+
+      - name: Analyze Changed Files
+        uses: dorny/paths-filter@v3.0.2
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'src/main/java/**'
+              - 'src/test/java/**'
+              - 'build.gradle'
+              - 'settings.gradle'
+              - '.github/**'
+
+  test-and-upload-coverage:
+    name: Test & Upload Coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v6
+
+      - name: Set Up Build Environment
+        uses: ./.github/actions/setup-env
+
+      - name: Run Build & Tests
+        run: ./gradlew clean check --no-daemon
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

@@ -14,9 +14,6 @@
   <a href="https://github.com/rafandoo/gitwit/actions/workflows/deploy.yml">
     <img src="https://img.shields.io/github/actions/workflow/status/rafandoo/gitwit/deploy.yml?colorA=363a4f&colorB=a6da95&style=for-the-badge&label=Build" alt="Build Status">
   </a>
-  <a href="https://github.com/rafandoo/gitwit/actions/workflows/docs.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/rafandoo/gitwit/docs.yml?colorA=363a4f&colorB=a6da95&style=for-the-badge&label=Docs" alt="Docs Status">
-  </a>
 
   <!-- Releases -->
   <a href="https://github.com/rafandoo/gitwit/releases">
