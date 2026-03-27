@@ -13,6 +13,8 @@ jobs:
   changes:
     name: Analyze Changes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
