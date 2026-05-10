@@ -154,7 +154,7 @@ jobs:
         working-directory: ./src/main/docs
 
       - name: Upload Artifacts
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./src/main/docs/.vitepress/dist
 
