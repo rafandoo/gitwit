@@ -9,7 +9,7 @@
     "docs:preview": "vitepress preview"
   },
   "devDependencies": {
-    "@types/node": "25.6.2",
+    "@types/node": "25.8.0",
     "vitepress": "1.6.4"
   }
 }
