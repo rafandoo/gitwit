@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set Up Build Environment
         uses: ./.github/actions/setup-env
@@ -58,7 +58,7 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set Up Build Environment
         uses: ./.github/actions/setup-env
@@ -81,7 +81,7 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set Up Build Environment
         uses: ./.github/actions/setup-env
@@ -106,7 +106,7 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set Up Build Environment
         uses: ./.github/actions/setup-env
@@ -131,7 +131,7 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
